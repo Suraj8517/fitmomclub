@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import yogaimage from "../../assets/home/hero.webp";
 import logo from "../../assets/home/fitmom.png";
 
-const SCROLL_LENGTH_VH = 420;
+const SCROLL_LENGTH_VH = 320;
 const SMOOTHING = 12; // higher = snappier catch-up, feels smoother
 
 // ── Grid layout constants ────────────────────────────────────────────────────
@@ -188,8 +188,6 @@ export default function AppInterfaceSection() {
             style={{
               width: 0,
               height: 0,
-              transform: `translateY(${riseY}px)`,
-              willChange: "transform",
             }}
           >
 
@@ -207,10 +205,10 @@ export default function AppInterfaceSection() {
             </div>
 
             {/* ── YOGA PHOTO ── */}
-            <Card v={yoga}>
+            <Card v={yoga} >
               <div
                 className="w-full h-full overflow-hidden bg-neutral-200"
-                style={{ borderRadius: yogaBR }}
+                style={{ borderRadius: yogaBR, }}
               >
                 <img src={yogaimage} className="w-full h-full object-cover object-top" />
                 <div className="w-full h-full bg-gradient-to-br from-green-300 via-teal-200 to-sky-300" />

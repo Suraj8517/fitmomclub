@@ -7,7 +7,7 @@ import demo3 from "../../assets/aboutus/demo2.webp"
 export default function AboutUsSecondSection() {
   return (
     <div>
-        <section className="w-full px-2 md:px-12 lg:px-20 pb-32">
+        <section className="w-full px-2 md:px-12 lg:px-20 pb-12">
         {/* ── Hero text ── */}
         <div className="max-w-5xl lg:max-w-5xl relative z-50 w-full mx-auto flex flex-col items-center md:px-8 px-2 md:pt-10 pb-6 md:pb-28 lg:flex-row lg:items-start lg:justify-between ">
           <h2
