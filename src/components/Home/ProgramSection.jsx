@@ -1,243 +1,344 @@
 import { useState } from "react";
 import {
-  Scissors, Stethoscope, Activity, Home,
-  ArrowRight, ChevronDown, ChevronUp, Heart,
-  ChevronLeft, ChevronRight,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Baby,
+  HeartPulse,
+  PersonStanding,
+  Stethoscope,
+  CheckCircle2,
 } from "lucide-react";
 
 const PREVIEW_COUNT = 4;
 
 const plans = [
   {
-    Icon: Scissors,
-    name: "Basic Care Plan",
-    price: "$49",
-    desc: "Enjoy a basic grooming session to keep your pet looking fresh and clean.",
-    color: { bg: "#dceedd", border: "#b5d9b8", accent: "#4a9b6f" },
+    Icon: Baby,
+    name: "Prenatal Conditions",
+    subtitle: "Weight Management",
+    tag: "Blossom",
+    duration: "6 / 9 / 12 months",
+    accent: "#2D9E6B",
+    accentLight: "#D4F3E5",
+    accentMuted: "#b6ecd4",
     features: [
-      "Wellness check-up",
-      "Vaccination update",
-      "Routine flea & tick prevention",
-      "Basic grooming (bath and brushing)",
-      "Nail trimming",
-      "Ear cleaning",
-      "Weight check",
-      "Dental hygiene advice",
+      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
+      "Induction Call + Post Plan Call + 2 review calls with fitness experts (1st month)",
+      "Customised diet plan with periodic revisions",
+      "36+ live group prenatal workout sessions",
+      "Diet & fitness review calls — twice monthly",
+      "Meal plate review and progress follow-up on WhatsApp",
+      "Access to recipe vault",
+    ],
+  },
+  {
+    Icon: HeartPulse,
+    name: "Postnatal Conditions",
+    subtitle: "Weight Management",
+    tag: "Queen",
+    duration: "6 / 9 / 12 months",
+    accent: "#C7522A",
+    accentLight: "#FBDFD3",
+    accentMuted: "#f7c9b5",
+    features: [
+      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
+      "Induction Call + Post Plan Call + 2 review calls with fitness experts (1st month)",
+      "Customised diet plan with periodic revisions",
+      "41+ live group postnatal & DR workout sessions",
+      "Diet & fitness review calls — twice monthly",
+      "Meal plate review and progress follow-up on WhatsApp",
+      "Monthly revisions to diet plan",
+      "Access to recipe vault",
+    ],
+  },
+  {
+    Icon: PersonStanding,
+    name: "No Health Conditions",
+    subtitle: "Weight Management",
+    tag: "Pro",
+    duration: "6 / 9 / 12 months",
+    accent: "#2176AE",
+    accentLight: "#D0E6F5",
+    accentMuted: "#b3d6f0",
+    features: [
+      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
+      "Customised diet plan with periodic revisions",
+      "23+ live group workout sessions",
+      "Diet review calls — twice monthly",
+      "Daily meal plate review and progress follow-up on WhatsApp",
+      "Access to recipe vault",
     ],
   },
   {
     Icon: Stethoscope,
-    name: "Standard Health Plan",
-    price: "$99",
-    desc: "Balanced health and grooming for everyday wellness needs.",
-    color: { bg: "#fde8de", border: "#f7c4b0", accent: "#d4704a" },
+    name: "With Health Conditions",
+    subtitle: "Weight Management",
+    tag: "Elite",
+    duration: "6 / 9 / 12 months",
+    accent: "#8865B3",
+    accentLight: "#E1D8F4",
+    accentMuted: "#cfc0ed",
     features: [
-      "Comprehensive health check-up",
-      "Vaccination update",
-      "Flea, tick & parasite prevention",
-      "Full grooming session",
-      "Blood pressure screening",
-      "Dental check",
-      "Nutritional guidance",
-      "Monthly wellness report",
-      "Priority appointment booking",
-    ],
-  },
-  {
-    Icon: Activity,
-    name: "Premium Health Plan",
-    price: "$159",
-    desc: "Offers a comprehensive health check-up, blood tests, and screenings.",
-    color: { bg: "#d6eaf8", border: "#a9cfe8", accent: "#2e7db5" },
-    features: [
-      "Advanced health check-up",
-      "Blood tests & diagnostics",
-      "Vaccinations & parasite prevention",
-      "Full grooming & styling",
-      "Microchip scanning",
-      "Skin & coat analysis",
-      "Dietary & weight management plan",
-      "Behavioral consultation",
-      "24/7 vet helpline access",
-      "Emergency care guidance",
-    ],
-  },
-  {
-    Icon: Home,
-    name: "Ultimate Care Plan",
-    price: "$299",
-    desc: "Our Ultimate Care Plan provides all-inclusive, top-tier care for your pet's wellbeing.",
-    color: { bg: "#e8e0f5", border: "#c9b8e8", accent: "#7b5ea7" },
-    features: [
-      "Complete wellness check-up",
-      "Specialized health consultation",
-      "Emergency care & minor surgeries",
-      "Comprehensive grooming & styling",
-      "Full diagnostics & lab work",
-      "Orthopedic assessment",
-      "Vision & hearing check",
-      "Allergy testing",
-      "Physiotherapy session",
-      "Home visit option",
-      "Dedicated vet assigned",
-      "Monthly health reports",
+      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
+      "Induction Call + Post Plan Call + 2 review calls with fitness experts (1st month)",
+      "Customised diet & workout plan with periodic revisions",
+      "41+ live group workout sessions",
+      "Diet & fitness review calls — twice monthly",
+      "Daily meal plate review and progress follow-up on WhatsApp",
+      "Access to recipe vault",
     ],
   },
 ];
 
 function PlanCard({ plan }) {
-  const { Icon, name, price, desc, features, color } = plan;
-  const [expanded, setExpanded] = useState(false);
+  const {
+    Icon, name, subtitle, duration, tag,
+    accent, accentLight, accentMuted, features,
+  } = plan;
 
+  const [expanded, setExpanded] = useState(false);
   const visible = expanded ? features : features.slice(0, PREVIEW_COUNT);
   const hasMore = features.length > PREVIEW_COUNT;
 
   return (
     <div
-      className="relative flex flex-col items-center rounded-3xl pt-10 pb-8 px-8 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_14px_36px_rgba(0,0,0,0.10)] cursor-default h-full"
-      style={{ backgroundColor: color.bg, border: `1.5px solid ${color.border}` }}
+      className="relative flex flex-col h-full rounded-[24px] overflow-hidden transition-all duration-300 hover:-translate-y-1"
+      style={{
+        background: "#fff",
+        boxShadow: `0 2px 0px ${accentMuted}88, 0 6px 28px rgba(0,0,0,0.06)`,
+        border: `1.5px solid ${accentMuted}66`,
+      }}
     >
-      {/* Floating icon badge */}
+      {/* Light colored header */}
       <div
-        className="absolute -top-6 flex h-12 w-12 items-center justify-center rounded-full shadow-md border-2 border-white"
-        style={{ backgroundColor: color.accent }}
+        className="relative px-6 pt-6 pb-6 overflow-hidden"
+        style={{ background: accentLight }}
       >
-        <Icon size={22} color="white" />
+        {/* Blob decorations */}
+        <div
+          className="absolute -top-6 -right-6 w-28 h-28 rounded-full"
+          style={{ background: accentMuted, opacity: 0.4 }}
+        />
+        <div
+          className="absolute -bottom-4 left-6 w-16 h-16 rounded-full"
+          style={{ background: accentMuted, opacity: 0.28 }}
+        />
+
+        {/* Tag pill */}
+        <span
+          className="inline-flex items-center text-[11px] font-bold tracking-[0.06em] uppercase px-3 py-1 rounded-full mb-4 relative z-10"
+          style={{ background: "#fff", color: accent }}
+        >
+          {tag}
+        </span>
+
+        {/* Icon + name */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: "#fff", boxShadow: `0 2px 12px ${accentMuted}80` }}
+          >
+            <Icon size={26} color={accent} strokeWidth={2} />
+          </div>
+          <div>
+            <p
+              className="text-[11px] font-semibold uppercase tracking-widest mb-0.5"
+              style={{ color: `${accent}99` }}
+            >
+              {subtitle}
+            </p>
+            <p className="text-[17px] font-bold leading-snug" style={{ color: "#1a1a1a" }}>
+              {name}
+            </p>
+          </div>
+        </div>
+
+        {/* Duration pill */}
+        <div
+          className="flex items-center gap-2 mt-4 w-fit rounded-full px-4 py-2 relative z-10"
+          style={{ background: "#fff", boxShadow: `0 1px 8px ${accentMuted}60` }}
+        >
+          <Calendar size={13} color={accent} />
+          <span className="text-[12px]" style={{ color: "#999" }}>Duration:</span>
+          <span className="text-[12px] font-bold" style={{ color: "#1a1a1a" }}>{duration}</span>
+        </div>
       </div>
-
-      {/* Plan name */}
-      <h3 className="mt-2 text-[20px] font-semibold text-[#222] text-center">{name}</h3>
-
-      {/* Price */}
-      <div className="mt-3 flex items-baseline gap-1">
-        <span className="text-5xl font-bold text-[#111] leading-none">{price}</span>
-        <span className="text-sm text-[#666]">/per visit</span>
-      </div>
-
-      {/* Description */}
-      <p className="mt-4 text-[13px] leading-relaxed text-[#555] text-center">{desc}</p>
-
-      <hr className="w-full mt-5 border-black/10" />
 
       {/* Features */}
-      <div className="w-full mt-4 flex flex-col gap-3">
-        {visible.map((f, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <Heart size={15} style={{ color: color.accent }} className="shrink-0" />
-            <span className="text-[13px] text-[#333]">{f}</span>
-          </div>
-        ))}
+      <div className="px-6 pt-5 pb-4 flex-1">
+        <p
+          className="text-[10.5px] font-bold uppercase tracking-widest mb-3"
+          style={{ color: accent }}
+        >
+          What's included
+        </p>
+
+        <div className="space-y-2.5">
+          {visible.map((f, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <CheckCircle2
+                size={15}
+                strokeWidth={2.2}
+                className="shrink-0 mt-[2px]"
+                style={{ color: accent }}
+              />
+              <span className="text-[13px] text-[#555] leading-[1.55]">{f}</span>
+            </div>
+          ))}
+        </div>
+
         {hasMore && (
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="mt-1 flex items-center gap-1 text-[12px] text-[#999] transition-colors hover:text-black"
+            className="flex items-center gap-1.5 mt-3 text-[12.5px] font-medium bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+            style={{ color: accent }}
           >
-            {expanded ? (
-              <><ChevronUp size={13} /> Show less</>
-            ) : (
-              <><ChevronDown size={13} /> +{features.length - PREVIEW_COUNT} more</>
-            )}
+            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {expanded ? "Show less" : `+${features.length - PREVIEW_COUNT} more included`}
           </button>
         )}
       </div>
 
       {/* CTA */}
-      <button
-        className="mt-6 w-full flex items-center justify-between rounded-full py-3.5 px-6 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02]"
-        style={{ backgroundColor: color.accent }}
-      >
-        Make Appointment
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
-          <ArrowRight size={15} color="white" />
-        </span>
-      </button>
+      <div className="px-6 pb-6 pt-2 mt-auto">
+        <div className="h-px mb-5" style={{ background: `${accentMuted}55` }} />
+        <button
+          className="w-full flex items-center justify-between rounded-[14px] px-5 py-[13px] text-[13.5px] font-semibold transition-all duration-150 hover:opacity-90 active:scale-[0.99] border-none cursor-pointer"
+          style={{
+            background: accentLight,
+            color: accent,
+            border: `1.5px solid ${accentMuted}`,
+          }}
+        >
+          Book a consultation
+          <span
+            className="w-7 h-7 rounded-full flex items-center justify-center"
+            style={{ background: accent }}
+          >
+            <ArrowRight size={14} color="#fff" />
+          </span>
+        </button>
+      </div>
     </div>
+  );
+}
+
+function NavButton({ onClick, disabled, children }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+      style={{ borderColor: "#ddd", background: "#fff", color: "#333" }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.background = "#1a1a1a"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#1a1a1a"; }}}
+      onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#333"; e.currentTarget.style.borderColor = "#ddd"; }}
+    >
+      {children}
+    </button>
   );
 }
 
 export default function ProgramSection() {
   const [startIndex, setStartIndex] = useState(0);
+  const [mobileIndex, setMobileIndex] = useState(0);
+
   const VISIBLE = 3;
   const canPrev = startIndex > 0;
   const canNext = startIndex + VISIBLE < plans.length;
 
   const prev = () => { if (canPrev) setStartIndex((i) => i - 1); };
   const next = () => { if (canNext) setStartIndex((i) => i + 1); };
+  const mobilePrev = () => { if (mobileIndex > 0) setMobileIndex((i) => i - 1); };
+  const mobileNext = () => { if (mobileIndex < plans.length - 1) setMobileIndex((i) => i + 1); };
 
   const visiblePlans = plans.slice(startIndex, startIndex + VISIBLE);
 
   return (
-    <section className="px-4 py-16 bg-[#f6f5f1]">
-      <div className="mx-auto max-w-7xl">
+    <section className="px-6 py-16" style={{ background: "#f6f5f1" }}>
+      <div className="max-w-[1160px] mx-auto">
 
-        {/* Mobile / tablet: show all cards */}
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:hidden">
-          {plans.map((plan, i) => (
-            <div key={i} className="pt-6">
-              <PlanCard plan={plan} />
-            </div>
-          ))}
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-semibold tracking-widest uppercase mb-5"
+            style={{ background: "#efefec", color: "#555" }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2D9E6B] inline-block" />
+            Choose your plan
+          </div>
+          <h2
+            className="font-semibold text-[#1a1a1a] tracking-tight leading-none mb-4"
+            style={{ fontSize: "clamp(36px, 5vw, 58px)" }}
+          >
+            FitMom Club Plans
+          </h2>
+          <p className="text-[18px] leading-relaxed max-w-[560px] mx-auto" style={{ color: "#888" }}>
+            Expert-backed, customised, and built around your life — at every stage of motherhood.
+          </p>
         </div>
 
-        {/* Desktop: show 3 cards with prev/next */}
+        {/* Mobile */}
+        <div className="lg:hidden">
+          <div key={mobileIndex}>
+            <PlanCard plan={plans[mobileIndex]} />
+          </div>
+          <div className="mt-5 flex items-center justify-between">
+            <NavButton onClick={mobilePrev} disabled={mobileIndex === 0}>
+              <ChevronLeft size={18} />
+            </NavButton>
+            <div className="flex items-center gap-2">
+              {plans.map((p, i) => (
+                <button
+                  key={i}
+                  onClick={() => setMobileIndex(i)}
+                  className="h-2 rounded-full border-none cursor-pointer p-0 transition-all duration-300"
+                  style={{
+                    width: i === mobileIndex ? "24px" : "8px",
+                    background: i === mobileIndex ? plans[mobileIndex].accent : "#ccc",
+                  }}
+                />
+              ))}
+            </div>
+            <NavButton onClick={mobileNext} disabled={mobileIndex === plans.length - 1}>
+              <ChevronRight size={18} />
+            </NavButton>
+          </div>
+        </div>
+
+        {/* Desktop */}
         <div className="hidden lg:block">
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-6 items-start">
             {visiblePlans.map((plan, i) => (
-              <div
-                key={startIndex + i}
-                className="pt-6 transition-all duration-300"
-                style={{ animation: "fadeSlide 0.3s ease" }}
-              >
-                <PlanCard plan={plan} />
-              </div>
+              <PlanCard key={startIndex + i} plan={plan} />
             ))}
           </div>
 
-          {/* Nav buttons — bottom right */}
-          <div className="mt-8 flex items-center justify-end gap-3">
-            {/* Dot indicators */}
-            <div className="flex items-center gap-1.5 mr-2">
-              {plans.map((_, i) => {
-                const isActive = i >= startIndex && i < startIndex + VISIBLE;
+          <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="flex items-center gap-2 mr-2">
+              {plans.map((p, i) => {
+                const active = i >= startIndex && i < startIndex + VISIBLE;
                 return (
                   <span
                     key={i}
-                    className="block rounded-full transition-all duration-300"
+                    className="block h-2 rounded-full transition-all duration-300"
                     style={{
-                      width: isActive ? "20px" : "8px",
-                      height: "8px",
-                      backgroundColor: isActive ? "#555" : "#ccc",
+                      width: active ? "24px" : "8px",
+                      background: active ? p.accent : "#ccc",
                     }}
                   />
                 );
               })}
             </div>
-
-            <button
-              onClick={prev}
-              disabled={!canPrev}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#ccc] bg-white transition-all duration-200 hover:bg-black hover:text-white hover:border-black disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={next}
-              disabled={!canNext}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#ccc] bg-white transition-all duration-200 hover:bg-black hover:text-white hover:border-black disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronRight size={18} />
-            </button>
+            <NavButton onClick={prev} disabled={!canPrev}><ChevronLeft size={18} /></NavButton>
+            <NavButton onClick={next} disabled={!canNext}><ChevronRight size={18} /></NavButton>
           </div>
         </div>
 
       </div>
-
-      <style>{`
-        @keyframes fadeSlide {
-          from { opacity: 0; transform: translateX(16px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </section>
   );
 }

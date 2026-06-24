@@ -3,6 +3,7 @@ import HomeHeroSection from '../components/Home/HomeHeroSection'
 import HomeHeroSecondSection from '../components/Home/HomeHeroSecondSection'
 import AppInterfaceSection from '../components/Home/AppInterfaceSection'
 import ProgramSection from '../components/Home/ProgramSection'
+import StorySection from '../components/Home/StorySection'
 
 export default function HomePage() {
   return (
@@ -11,6 +12,7 @@ export default function HomePage() {
     <HomeHeroSecondSection/>
     <AppInterfaceSection/>
     <ProgramSection/>
+    <StorySection/>
     </section>
   )
 }

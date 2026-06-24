@@ -3,18 +3,18 @@ import yogaimage from "../../assets/home/hero.webp";
 import logo from "../../assets/home/fitmom.png";
 
 const SCROLL_LENGTH_VH = 320;
-const SMOOTHING = 12; // higher = snappier catch-up, feels smoother
+const MAX_SPEED = 1.6;
+const ENTRY_MAX_SPEED = 2.0;
 
 // ── Grid layout constants ────────────────────────────────────────────────────
 const GRID_W  = 480;
 const GRID_H  = 680;
 const PAD     = 24;
-const SCR_W   = GRID_W - PAD * 2;   // 352
-const SCR_H   = GRID_H - PAD * 2;   // 552
+const SCR_W   = GRID_W - PAD * 2;
+const SCR_H   = GRID_H - PAD * 2;
 const GAP     = 5;
-const COL     = (SCR_W - GAP) / 2;  // 173.5
+const COL     = (SCR_W - GAP) / 2;
 
-// Row heights — sum must fit inside SCR_H
 const PHOTO_H = 188;
 const ROW2_H  = 168;
 const ROW3_H  = 154;
@@ -23,7 +23,6 @@ const TOP_PAD = Math.floor(
   (SCR_H - (PHOTO_H + GAP + ROW2_H + GAP + ROW3_H + GAP + MED_H)) / 2
 );
 
-// ── Base design width for spread positions (spread coords are written for 390px) ─
 const DESIGN_W = 390;
 
 export default function AppInterfaceSection() {
@@ -31,6 +30,9 @@ export default function AppInterfaceSection() {
   const [progress, setProgress] = useState(0);
   const [entryProgress, setEntryProgress] = useState(0);
   const [scale, setScale]       = useState(1);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < 480
+  );
   const targetRef   = useRef(0);
   const renderedRef = useRef(0);
   const entryTargetRef   = useRef(0);
@@ -38,13 +40,12 @@ export default function AppInterfaceSection() {
   const rafRef      = useRef(null);
   const lastTimeRef = useRef(null);
 
-  // Compute scale so the card cluster always fits the viewport
   const computeScale = () => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const scaleX = vw  / (GRID_W + 32);
     const scaleY = vh  / (GRID_H + 32);
-    setScale(Math.min(scaleX, scaleY, 1)); // never upscale past 1× on desktop
+    setScale(Math.min(scaleX, scaleY, 1));
   };
 
   useEffect(() => {
@@ -54,33 +55,40 @@ export default function AppInterfaceSection() {
       const rect  = el.getBoundingClientRect();
       const vh    = window.innerHeight;
 
-      // ── Phase 1: entry progress ──────────────────────────────────────────
-      // Goes from 0 (section top at viewport bottom) → 1 (section top at viewport top)
-      // rect.top == vh  → entry = 0
-      // rect.top == 0   → entry = 1
       const entry = Math.min(Math.max((vh - rect.top) / vh, 0), 1);
       entryTargetRef.current = entry;
 
-      // ── Phase 2: existing scroll animation ───────────────────────────────
-      // Only advances once the section top reaches the viewport top (rect.top <= 0)
       const total = el.offsetHeight - vh;
       if (total <= 0) return;
       targetRef.current = Math.min(Math.max(-rect.top, 0), total) / total;
+    };
+
+    const handleResize = () => {
+      updateTarget();
+      computeScale();
+      setIsMobile(window.innerWidth < 480);
     };
 
     const tick = (time) => {
       if (lastTimeRef.current == null) lastTimeRef.current = time;
       const dt = Math.min((time - lastTimeRef.current) / 1000, 1 / 30);
       lastTimeRef.current = time;
-      const t = 1 - Math.exp(-SMOOTHING * dt);
 
-      entryRenderedRef.current += (entryTargetRef.current - entryRenderedRef.current) * t;
-      if (Math.abs(entryTargetRef.current - entryRenderedRef.current) < 0.0003)
-        entryRenderedRef.current = entryTargetRef.current;
+      // Entry progress — advance at capped speed toward target
+      const entryStep = ENTRY_MAX_SPEED * dt;
+      const eTarget = entryTargetRef.current;
+      const eCurrent = entryRenderedRef.current;
+      entryRenderedRef.current = eTarget > eCurrent
+        ? Math.min(eCurrent + entryStep, eTarget)
+        : Math.max(eCurrent - entryStep, eTarget);
 
-      renderedRef.current += (targetRef.current - renderedRef.current) * t;
-      if (Math.abs(targetRef.current - renderedRef.current) < 0.0003)
-        renderedRef.current = targetRef.current;
+      // Scroll progress — advance at capped speed toward target
+      const step = MAX_SPEED * dt;
+      const sTarget = targetRef.current;
+      const sCurrent = renderedRef.current;
+      renderedRef.current = sTarget > sCurrent
+        ? Math.min(sCurrent + step, sTarget)
+        : Math.max(sCurrent - step, sTarget);
 
       setEntryProgress(entryRenderedRef.current);
       setProgress(renderedRef.current);
@@ -88,22 +96,18 @@ export default function AppInterfaceSection() {
     };
 
     window.addEventListener("scroll", updateTarget, { passive: true });
-    window.addEventListener("resize", () => { updateTarget(); computeScale(); });
+    window.addEventListener("resize", handleResize);
     updateTarget();
     computeScale();
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("scroll", updateTarget);
-      window.removeEventListener("resize", computeScale);
+      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  // ── Phase 1: rise offset ─────────────────────────────────────────────────
-  // entryProgress: 0 → cards are fully below viewport; 1 → cards at resting position
-  // We use the same cubic ease for consistency with Phase 2
   const easedEntry = ease(entryProgress);
-  // At entryProgress=0: riseY = +vh (cards hidden below); at 1: riseY = 0 (resting)
   const riseY = (1 - easedEntry) * (typeof window !== "undefined" ? window.innerHeight : 800);
 
   const p    = ease(progress);
@@ -111,7 +115,6 @@ export default function AppInterfaceSection() {
   const bpm  = Math.round(lerp(111, 131, p));
   const sleepval = Math.round(lerp(51, 80, p));
 
-  // ── sc(): screen-local top-left (x,y) → offset from screen centre ──────────
   const sc = (lx, ly) => ({
     fx: lx - SCR_W / 2,
     fy: ly - SCR_H / 2,
@@ -123,7 +126,6 @@ export default function AppInterfaceSection() {
   const rightX     = COL + GAP;
   const pill3H     = (ROW2_H - GAP * 2) / 3;
 
-  // Final (assembled) offsets from screen centre
   const F = {
     yoga:      sc(SCR_W / 2,         TOP_PAD + PHOTO_H / 2),
     sleep:     sc(COL / 2,           row2Y + ROW2_H / 2),
@@ -135,8 +137,7 @@ export default function AppInterfaceSection() {
     med:       sc(SCR_W / 2,         medY + MED_H / 2),
   };
 
-  // Spread positions — written as if viewport is DESIGN_W wide; scaled at render
-  const S = {
+  const S_desktop = {
     yoga:      { x: -120, y: -240 },
     sleep:     { x: -170, y:  -20 },
     steps:     { x:  100, y: -280 },
@@ -146,6 +147,19 @@ export default function AppInterfaceSection() {
     run:       { x:  100, y:  120 },
     med:       { x:   60, y:  250 },
   };
+
+  const S_mobile = {
+    yoga:      { x:  -10, y: -310 },
+    sleep:     { x: -185, y:  -60 },
+    steps:     { x:  155, y: -290 },
+    ready:     { x:  160, y: -180 },
+    sleepPill: { x:  155, y:  -75 },
+    heart:     { x: -160, y:  200 },
+    run:       { x:  140, y:  130 },
+    med:       { x:   10, y:  310 },
+  };
+
+  const S = isMobile ? S_mobile : S_desktop;
 
   const spreadScale = typeof window !== "undefined" ? window.innerWidth / DESIGN_W : 1;
 
@@ -177,12 +191,7 @@ export default function AppInterfaceSection() {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
 
-        {/* Scale wrapper — shrinks cluster on small viewports */}
         <div style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
-          {/*
-            Phase 1 rise offset: translateY moves all cards up from below viewport.
-            riseY = 0 once Phase 1 is complete, so Phase 2 is unaffected.
-          */}
           <div
             className="relative"
             style={{
@@ -205,10 +214,10 @@ export default function AppInterfaceSection() {
             </div>
 
             {/* ── YOGA PHOTO ── */}
-            <Card v={yoga} >
+            <Card v={yoga}>
               <div
                 className="w-full h-full overflow-hidden bg-neutral-200"
-                style={{ borderRadius: yogaBR, }}
+                style={{ borderRadius: yogaBR }}
               >
                 <img src={yogaimage} className="w-full h-full object-cover object-top" />
                 <div className="w-full h-full bg-gradient-to-br from-green-300 via-teal-200 to-sky-300" />
@@ -395,7 +404,6 @@ function Card({ v, children }) {
 
 function ease(t) {
   const c = Math.min(Math.max(t, 0), 1);
-  // Stronger cubic ease-in-out for a more cinematic feel
   return c < 0.5
     ? 4 * c * c * c
     : 1 - Math.pow(-2 * c + 2, 3) / 2;
