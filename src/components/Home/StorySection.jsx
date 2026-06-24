@@ -415,7 +415,7 @@ export default function StorySection() {
   return (
     <section className="relative bg-[#F6F5F1]">
         <div className="max-w-4xl px-16 py-30">
-            <h2 className="text-5xl leading-14 text-black/80">Why FitMom Club? Wellness Designed Just for You, <br/><span className="text-teal-600">By Experts Who Care</span></h2>
+            <h2 className="text-5xl leading-14 text-black/90">Why FitMom Club? Wellness Designed Just for You, <br/><span className="text-teal-600">By Experts Who Care</span></h2>
 
         </div>
       {stories.map((story, index) => (
