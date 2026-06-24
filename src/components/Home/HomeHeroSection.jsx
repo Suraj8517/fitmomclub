@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import hero from "../../assets/home/hero.webp";
+import hero from "../../assets/home/hero.jpg";
 
 const BG_IMAGE = hero;
 const SCROLL_LENGTH_VH = 300;

@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import screen1 from "../../assets/home/mobile/img1.png";
 import screen2 from "../../assets/home/mobile/img2.png";
-
+import useDeviceType from "../../components/Helper/DeviceType"
 export default function HealthCoachSection() {
   const phone1Ref = useRef(null);
   const phone2Ref = useRef(null);
   const sectionRef = useRef(null);
-
+  const deviceType = useDeviceType();
   useEffect(() => {
     const handleScroll = () => {
       if (!sectionRef.current) return;
@@ -48,10 +48,10 @@ export default function HealthCoachSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-[240vh] bg-[#F6F5F1] overflow-hidden"
+      className="relative w-full 2xl:min-h-[240vh] min-h-[300vh] bg-[#F6F5F1] overflow-hidden"
     >
          <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-34 pb-20">
-        <h1 className="text-4xl lg:text-5xl xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight max-w-6xl mb-5">
+        <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl  mb-5">
           Unlock adaptive, proactive coaching<br />
           with Google Health Premium
         </h1>
@@ -79,14 +79,14 @@ export default function HealthCoachSection() {
           </svg>
         </a>
       </div>
-      <div className="relative w-full max-w-8xl mx-auto px-8 lg:px-40 min-h-screen flex flex-col lg:flex-row items-center justify-between"> 
-        <div className="flex-shrink-0 w-full lg:w-[42%] pt-22 lg:pt-0 z-30">
-          <h2 className="text-4xl lg:text-5xl xl:text-[4rem] font-normal text-[#1C1B1F] leading-[1.15] tracking-tight mb-6">
+      <div className="relative w-full 2xl:max-w-8xl mx-auto px-18 2xl:px-40 min-h-screen flex flex-col lg:flex-row items-center justify-between"> 
+        <div className="flex-shrink-0 w-full 2xl:w-[42%] lg:w-[52%] pt-22 lg:pt-0 z-30">
+          <h2 className="text-4xl lg:text-5xl 2xl:text-[4rem] xl:text-[3rem] font-normal text-[#1C1B1F] leading-[1.15] tracking-tight mb-6">
             Have a question<br />
             about your health<br />
             and wellness?
           </h2>
-          <p className="text-base lg:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-sm">
+          <p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-sm">
             Users can ask Google Health Coach anything, anytime.{" "}
             Get evidence-backed answers and tailored insights based on your data.
           </p>
@@ -101,11 +101,8 @@ export default function HealthCoachSection() {
           {/* Phone 2 — top-right, starts upright, partially cropped at top/right */}
           <div
             ref={phone2Ref}
-            className="absolute pointer-events-auto"
+            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[600px] 2xl:bottom-[-630px] 2xl:left-[330px] right-[150px] bottom-[-220px]"
             style={{
-              width: "600px",
-              top: "180px",
-              right: "320px",
               transform: "perspective(1400px) rotateZ(5deg) rotateX(8deg)",
               transition: "transform 0.08s linear",
               willChange: "transform",
@@ -121,11 +118,8 @@ export default function HealthCoachSection() {
           {/* Phone 1 — lower-center-right, tilted, partially cropped at bottom */}
           <div
             ref={phone1Ref}
-            className="absolute pointer-events-auto"
+            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[600px] 2xl:bottom-[-630px] 2xl:left-[330px] left-[220px] bottom-[-480px]"
             style={{
-              width: "600px",
-              bottom: "-630px",
-              left: "330px",
               transform: "perspective(1400px) rotateZ(-8deg) rotateX(5deg)",
               transition: "transform 0.08s linear",
               willChange: "transform",
