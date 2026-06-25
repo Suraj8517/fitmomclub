@@ -72,7 +72,7 @@ export default function AboutUsHero() {
         <div
           className="absolute"
           style={{
-            top: "-400px",
+            top: "-10px",
             right: "-200px",
             width: "840px",
             height: "740px",
@@ -85,7 +85,7 @@ export default function AboutUsHero() {
         <div
           className="absolute"
           style={{
-            top: "10%",
+            top: "50%",
             left: "-60px",
             width: "720px",
             height: "320px",
@@ -96,9 +96,9 @@ export default function AboutUsHero() {
           }}
         />
 
-        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-24 py-10 sm:py-16 flex flex-col min-h-[280px] sm:min-h-[420px]">
-          <div className="self-end max-w-xl text-left mb-auto pt-16 sm:pt-28 lg:pt-34">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium text-neutral-900 leading-tight mb-3 sm:mb-4" style={{ letterSpacing: "-0.5px" }}>
+        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-24 py-10 sm:py-16 flex flex-col min-h-[280px] sm:min-h-[780px]">
+          <div className="self-end max-w-xl text-left mb-auto pt-16 sm:pt-28 lg:pt-44 ">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal text-neutral-900 leading-tight mb-3 sm:mb-4" style={{ letterSpacing: "-0.5px" }}>
               Empowering Wellness <br />for Every Stage of Your Journey
             </h1>
             <p className="text-lg sm:text-xl md:text-lg text-neutral-600 leading-relaxed max-w-xl ml-auto">

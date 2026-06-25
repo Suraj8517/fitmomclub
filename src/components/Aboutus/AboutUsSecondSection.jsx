@@ -8,23 +8,9 @@ export default function AboutUsSecondSection() {
   return (
     <div>
         <section className="w-full px-2 md:px-12 lg:px-20 pb-12">
-        {/* ── Hero text ── */}
-        <div className="max-w-5xl lg:max-w-5xl relative z-50 w-full mx-auto flex flex-col items-center md:px-8 px-2 md:pt-10 pb-6 md:pb-28 lg:flex-row lg:items-start lg:justify-between ">
-          <h2
-            className="text-center md:text-left text-black font-normal leading-[0.95] tracking-[-0.04em] pb-4 md:pb-1"
-            style={{
-              fontSize: "clamp(2.6rem, 5vw, 4.5rem)",
-            }}
-          >
-            Who We Are
-          </h2>
-          <div className="md:flex hidden flex-col items-center mt-6 lg:items-start lg:mt-0 lg:max-w-[36%] lg:pt-4 xl:pt-4 2xl:pl-16">
-<p className="text-black font-normal leading-[1.6] tracking-[.04rem] mb-3 text-[13px] text-center md:text-left lg:text-[14px] xl:text-[1rem]"> 
-FitMom Club is a women-first wellness platform offering expert-led fitness, nutrition, and holistic wellness programs tailored for every stage of a woman's journey—from pregnancy to lifelong health.            </p>
-          </div>
-        </div>
+    
 
-        <div className="max-w-7xl mx-auto px-8 md:pt-20 ">
+        <div className="max-w-7xl mx-auto px-8 md:pt-50 ">
           {/* ── Row 1: Text left, two stacked images right ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center mb-12 md:mb-24">
             {/* Left — text */}
@@ -82,22 +68,29 @@ Our vision is to empower women and mothers to prioritize their health, strength,
 
             {/* Right — text */}
             <div className="flex flex-col gap-6">
+              <h2
+            className="text-center md:text-left text-teal-700 font-normal leading-[0.95] tracking-[-0.04em] pb-4 md:pb-1"
+            style={{
+              fontSize: "clamp(2.6rem, 5vw, 4.5rem)",
+            }}
+          >
+            Our Mission
+          </h2>
               <p
                 className="text-black leading-loose text-justify md:text-left"
                 style={{
                   fontSize: "clamp(0.875rem, 1.5vw, 1.2rem)",
                 }}
               >
-              We spoke with hundreds of coaches and gym owners and heard the same thing every time: too many tools, too much admin, and not enough time to coach clients.
-              </p>
-              <p
+Our mission is to empower healthier lifestyles through personalised fitness, nutrition, and wellness guidance. We help individuals achieve their goals with expert support, tailored plans, and a community that motivates and inspires lasting change.             
+</p>
+ <p
                 className="text-black leading-loose text-justify md:text-left"
                 style={{
                   fontSize: "clamp(0.875rem, 1.5vw, 1.2rem)",
                 }}
               >
-                That’s why we built <strong>SmartCoach360</strong>, an all-in-one platform for coaching businesses. Manage clients, communication, payments, scheduling, and programs in one seamless system built to help coaches grow and scale efficiently.
-              </p>
+                We believe that true wellness goes beyond exercise. By promoting healthy habits and encouraging people to view food as medicine, we aim to improve both physical and mental well-being while making health accessible to everyone. </p>
             </div>
           </div>
         </div>
