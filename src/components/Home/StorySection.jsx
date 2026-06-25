@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
   HeartPulse,
@@ -19,9 +19,6 @@ import family from "../../assets/home/bgImg/family.webp"
 import goals from "../../assets/home/bgImg/goal.webp"
 import nutrition from "../../assets/home/bgImg/nutrition.webp"
 
-
-
-
 const stories = [
   {
     id: 1,
@@ -30,13 +27,11 @@ const stories = [
     badgeBg: "#8FF4E9",
     icon: HeartPulse,
     iconColor: "#004F4A",
-    image:
-      mom,
+    image: mom,
     description:
       "Personalized workout programs designed for prenatal, postnatal, and busy moms, helping you regain strength, improve mobility, and stay active at every stage.",
     overlay: "nutrition",
   },
-
   {
     id: 2,
     title: "Holistic Wellness",
@@ -44,13 +39,11 @@ const stories = [
     badgeBg: "#ECDBFF",
     icon: Sparkles,
     iconColor: "#8865B3",
-    image:
-      wellness,
+    image: wellness,
     description:
       "Achieve complete wellness through a balanced approach that combines fitness, nutritious eating, stress management, quality sleep, and emotional well-being.",
     overlay: "fitness",
   },
-
   {
     id: 3,
     title: "Flexible Schedules",
@@ -58,13 +51,11 @@ const stories = [
     badgeBg: "#D3E3FD",
     icon: Clock3,
     iconColor: "#1249A4",
-    image:
-      online,
+    image: online,
     description:
       "Exercise anytime with flexible online sessions that easily fit into your daily routine—whether during nap time, early mornings, or evenings.",
     overlay: "coach",
   },
-
   {
     id: 4,
     title: "Expert Trainers",
@@ -72,13 +63,11 @@ const stories = [
     badgeBg: "#FFE7C7",
     icon: BadgeCheck,
     iconColor: "#C26A00",
-    image:
-      trainer,
+    image: trainer,
     description:
       "Train with certified women's health and fitness specialists who provide safe, effective guidance tailored to every phase of motherhood.",
     overlay: "pregnancy",
   },
-
   {
     id: 5,
     title: "Supportive Community",
@@ -86,13 +75,11 @@ const stories = [
     badgeBg: "#FFD9E8",
     icon: Users,
     iconColor: "#B4235D",
-    image:
-      support,
+    image: support,
     description:
       "Become part of a positive community where moms inspire, encourage, and celebrate each other's progress throughout their wellness journey.",
     overlay: "community",
   },
-
   {
     id: 6,
     title: "Family-Friendly Approach",
@@ -100,13 +87,11 @@ const stories = [
     badgeBg: "#D9F7D9",
     icon: Baby,
     iconColor: "#1F7A3D",
-    image:
-      family,
+    image: family,
     description:
       "Enjoy fitness routines that fit seamlessly into family life, with activities you can do alone or together with your little ones.",
     overlay: "family",
   },
-
   {
     id: 7,
     title: "Realistic Goals",
@@ -114,13 +99,11 @@ const stories = [
     badgeBg: "#FFE7A8",
     icon: Target,
     iconColor: "#B56A00",
-    image:
-      goals,
+    image: goals,
     description:
       "Focus on achievable milestones that build lasting healthy habits, helping you gain confidence without overwhelming your daily routine.",
     overlay: "goals",
   },
-
   {
     id: 8,
     title: "Custom Nutrition Plans",
@@ -128,20 +111,74 @@ const stories = [
     badgeBg: "#D7F5D8",
     icon: Apple,
     iconColor: "#2E7D32",
-    image:
-      nutrition,
+    image: nutrition,
     description:
       "Receive personalized nutrition plans crafted around your lifestyle, recovery, and health goals to fuel your body with confidence.",
     overlay: "nutrition2",
   },
 ];
 
+// Animation variants
+const badgeVariants = {
+  hidden: { opacity: 0, scale: 0.5, y: -20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 18,
+      delay: 0.1,
+    },
+  },
+};
 
+const iconVariants = {
+  hidden: { opacity: 0, scale: 0, rotate: -30 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    transition: {
+      type: "spring",
+      stiffness: 500,
+      damping: 15,
+      delay: 0.25, // slightly after badge
+    },
+  },
+};
+
+const titleVariants = {
+  hidden: { opacity: 0, x: 80 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 260,
+      damping: 22,
+      delay: 0.15,
+    },
+  },
+};
+
+const descVariants = {
+  hidden: { opacity: 0, x: 60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 220,
+      damping: 22,
+      delay: 0.3,
+    },
+  },
+};
 
 function FloatingOverlay({ type }) {
   switch (type) {
-
-    // Story 1 — Tailored Fitness for Moms
     case "nutrition":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
@@ -169,7 +206,6 @@ function FloatingOverlay({ type }) {
                 </div>
               ))}
             </div>
-            {/* Meal log extras */}
             <div className="mt-5 space-y-2">
               {[["🥗","Lunch","480 kcal"],["🍎","Snack","120 kcal"]].map(([emoji,name,cal]) => (
                 <div key={name} className="flex items-center justify-between rounded-xl px-3 py-2" style={{ background:"rgba(255,255,255,0.05)" }}>
@@ -183,7 +219,6 @@ function FloatingOverlay({ type }) {
         </div>
       );
 
-    // Story 2 — Holistic Wellness
     case "fitness":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "7%", top: "50%", transform: "translateY(-50%)" }}>
@@ -210,7 +245,6 @@ function FloatingOverlay({ type }) {
                 <p className="text-lg font-semibold" style={{ color:"#EF4444" }}>168</p>
               </div>
             </div>
-            {/* Zone bar */}
             <div className="mt-5">
               <div className="flex justify-between text-xs mb-1.5" style={{ color:"rgba(255,255,255,0.35)" }}>
                 <span>Zone 1</span><span>Zone 5</span>
@@ -226,7 +260,6 @@ function FloatingOverlay({ type }) {
         </div>
       );
 
-    // Story 3 — Flexible Schedules
     case "coach":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
@@ -257,8 +290,6 @@ function FloatingOverlay({ type }) {
         </div>
       );
 
-    
-    // Story 7 — Realistic Goals
     case "goals":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
@@ -289,7 +320,6 @@ function FloatingOverlay({ type }) {
         </div>
       );
 
-    // Story 8 — Custom Nutrition Plans
     case "nutrition2":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
@@ -329,6 +359,7 @@ function FloatingOverlay({ type }) {
 
 function StoryScene({ story, index }) {
   const ref = useRef(null);
+  const contentRef = useRef(null);
   const isFirst = index === 0;
 
   const { scrollYProgress } = useScroll({
@@ -337,27 +368,22 @@ function StoryScene({ story, index }) {
   });
 
   const y = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
+
+  // inView triggers animations each time the sticky scene is visible
+  const isInView = useInView(ref, { amount: 0.3, once: false });
+
   const Icon = story.icon;
 
   return (
     <div
       ref={ref}
-      style={{ height: "120vh" }}
-      className="relative"
+      className="relative h-[100vh] md:h-[120vh]"
     >
       <div
         className="sticky top-0 h-screen overflow-hidden"
         style={{ zIndex: index + 1 }}
       >
-          {/* Dark gradient — sits above image but below content */}
-          <div
-            className="absolute inset-0 h-full w-full"
-            style={{
-              zIndex: 1,
-              background:
-                "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.75) 100%)",
-            }}
-          />
+        {/* Background image */}
         <div
           className="absolute inset-0"
           style={{
@@ -368,40 +394,72 @@ function StoryScene({ story, index }) {
           }}
         />
 
-        {/* Motion div slides content + gradient together */}
+        {/* Dark gradient overlay */}
+        <div
+          className="absolute inset-0 h-full w-full"
+          style={{
+            zIndex: 1,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,0.75) 100%)",
+          }}
+        />
+
+        {/* Slide-up motion wrapper */}
         <motion.div
-          className="absolute inset-0 "
+          className="absolute inset-0"
           style={isFirst ? {} : { y }}
         >
-        
-
-          {/* Badge */}
-          <div className="absolute left-10 top-10 flex items-center gap-2" style={{ zIndex: 2 }}>
-            <div
+          {/* ── Badge + Icon (pop animation) ── */}
+          <div
+            className="absolute left-10 top-10 md:left-10 flex items-center gap-2"
+            style={{ zIndex: 2 }}
+          >
+            {/* Badge pill */}
+            <motion.div
+              variants={badgeVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
               className="rounded-full backdrop-blur-sm px-5 py-4.5 font-medium text-sm shadow-lg"
               style={{ backgroundColor: story.badgeBg, color: story.iconColor }}
             >
               {story.badge}
-            </div>
-            <div
+            </motion.div>
+
+            {/* Icon circle — delayed pop with rotation */}
+            <motion.div
+              variants={iconVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
               className="flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-sm shadow-lg"
               style={{ backgroundColor: story.badgeBg }}
             >
               <Icon size={26} color={story.iconColor} strokeWidth={2.3} />
-            </div>
+            </motion.div>
           </div>
 
-          {/* Text */}
-          <div className="absolute bottom-20 left-14 max-w-3xl" style={{ zIndex: 2 }}>
-            <h1
+          {/* ── Title + Description (pop from right) ── */}
+          <div
+            className="absolute bottom-20 lg:left-14 left-4 max-w-3xl"
+            style={{ zIndex: 2 }}
+          >
+            <motion.h1
+              variants={titleVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
               className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em]"
               style={{ fontSize: "clamp(28px, 4vw, 64px)" }}
             >
               {story.title}
-            </h1>
-            <p className="mt-12 text-[26px] leading-10 text-white/85 max-w-xl">
+            </motion.h1>
+
+            <motion.p
+              variants={descVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl"
+            >
               {story.description}
-            </p>
+            </motion.p>
           </div>
 
           <FloatingOverlay type={story.overlay} />
@@ -414,17 +472,15 @@ function StoryScene({ story, index }) {
 export default function StorySection() {
   return (
     <section className="relative bg-[#F6F5F1]">
-        <div className="max-w-4xl px-16 py-30">
-            <h2 className="text-5xl leading-14 text-black/90">Why FitMom Club? Wellness Designed Just for You, <br/><span className="text-teal-600">By Experts Who Care</span></h2>
-
-        </div>
+      <div className="max-w-4xl md:px-16 md:py-30 px-2 py-10">
+        <h2 className="md:text-5xl text-3xl leading-8 md:leading-12 text-black/90 text-center sm:text-left">
+          Why FitMom Club? Wellness Designed Just for You,{" "}
+          <br />
+          <span className="text-teal-600">By Experts Who Care</span>
+        </h2>
+      </div>
       {stories.map((story, index) => (
-        
-        <StoryScene
-          key={story.id}
-          story={story}
-          index={index}
-        />
+        <StoryScene key={story.id} story={story} index={index} />
       ))}
     </section>
   );

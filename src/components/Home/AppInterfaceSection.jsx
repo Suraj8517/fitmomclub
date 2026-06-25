@@ -202,12 +202,10 @@ export default function AppInterfaceSection() {
 
             {/* Wristband / Logo */}
             <div
-              className="absolute pointer-events-none"
+              className="absolute pointer-events-none w-[150px] mt:w-[220px] mt:h-[300px] "
               style={{
                 transform: `translate(-50%,-50%) scale(${bandScale})`,
                 opacity: bandOpacity,
-                width: 220,
-                height: 300,
               }}
             >
               <img src={logo} className="w-full h-full object-contain" />

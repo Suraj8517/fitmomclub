@@ -96,7 +96,7 @@ function PlanCard({ plan, animIndex }) {
 
   return (
     <div
-      className="relative flex flex-col rounded-3xl p-6"
+      className="relative flex flex-col rounded-3xl"
       style={{
         backgroundColor: C.bg,
         border: `1.5px solid ${C.border}`,
@@ -123,7 +123,7 @@ function PlanCard({ plan, animIndex }) {
 
       {/* Icon badge */}
       <div
-        className="absolute top-[-30px] left-[43%] w-14 h-14 sm:w-15 sm:h-15 rounded-full flex items-center justify-center border-4 border-white/80"
+        className="absolute top-[-30px] left-[43%] w-14 h-14 rounded-full flex items-center justify-center border-4 border-white/80"
         style={{ backgroundColor: C.teal }}
       >
         <Icon size={20} color="#fff" />
@@ -131,8 +131,8 @@ function PlanCard({ plan, animIndex }) {
 
       <div className="overflow-hidden flex flex-col flex-1">
         {/* Card top */}
-        <div className="pt-11 pb-4 px-5 border-b" style={{ borderColor: C.border }}>
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-3xl font-semibold leading-tight" style={{ color: C.text }}>
+        <div className="pt-11 pb-4 px-8 border-b" style={{ borderColor: C.border }}>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-2xl font-semibold leading-tight" style={{ color: C.text }}>
             {name}
           </p>
           <p className="text-xs sm:text-sm md:text-[14px] mt-0.5" style={{ color: C.textMid }}>
@@ -145,7 +145,7 @@ function PlanCard({ plan, animIndex }) {
         </div>
 
         {/* Features */}
-        <div className="px-5 pt-3.5 pb-20 flex-1">
+        <div className="px-8 pt-3.5 pb-20 flex-1">
           <ul className="flex flex-col gap-2.5">
             {visible.map((f, i) => (
               <li
@@ -157,7 +157,7 @@ function PlanCard({ plan, animIndex }) {
                   className="mt-[5px] shrink-0 rounded-full"
                   style={{ width: 5, height: 5, backgroundColor: C.text }}
                 />
-                <span className="text-xs sm:text-sm md:text-[13px] lg:text-xs xl:text-[15px]" style={{ color: C.textMid }}>
+                <span className="text-xs sm:text-sm md:text-[13px] lg:text-sm xl:text-[16px]" style={{ color: C.textMid }}>
                   {f}
                 </span>
               </li>
@@ -229,97 +229,6 @@ function PlanCard({ plan, animIndex }) {
   );
 }
 
-export default function ProgramSection() {
-  const [startIndex, setStartIndex] = useState(0);
-  const [animKey, setAnimKey] = useState(0);
-  const VISIBLE = 3;
-
-  const canPrev = startIndex > 0;
-  const canNext = startIndex + VISIBLE < plans.length;
-
-  const prev = () => { if (canPrev) { setStartIndex(i => i - 1); setAnimKey(k => k + 1); } };
-  const next = () => { if (canNext) { setStartIndex(i => i + 1); setAnimKey(k => k + 1); } };
-
-  const visiblePlans = plans.slice(startIndex, startIndex + VISIBLE);
-
-  return (
-    <section className="px-4 sm:px-6 md:px-8 py-12 sm:py-14 md:py-16" style={{ backgroundColor: "#F6F5F1" }}>
-      <div className="mx-auto max-w-7xl">
-<div className="w-full flex flex-col items-center justify-center text-center px-6 pb-10">
-        <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl  mb-5">
-          FitMom Club Plans
-        </h1>
-        <p className="text-lg lg:text-xl text-[#4A4A4A] leading-relaxed mb-6">
-          Customized. Effective. Nurturing.  Expert-backed solutions to fit your lifestyle.
-        </p>
-        <a
-          href="#"
-          className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-lg font-medium hover:underline underline-offset-4 transition-all"
-        >
-          See how it works
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-        {/* Mobile / tablet */}
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:hidden">
-          {plans.map((plan, i) => (
-            <div key={i} className="pt-8">
-              <PlanCard plan={plan} animIndex={i} />
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop carousel */}
-        <div className="hidden lg:block">
-          <div key={animKey} className="grid grid-cols-3 gap-6 pt-8">
-            {visiblePlans.map((plan, i) => (
-              <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
-            ))}
-          </div>
-
-          {/* Nav */}
-          <div className="mt-6 flex items-center justify-end gap-2">
-            <div className="flex items-center gap-1.5 mr-2">
-              {plans.map((_, i) => {
-                const active = i >= startIndex && i < startIndex + VISIBLE;
-                return (
-                  <span
-                    key={i}
-                    className="block rounded-full transition-all duration-300"
-                    style={{
-                      width: active ? 20 : 8,
-                      height: 8,
-                      backgroundColor: active ? C.text : "#d1d1d1",
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <NavBtn onClick={prev} disabled={!canPrev} aria-label="Previous">
-              <ChevronLeft size={16} />
-            </NavBtn>
-            <NavBtn onClick={next} disabled={!canNext} aria-label="Next">
-              <ChevronRight size={16} />
-            </NavBtn>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function NavBtn({ onClick, disabled, children, ...rest }) {
   const [hover, setHover] = useState(false);
   const [active, setActive] = useState(false);
@@ -348,5 +257,144 @@ function NavBtn({ onClick, disabled, children, ...rest }) {
     >
       {children}
     </button>
+  );
+}
+
+export default function ProgramSection() {
+  // Shared index state used by both mobile (1 card) and desktop (3 cards)
+  const [startIndex, setStartIndex] = useState(0);
+  const [animKey, setAnimKey] = useState(0);
+
+  const VISIBLE_DESKTOP = 3;
+  const VISIBLE_MOBILE = 1;
+
+  const canPrevDesktop = startIndex > 0;
+  const canNextDesktop = startIndex + VISIBLE_DESKTOP < plans.length;
+
+  const canPrevMobile = startIndex > 0;
+  const canNextMobile = startIndex + VISIBLE_MOBILE < plans.length;
+
+  const prev = (visibleCount) => {
+    if (startIndex > 0) {
+      setStartIndex(i => Math.max(0, i - visibleCount));
+      setAnimKey(k => k + 1);
+    }
+  };
+
+  const next = (visibleCount) => {
+    if (startIndex + visibleCount < plans.length) {
+      setStartIndex(i => Math.min(plans.length - visibleCount, i + visibleCount));
+      setAnimKey(k => k + 1);
+    }
+  };
+
+  const goTo = (index) => {
+    setStartIndex(index);
+    setAnimKey(k => k + 1);
+  };
+
+  return (
+    <section className="px-4 sm:px-6 md:px-8 py-6 sm:py-14 md:py-16" style={{ backgroundColor: "#F6F5F1" }}>
+      <div className="mx-auto max-w-7xl">
+
+        {/* Section header */}
+        <div className="w-full flex flex-col items-center justify-center text-center px-6 pb-10">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight max-w-5xl 2xl:max-w-6xl mb-5">
+            FitMom Club Plans
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl text-[#4A4A4A] leading-relaxed mb-6">
+            Customized. Effective. Nurturing. Expert-backed<br className="hidden sm:block" /> solutions to fit your lifestyle.
+          </p>
+          <a
+            href="#"
+            className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-base sm:text-lg font-medium hover:underline underline-offset-4 transition-all"
+          >
+            See how it works
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        {/* ── MOBILE: 1 card at a time ── */}
+        <div className="lg:hidden">
+          <div key={`mobile-${animKey}`} className="pt-8">
+            <PlanCard plan={plans[startIndex]} animIndex={0} />
+          </div>
+
+          {/* Mobile nav */}
+          <div className="mt-6 flex items-center justify-between px-1">
+            <NavBtn onClick={() => prev(1)} disabled={!canPrevMobile} aria-label="Previous">
+              <ChevronLeft size={16} />
+            </NavBtn>
+
+            {/* Dot indicators */}
+            <div className="flex items-center gap-2">
+              {plans.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to plan ${i + 1}`}
+                  className="rounded-full transition-all duration-300 focus:outline-none"
+                  style={{
+                    width: i === startIndex ? 24 : 8,
+                    height: 8,
+                    backgroundColor: i === startIndex ? C.teal : "#d1d1d1",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                />
+              ))}
+            </div>
+
+            <NavBtn onClick={() => next(1)} disabled={!canNextMobile} aria-label="Next">
+              <ChevronRight size={16} />
+            </NavBtn>
+          </div>
+
+          {/* Plan counter */}
+          <p className="text-center text-xs text-[#888] mt-3">
+            {startIndex + 1} of {plans.length}
+          </p>
+        </div>
+
+        {/* ── DESKTOP: 3 cards with carousel ── */}
+        <div className="hidden lg:block">
+          <div key={`desktop-${animKey}`} className="grid grid-cols-3 gap-6 pt-8">
+            {plans.slice(startIndex, startIndex + VISIBLE_DESKTOP).map((plan, i) => (
+              <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
+            ))}
+          </div>
+
+          {/* Desktop nav */}
+          <div className="mt-6 flex items-center justify-end gap-2">
+            <div className="flex items-center gap-1.5 mr-2">
+              {plans.map((_, i) => {
+                const active = i >= startIndex && i < startIndex + VISIBLE_DESKTOP;
+                return (
+                  <span
+                    key={i}
+                    className="block rounded-full transition-all duration-300"
+                    style={{
+                      width: active ? 20 : 8,
+                      height: 8,
+                      backgroundColor: active ? C.text : "#d1d1d1",
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <NavBtn onClick={() => prev(1)} disabled={!canPrevDesktop} aria-label="Previous">
+              <ChevronLeft size={16} />
+            </NavBtn>
+            <NavBtn onClick={() => next(1)} disabled={!canNextDesktop} aria-label="Next">
+              <ChevronRight size={16} />
+            </NavBtn>
+          </div>
+        </div>
+
+      </div>
+    </section>
   );
 }
