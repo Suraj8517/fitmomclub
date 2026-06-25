@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import yogaimage from "../../assets/home/hero.webp";
 import logo from "../../assets/home/fitmom.png";
 
-const SCROLL_LENGTH_VH = 320;
+const SCROLL_LENGTH_VH = 420;
 const MAX_SPEED = 1.6;
 const ENTRY_MAX_SPEED = 2.0;
 

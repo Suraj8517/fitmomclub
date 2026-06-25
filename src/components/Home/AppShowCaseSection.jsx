@@ -21,13 +21,13 @@ export default function HealthCoachSection() {
       );
 
       // Phone 1 (bottom-left): starts near-upright, tilts left/down on scroll
-      if (phone1Ref.current) {
-        const rotateZ = -8 - progress * 28;   // -8deg → -36deg
-        const rotateX = 5 + progress * 12;    // 5deg → 17deg
-        const translateY = 0 + progress * 60; // drifts down
-        const translateX = 0 - progress * 30; // drifts left
-        phone1Ref.current.style.transform = `perspective(1400px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${translateY}px) translateX(${translateX}px)`;
-      }
+     if (phone1Ref.current) {
+  const rotateZ = -8 - progress * 12;   // -8deg → -20deg  (was * 28 → -36deg)
+  const rotateX = 5 + progress * 5;     // 5deg → 10deg    (was * 12 → 17deg)
+  const translateY = 0 + progress * 60;
+  const translateX = 0 - progress * 30;
+  phone1Ref.current.style.transform = `perspective(1400px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${translateY}px) translateX(${translateX}px)`;
+}
 
       // Phone 2 (top-right): starts upright, tilts right on scroll
       if (phone2Ref.current) {
@@ -50,7 +50,7 @@ export default function HealthCoachSection() {
       ref={sectionRef}
       className="relative w-full 2xl:min-h-[240vh] min-h-[300vh] bg-[#F6F5F1] overflow-hidden"
     >
-         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-34 pb-20">
+         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-34 pb-6">
         <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl  mb-5">
           Unlock adaptive, proactive coaching<br />
           with Google Health Premium
@@ -86,7 +86,7 @@ export default function HealthCoachSection() {
             about your health<br />
             and wellness?
           </h2>
-          <p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-sm">
+          <p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-lg">
             Users can ask Google Health Coach anything, anytime.{" "}
             Get evidence-backed answers and tailored insights based on your data.
           </p>
@@ -101,7 +101,7 @@ export default function HealthCoachSection() {
           {/* Phone 2 — top-right, starts upright, partially cropped at top/right */}
           <div
             ref={phone2Ref}
-            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[600px] 2xl:bottom-[-630px] 2xl:left-[330px] right-[150px] bottom-[-220px]"
+            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[650px] 2xl:bottom-[-350px] 2xl:right-[330px]  right-[150px] bottom-[-220px]"
             style={{
               transform: "perspective(1400px) rotateZ(5deg) rotateX(8deg)",
               transition: "transform 0.08s linear",
@@ -118,12 +118,12 @@ export default function HealthCoachSection() {
           {/* Phone 1 — lower-center-right, tilted, partially cropped at bottom */}
           <div
             ref={phone1Ref}
-            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[600px] 2xl:bottom-[-630px] 2xl:left-[330px] left-[220px] bottom-[-480px]"
-            style={{
-              transform: "perspective(1400px) rotateZ(-8deg) rotateX(5deg)",
-              transition: "transform 0.08s linear",
-              willChange: "transform",
-            }}
+            className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[440px] 2xl:w-[750px] 2xl:bottom-[-730px] 2xl:left-[230px] left-[220px] bottom-[-480px]"
+          style={{
+  transform: "perspective(1400px) rotateZ(0deg) rotateX(10deg)",
+  transition: "transform 0.08s linear",
+  willChange: "transform",
+}}
           >
             <img
               src={screen1}

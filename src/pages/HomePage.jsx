@@ -5,6 +5,8 @@ import AppInterfaceSection from '../components/Home/AppInterfaceSection'
 import ProgramSection from '../components/Home/ProgramSection'
 import StorySection from '../components/Home/StorySection'
 import AppShowCaseSection from '../components/Home/AppShowCaseSection'
+import OurExpertSection from '../components/Home/OurExpertsSection'
+import CTASection from '../components/Home/CTASection'
 
 export default function HomePage() {
   return (
@@ -15,6 +17,8 @@ export default function HomePage() {
     <ProgramSection/>
     <AppShowCaseSection/>
     <StorySection/>
+    <OurExpertSection/>
+    <CTASection/>
     </section>
   )
 }

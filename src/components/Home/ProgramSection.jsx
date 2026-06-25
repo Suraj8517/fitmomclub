@@ -74,14 +74,15 @@ const plans = [
   },
 ];
 
-const COLOR = {
-  bg: "#e0f5f0",
-  border: "#a7ddd1",
-  accent: "#0e7a6a",
-  accentDark: "#085041",
-  text: "#085041",
-  textMid: "#0f6e56",
-  footerGrad: "linear-gradient(to bottom, transparent 0%, #cff0e8 35%)",
+const C = {
+  teal: "#0e7a6a",
+  tealDark: "#085041",
+  bg: "#ffffff",
+  border: "#e5e5e5",
+  text: "#111111",
+  textMid: "#444444",
+  textMuted: "#085041",
+  footerGrad: "linear-gradient(to bottom, transparent 0%, #ffffff 40%)",
 };
 
 function PlanCard({ plan, animIndex }) {
@@ -95,111 +96,123 @@ function PlanCard({ plan, animIndex }) {
 
   return (
     <div
-      className="relative flex flex-col rounded-3xl "
+      className="relative flex flex-col rounded-3xl p-6"
       style={{
-        backgroundColor: COLOR.bg,
-        border: `1.5px solid ${COLOR.border}`,
+        backgroundColor: C.bg,
+        border: `1.5px solid ${C.border}`,
         minHeight: 480,
         animation: `slideInRight 0.5s cubic-bezier(0.22,1,0.36,1) ${animIndex * 0.1}s both`,
         transition: "box-shadow 0.3s ease, transform 0.3s ease",
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.10)"; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)";
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
     >
-      {/* Tag badge — top left */}
+      {/* Tag badge */}
       <span
-        className="absolute top-3.5 left-3.5 text-[11px] font-medium px-2.5 py-0.5 rounded-full"
-        style={{ backgroundColor: COLOR.accent, color: COLOR.bg, letterSpacing: "0.03em" }}
+        className="absolute top-3.5 left-3.5 text-[11px] sm:text-xs md:text-[13px] font-medium px-2.5 py-0.5 rounded-full"
+        style={{ backgroundColor: C.teal, color: "#fff", letterSpacing: "0.03em" }}
       >
         {tag}
       </span>
 
-      {/* Icon badge — top right */}
+      {/* Icon badge */}
       <div
-        className="absolute top-[-30px] left-[43%]  w-15 h-15 rounded-full flex items-center justify-center border-5 border-white/80"
-        style={{ backgroundColor: COLOR.accent }}
+        className="absolute top-[-30px] left-[43%] w-14 h-14 sm:w-15 sm:h-15 rounded-full flex items-center justify-center border-4 border-white/80"
+        style={{ backgroundColor: C.teal }}
       >
-        <Icon size={20} color={COLOR.bg} />
+        <Icon size={20} color="#fff" />
       </div>
 
-      {/* Card top */}
-      <div
-        className="pt-11 pb-4 px-5 border-b"
-        style={{ borderColor: COLOR.border }}
-      >
-        <p className="text-[15px] font-medium pr-2" style={{ color: COLOR.text }}>{name}</p>
-        <p className="text-[12px] mt-0.5" style={{ color: COLOR.textMid }}>{subtitle}</p>
-        <div className="flex items-center gap-1.5 mt-2.5" style={{ color: COLOR.textMid }}>
-          <Clock size={13} />
-          <span className="text-[12px]">{duration}</span>
+      <div className="overflow-hidden flex flex-col flex-1">
+        {/* Card top */}
+        <div className="pt-11 pb-4 px-5 border-b" style={{ borderColor: C.border }}>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-3xl font-semibold leading-tight" style={{ color: C.text }}>
+            {name}
+          </p>
+          <p className="text-xs sm:text-sm md:text-[14px] mt-0.5" style={{ color: C.textMid }}>
+            {subtitle}
+          </p>
+          <div className="flex items-center gap-1.5 mt-2.5" style={{ color: C.textMuted }}>
+            <Clock size={13} />
+            <span className="text-xs sm:text-sm md:text-[13px]">{duration}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Features */}
-      <div className="px-5 pt-3.5 pb-20 flex-1">
-        <ul className="flex flex-col gap-2.5">
-          {visible.map((f, i) => (
-            <li
-              key={i}
-              className="flex items-start gap-2"
-              style={{
-                animation: `fadeUp 0.4s ease ${i * 0.04}s both`,
-              }}
+        {/* Features */}
+        <div className="px-5 pt-3.5 pb-20 flex-1">
+          <ul className="flex flex-col gap-2.5">
+            {visible.map((f, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2"
+                style={{ animation: `fadeUp 0.4s ease ${i * 0.04}s both` }}
+              >
+                <span
+                  className="mt-[5px] shrink-0 rounded-full"
+                  style={{ width: 5, height: 5, backgroundColor: C.text }}
+                />
+                <span className="text-xs sm:text-sm md:text-[13px] lg:text-xs xl:text-[15px]" style={{ color: C.textMid }}>
+                  {f}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {hasMore && (
+            <button
+              onClick={() => setExpanded(v => !v)}
+              className="mt-2 flex items-center gap-1 text-xs sm:text-sm transition-colors"
+              style={{ color: C.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              onMouseEnter={e => e.currentTarget.style.color = C.text}
+              onMouseLeave={e => e.currentTarget.style.color = C.textMuted}
             >
-              <Heart size={13} style={{ color: COLOR.accent, marginTop: 2, flexShrink: 0 }} />
-              <span className="text-[12px]" style={{ color: COLOR.text }}>{f}</span>
-            </li>
-          ))}
-        </ul>
+              {expanded
+                ? <><ChevronUp size={13} /> Show less</>
+                : <><ChevronDown size={13} /> +{features.length - PREVIEW_COUNT} more</>}
+            </button>
+          )}
+        </div>
 
-        {hasMore && (
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="mt-2 flex items-center gap-1 text-[11px] transition-colors"
-            style={{ color: COLOR.textMid, background: "none", border: "none", cursor: "pointer", padding: 0 }}
-            onMouseEnter={e => e.currentTarget.style.color = COLOR.accentDark}
-            onMouseLeave={e => e.currentTarget.style.color = COLOR.textMid}
-          >
-            {expanded
-              ? <><ChevronUp size={12} /> Show less</>
-              : <><ChevronDown size={12} /> +{features.length - PREVIEW_COUNT} more</>}
-          </button>
-        )}
-      </div>
-
-      {/* Fixed footer CTA */}
-      <div
-        className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-3"
-        style={{ background: COLOR.footerGrad }}
-      >
-        <button
-          onMouseEnter={() => setBtnHover(true)}
-          onMouseLeave={() => { setBtnHover(false); setBtnActive(false); }}
-          onMouseDown={() => setBtnActive(true)}
-          onMouseUp={() => setBtnActive(false)}
-          className="w-full flex items-center justify-between rounded-full py-2.5 px-5 text-[13px] font-medium"
-          style={{
-            backgroundColor: btnHover ? COLOR.accentDark : COLOR.accent,
-            color: COLOR.bg,
-            border: "none",
-            cursor: "pointer",
-            transform: btnActive ? "scale(0.97)" : btnHover ? "scale(1.02)" : "scale(1)",
-            boxShadow: btnHover && !btnActive ? "0 4px 14px rgba(14,122,106,0.35)" : "none",
-            transition: "background 0.2s, transform 0.15s, box-shadow 0.15s",
-          }}
+        {/* Footer CTA */}
+        <div
+          className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-3 rounded-b-3xl"
+          style={{ background: C.footerGrad }}
         >
-          Make Appointment
-          <span
-            className="flex items-center justify-center w-6 h-6 rounded-full"
+          <button
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => { setBtnHover(false); setBtnActive(false); }}
+            onMouseDown={() => setBtnActive(true)}
+            onMouseUp={() => setBtnActive(false)}
+            className="w-full flex items-center justify-between rounded-full py-2.5 px-5 text-xs sm:text-sm md:text-[13px] font-medium"
             style={{
-              backgroundColor: "rgba(255,255,255,0.2)",
-              transform: btnHover ? "translateX(3px)" : "translateX(0)",
-              transition: "transform 0.2s",
+              backgroundColor: btnHover ? C.tealDark : C.teal,
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              transform: btnActive ? "scale(0.97)" : btnHover ? "scale(1.02)" : "scale(1)",
+              boxShadow: btnHover && !btnActive ? "0 4px 14px rgba(14,122,106,0.3)" : "none",
+              transition: "background 0.2s, transform 0.15s, box-shadow 0.15s",
             }}
           >
-            <ArrowRight size={13} color={COLOR.bg} />
-          </span>
-        </button>
+            Make Appointment
+            <span
+              className="flex items-center justify-center w-6 h-6 rounded-full"
+              style={{
+                backgroundColor: "rgba(255,255,255,0.2)",
+                transform: btnHover ? "translateX(3px)" : "translateX(0)",
+                transition: "transform 0.2s",
+              }}
+            >
+              <ArrowRight size={13} color="#fff" />
+            </span>
+          </button>
+        </div>
       </div>
 
       <style>{`
@@ -230,21 +243,47 @@ export default function ProgramSection() {
   const visiblePlans = plans.slice(startIndex, startIndex + VISIBLE);
 
   return (
-    <section className="px-4 py-16" style={{ backgroundColor: "#F6F5F1" }}>
-      <div className="mx-auto max-w-5xl">
-
+    <section className="px-4 sm:px-6 md:px-8 py-12 sm:py-14 md:py-16" style={{ backgroundColor: "#F6F5F1" }}>
+      <div className="mx-auto max-w-7xl">
+<div className="w-full flex flex-col items-center justify-center text-center px-6 pb-10">
+        <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl  mb-5">
+          FitMom Club Plans
+        </h1>
+        <p className="text-lg lg:text-xl text-[#4A4A4A] leading-relaxed mb-6">
+          Customized. Effective. Nurturing.  Expert-backed solutions to fit your lifestyle.
+        </p>
+        <a
+          href="#"
+          className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-lg font-medium hover:underline underline-offset-4 transition-all"
+        >
+          See how it works
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
         {/* Mobile / tablet */}
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:hidden">
           {plans.map((plan, i) => (
-            <div key={i} className="pt-6">
+            <div key={i} className="pt-8">
               <PlanCard plan={plan} animIndex={i} />
             </div>
           ))}
         </div>
 
-        {/* Desktop: 3 cards with carousel */}
+        {/* Desktop carousel */}
         <div className="hidden lg:block">
-          <div key={animKey} className="grid grid-cols-3 gap-6 pt-6">
+          <div key={animKey} className="grid grid-cols-3 gap-6 pt-8">
             {visiblePlans.map((plan, i) => (
               <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
             ))}
@@ -252,7 +291,6 @@ export default function ProgramSection() {
 
           {/* Nav */}
           <div className="mt-6 flex items-center justify-end gap-2">
-            {/* Dot indicators */}
             <div className="flex items-center gap-1.5 mr-2">
               {plans.map((_, i) => {
                 const active = i >= startIndex && i < startIndex + VISIBLE;
@@ -263,19 +301,15 @@ export default function ProgramSection() {
                     style={{
                       width: active ? 20 : 8,
                       height: 8,
-                      backgroundColor: active ? COLOR.accent : COLOR.border,
+                      backgroundColor: active ? C.text : "#d1d1d1",
                     }}
                   />
                 );
               })}
             </div>
-
-            {/* Prev */}
             <NavBtn onClick={prev} disabled={!canPrev} aria-label="Previous">
               <ChevronLeft size={16} />
             </NavBtn>
-
-            {/* Next */}
             <NavBtn onClick={next} disabled={!canNext} aria-label="Next">
               <ChevronRight size={16} />
             </NavBtn>
@@ -301,9 +335,9 @@ function NavBtn({ onClick, disabled, children, ...rest }) {
       style={{
         width: 36, height: 36,
         borderRadius: "50%",
-        border: `1px solid ${hover ? COLOR.accent : COLOR.border}`,
-        backgroundColor: hover ? COLOR.accent : "white",
-        color: hover ? "#e0f5f0" : COLOR.text,
+        border: `1px solid ${hover ? "#111" : "#d1d1d1"}`,
+        backgroundColor: hover ? "#111" : "#fff",
+        color: hover ? "#fff" : "#111",
         cursor: disabled ? "default" : "pointer",
         opacity: disabled ? 0.3 : 1,
         display: "flex", alignItems: "center", justifyContent: "center",
