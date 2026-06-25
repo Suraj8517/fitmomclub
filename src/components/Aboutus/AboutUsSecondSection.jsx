@@ -61,7 +61,7 @@ Our vision is to empower women and mothers to prioritize their health, strength,
               <img
                 src={demo3}
                 alt="Team collaborating"
-                className="w-full h-[320px] object-cover"
+                className="w-full h-[350px] object-cover"
                 style={{ aspectRatio: "4/3" }}
               />
             </div>
@@ -82,7 +82,7 @@ Our vision is to empower women and mothers to prioritize their health, strength,
                   fontSize: "clamp(0.875rem, 1.5vw, 1.2rem)",
                 }}
               >
-Our mission is to empower healthier lifestyles through personalised fitness, nutrition, and wellness guidance. We help individuals achieve their goals with expert support, tailored plans, and a community that motivates and inspires lasting change.             
+Our mission is to empower healthier lifestyles through personalised fitness, nutrition, and wellness guidance. We help individuals achieve their health goals with expert support and sustainable habits.
 </p>
  <p
                 className="text-black leading-loose text-justify md:text-left"
@@ -90,7 +90,8 @@ Our mission is to empower healthier lifestyles through personalised fitness, nut
                   fontSize: "clamp(0.875rem, 1.5vw, 1.2rem)",
                 }}
               >
-                We believe that true wellness goes beyond exercise. By promoting healthy habits and encouraging people to view food as medicine, we aim to improve both physical and mental well-being while making health accessible to everyone. </p>
+We promote the idea of food as medicine and strive to raise awareness about the importance of balanced nutrition, physical fitness, and overall well-being.
+</p>
             </div>
           </div>
         </div>
