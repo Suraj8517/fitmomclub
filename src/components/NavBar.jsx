@@ -123,7 +123,7 @@ export default function Navbar() {
                     {menuOpen ? (
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4  14h16" />
                     )}
                   </svg>
                 </button>
@@ -197,7 +197,7 @@ export default function Navbar() {
                 )}
               </div>
 {/* Download button */}
-              <div className="relative" ref={downloadRef}>
+              <div className="hidden sm:block relative" ref={downloadRef}>
                 <button
                   onClick={() => { setDownloadOpen((v) => !v); setMenuOpen(false); }}
                   className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-base font-medium px-5 py-4.5 rounded-full transition-colors duration-200 shadow-sm"

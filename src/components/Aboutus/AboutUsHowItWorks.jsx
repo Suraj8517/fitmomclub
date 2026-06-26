@@ -36,7 +36,7 @@ export default function HowItWorksSection() {
         ref={imgRef}
         src={heroBg}
         alt="Woman image"
-        className="absolute inset-0 w-full h-[150%] object-cover object-top will-change-transform"
+        className="absolute inset-0 w-full h-[150%] object-cover sm:object-top  will-change-transform"
         style={{ top: "-5%" }}
       />
 

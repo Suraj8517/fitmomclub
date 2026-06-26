@@ -4,11 +4,11 @@ import mobileimg from "../../assets/aboutus/pritika-mobile.webp"
 import { HashLink } from "react-router-hash-link";
 import { ArrowRight } from "lucide-react";
 // ─────────────────────────────────────────────
-// MOBILE VERSION – no scroll animation, mobile-first
+// MOBILE VERSION
 // ─────────────────────────────────────────────
 function AboutUsPurposeMobile({ imageUrl, content }) {
   return (
-    <section className="relative w-full bg-[#F6F4F0] overflow-hidden">
+    <section className="relative w-full bg-white overflow-hidden">
       {/* Hero image – full width, portrait crop */}
       <div className="relative w-full" style={{ height: "30svh" }}>
         <img
@@ -28,7 +28,7 @@ function AboutUsPurposeMobile({ imageUrl, content }) {
             className="text-white/80 text-[10px] tracking-[0.22em] uppercase"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            Meet Your Mentor
+              A Journey That Inspired Thousands
           </p>
         </div>
       </div>
@@ -40,23 +40,15 @@ function AboutUsPurposeMobile({ imageUrl, content }) {
           className="text-[10px] tracking-[0.22em] uppercase mt-4 mb-3"
           style={{
             fontFamily: "'Poppins', sans-serif",
-            color: "#00d1b8",
+            color: "#111111",
           }}
         >
-          Welcome to Your New Beginning
-        </p>
+A Quest for Well-being that Sparked a Lifelong purpose        </p>
 
         {/* Divider */}
         <div className="w-8 h-px bg-neutral-300 mb-4" />
 
-        {/* Name headline */}
-        <h2
-          className="text-[#1a1a1a] text-3xl font-medium mb-4 leading-snug"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
-        >
-          Hi there, I'm{" "}
-          <span style={{ color: "#00d1b8" }}>Pritika</span>
-        </h2>
+       
 
         {/* Body */}
         <p
@@ -79,7 +71,7 @@ function AboutUsPurposeMobile({ imageUrl, content }) {
 }
 
 // ─────────────────────────────────────────────
-// DESKTOP VERSION – original scroll animation, untouched
+// DESKTOP VERSION
 // ─────────────────────────────────────────────
 function AboutUsPurposeDesktop({ imageUrl, content }) {
   const sectionRef = useRef(null);
@@ -183,10 +175,10 @@ function AboutUsPurposeDesktop({ imageUrl, content }) {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#f6f4f0]"
+      className="relative w-full bg-white"
       style={{ minHeight: "280vh" }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full overflow-hidden ">
 
         {/* Image frame */}
         <div
@@ -274,9 +266,7 @@ function AboutUsPurposeDesktop({ imageUrl, content }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// ROOT EXPORT – renders mobile or desktop based on screen width
-// ─────────────────────────────────────────────
+
 export default function AboutUsPurpose({
   imageUrl = heroPhoto,
    imageUrlMobile = mobileimg,

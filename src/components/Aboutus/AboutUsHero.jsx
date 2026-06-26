@@ -96,8 +96,8 @@ export default function AboutUsHero() {
           }}
         />
 
-        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-24 py-10 sm:py-16 flex flex-col min-h-[280px] sm:min-h-[780px]">
-          <div className="self-end max-w-xl text-left mb-auto pt-16 sm:pt-28 lg:pt-44 ">
+        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-24 py-10 sm:py-16 flex flex-col min-h-[580px] sm:min-h-[780px]">
+          <div className="self-end max-w-xl text-left mb-auto pt-42 sm:pt-28 lg:pt-44 ">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal text-neutral-900 leading-tight mb-3 sm:mb-4" style={{ letterSpacing: "-0.5px" }}>
               Empowering Wellness <br />for Every Stage of Your Journey
             </h1>

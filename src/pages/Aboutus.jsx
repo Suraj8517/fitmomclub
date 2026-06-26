@@ -3,6 +3,9 @@ import AboutUsHero from '../components/Aboutus/AboutUsHero'
 import AboutUsSecondSection from '../components/Aboutus/AboutUsSecondSection'
 import HowItWorksSection from '../components/Aboutus/AboutUsHowItWorks'
 import AboutUsPurpose from '../components/Aboutus/AboutUsPurposeSection'
+import AboutUsStorySection from '../components/Aboutus/AboutUsStorySection'
+import AboutUsTeamSection from '../components/Aboutus/AboutUsTeam'
+import WhyFitMomSection from '../components/Aboutus/AboutUsFitMomSection'
 
 export default function 
 () {
@@ -12,6 +15,9 @@ export default function
         <HowItWorksSection/>
         <AboutUsSecondSection/>
         <AboutUsPurpose/>
+        <AboutUsStorySection/>
+        <AboutUsTeamSection/>
+        <WhyFitMomSection/>
     </div>
   )
 }

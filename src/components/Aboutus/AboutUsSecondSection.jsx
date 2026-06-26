@@ -14,11 +14,11 @@ export default function AboutUsSecondSection() {
           {/* ── Row 1: Text left, two stacked images right ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center mb-12 md:mb-24">
             {/* Left — text */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 ">
                 <h2
-            className="text-center md:text-left text-teal-700 font-normal leading-[0.95] tracking-[-0.04em] pb-4 md:pb-1"
+            className="text-center md:text-left text-teal-700 font-normal leading-[0.95] tracking-[-0.04em] pt-12 sm:pt-4 pb-4 md:pb-1"
             style={{
-              fontSize: "clamp(2.6rem, 5vw, 4.5rem)",
+              fontSize: "clamp(2.6rem, 5vw, 3rem)",
             }}
           >
             Our Vision
@@ -55,7 +55,7 @@ Our vision is to empower women and mothers to prioritize their health, strength,
           </div>
 
           {/* ── Row 2: Large image left, text right ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center pt-2 md:pt-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center pt-2 md:pt-16 mb-20">
             {/* Left — large image */}
             <div className="rounded-2xl overflow-hidden">
               <img
@@ -67,11 +67,11 @@ Our vision is to empower women and mothers to prioritize their health, strength,
             </div>
 
             {/* Right — text */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 ">
               <h2
             className="text-center md:text-left text-teal-700 font-normal leading-[0.95] tracking-[-0.04em] pb-4 md:pb-1"
             style={{
-              fontSize: "clamp(2.6rem, 5vw, 4.5rem)",
+              fontSize: "clamp(2.6rem, 5vw, 3rem)",
             }}
           >
             Our Mission
