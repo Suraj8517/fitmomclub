@@ -57,14 +57,6 @@ A Quest for Well-being that Sparked a Lifelong purpose        </p>
         >
           {content}
         </p>
-
-        <HashLink
-          to="/#cta"
-          className="inline-flex items-center gap-2 h-12 px-6 mt-6 rounded-full text-white text-sm font-semibold bg-teal-500 shadow-sm shadow-teal-900/10 transition-all duration-200 hover:bg-teal-600 hover:scale-[1.02] active:scale-[0.97]"
-        >
-          Join Now
-          <ArrowRight size={14} />
-        </HashLink>
       </div>
     </section>
   );

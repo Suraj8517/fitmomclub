@@ -3,7 +3,7 @@ import HomePage from './HomePage'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Aboutus from './Aboutus';
 import Navbar from '../components/NavBar';
-
+import OurAppPage from './OurAppPage';
 export default function LandingPage() {
   return (
     <>
@@ -11,7 +11,8 @@ export default function LandingPage() {
       <Navbar/>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
-        <Route path='about-us' element={<Aboutus/>}/>
+        <Route path='/about-us' element={<Aboutus/>}/>
+        <Route path='/our-app' element={<OurAppPage/>}/>
       </Routes>
     </Router>
     </>

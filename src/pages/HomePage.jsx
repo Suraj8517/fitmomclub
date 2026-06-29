@@ -7,6 +7,7 @@ import StorySection from '../components/Home/StorySection'
 import AppShowCaseSection from '../components/Home/AppShowCaseSection'
 import OurExpertSection from '../components/Home/OurExpertsSection'
 import CTASection from '../components/Home/CTASection'
+import CommunityStatsSection from '../components/Home/StatSection'
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
     <ProgramSection/>
     <AppShowCaseSection/>
     <StorySection/>
+    <CommunityStatsSection/>
     <OurExpertSection/>
     <CTASection/>
     </section>

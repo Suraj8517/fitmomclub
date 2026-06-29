@@ -90,7 +90,7 @@ export default function FeatureShowcase() {
       
       <HashLink
         to="/#cta"
-        className="flex lg:w-[20%] w-[30%] mt-6 mx-auto items-center justify-center gap-2 rounded-full px-4 py-[15px] text-sm font-bold transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_15px_40px_rgba(0,212,255,0.35)] active:scale-[0.98]"
+        className=" flex lg:w-[20%] w-[30%] mt-6 mx-auto items-center justify-center gap-2 rounded-full px-4 py-[15px] text-sm font-bold transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_15px_40px_rgba(0,212,255,0.35)] active:scale-[0.98]"
         style={{
           background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
           color: "#062019",

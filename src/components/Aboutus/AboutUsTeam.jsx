@@ -32,7 +32,7 @@ function Card({ card }) {
         <img
           src={card.img}
           alt={card.title}
-          className="w-full h-full object-cover block"
+          className="w-full h-full object-cover object-top block"
         />
       </div>
       {/* Text */}

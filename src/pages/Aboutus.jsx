@@ -6,6 +6,7 @@ import AboutUsPurpose from '../components/Aboutus/AboutUsPurposeSection'
 import AboutUsStorySection from '../components/Aboutus/AboutUsStorySection'
 import AboutUsTeamSection from '../components/Aboutus/AboutUsTeam'
 import WhyFitMomSection from '../components/Aboutus/AboutUsFitMomSection'
+import OurApproachSection from '../components/Aboutus/AboutUsOurApproachSection'
 
 export default function 
 () {
@@ -18,6 +19,7 @@ export default function
         <AboutUsStorySection/>
         <AboutUsTeamSection/>
         <WhyFitMomSection/>
+        <OurApproachSection/>
     </div>
   )
 }
