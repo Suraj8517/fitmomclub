@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 
 const NAV_LINKS = [
-  { label: "Google Health Coach" },
-  { label: "Your Health Connected" },
+  { label: "About Us" },
+  { label: "Our App" },
 ];
 
 const HOW_WE_BUILT = [

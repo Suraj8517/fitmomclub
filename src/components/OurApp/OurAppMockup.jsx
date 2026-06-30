@@ -21,73 +21,98 @@ function Placeholder({ label }) {
   );
 }
 
+function PhoneFan({ heightStyle, sideOffset, sideSize, centerSize, sideShadow, centerShadow }) {
+  return (
+    <div
+      className="relative flex items-end justify-center w-full max-w-[900px]"
+      style={{ height: heightStyle }}
+    >
+      {/* Left image */}
+      <div
+        className="absolute z-[1] lg:right-[50%] right-[30%] lg:bottom-0 bottom-[3%]"
+        style={{
+        
+          transform: `translateX(-50%) translateX(-${sideOffset})`,
+          width: sideSize.width,
+          height: sideSize.height,
+          filter: `drop-shadow(0 16px 32px rgba(0,0,0,${sideShadow}))`,
+        }}
+      >
+        {LEFT_SRC ? (
+          <img src={LEFT_SRC} alt="App screen 1" className="w-full h-full object-contain" />
+        ) : (
+          <Placeholder label="Mockup image 1" />
+        )}
+      </div>
+
+      {/* Center image */}
+      <div
+        className="absolute z-[3] lg:left-[50%] left-[50%]"
+        style={{
+          bottom: 0,
+          transform: "translateX(-50%)",
+          width: centerSize.width,
+          height: centerSize.height,
+          filter: `drop-shadow(0 24px 48px rgba(0,0,0,${centerShadow}))`,
+        }}
+      >
+        {CENTER_SRC ? (
+          <img src={CENTER_SRC} alt="App screen 2" className="w-full h-full object-contain" />
+        ) : (
+          <Placeholder label="Mockup image 2" />
+        )}
+      </div>
+
+      {/* Right image */}
+      <div
+        className="absolute z-[1] lg:left-[40%] left-[50%] lg:bottom-0 bottom-[3%]"
+        style={{
+          transform: `translateX(-50%) translateX(${sideOffset})`,
+          width: sideSize.width,
+          height: sideSize.height,
+          filter: `drop-shadow(0 16px 32px rgba(0,0,0,${sideShadow}))`,
+        }}
+      >
+        {RIGHT_SRC ? (
+          <img src={RIGHT_SRC} alt="App screen 3" className="w-full h-full object-contain" />
+        ) : (
+          <Placeholder label="Mockup image 3" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function PhoneMockupSection() {
   return (
-    <section className="w-full flex flex-col items-center bg-[#F6F5F1]">
-      <div className="relative flex items-end justify-center w-full max-w-[900px]"
-        style={{ height: "clamp(300px, 55vw, 540px)" ,transform:"translateY(-10%)"}}>
-
-        {/* Left image */}
-        <div
-          className="absolute z-[1]"
-          style={{
-            bottom: "0%",
-            left: "45%",
-            transform: "translateX(-50%) translateX(clamp(-100px, -23vw, -210px))",
-            width: "clamp(100px, 22vw, 220px)",
-            height: "clamp(210px, 46vw, 500px)",
-            filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.18))",
-          }}
-        >
-          {LEFT_SRC ? (
-            <img src={LEFT_SRC} alt="App screen 1" className="w-full h-full object-contain" />
-          ) : (
-            <Placeholder label="Mockup image 1" />
-          )}
-        </div>
-
-        {/* Center image */}
-        <div
-          className="absolute z-[3]"
-          style={{
-            bottom: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "clamp(120px, 26vw, 250px)",
-            height: "clamp(250px, 54vw, 510px)",
-            filter: "drop-shadow(0 24px 48px rgba(0,0,0,0.22))",
-          }}
-        >
-          {CENTER_SRC ? (
-            <img src={CENTER_SRC} alt="App screen 2" className="w-full h-full object-contain" />
-          ) : (
-            <Placeholder label="Mockup image 2" />
-          )}
-        </div>
-
-        {/* Right image */}
-        <div
-          className="absolute z-[1]"
-          style={{
-            bottom: "0%",
-            left: "45%",
-            transform: "translateX(-50%) translateX(clamp(100px, 23vw, 210px)) ",
-            width: "clamp(100px, 22vw, 220px)",
-            height: "clamp(210px, 46vw, 500px)",
-            filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.18))",
-          }}
-        >
-          {RIGHT_SRC ? (
-            <img src={RIGHT_SRC} alt="App screen 3" className="w-full h-full object-contain" />
-          ) : (
-            <Placeholder label="Mockup image 3" />
-          )}
-        </div>
-
+    <section className="w-full flex flex-col items-center bg-[#F6F5F1] px-4 sm:px-6 ">
+      {/* Mobile fan — tighter spacing, hidden md+ */}
+      <div className="md:hidden w-full flex justify-center" style={{ transform: "translateY(-4%)" }}>
+        <PhoneFan
+          heightStyle="clamp(290px, 58vw, 280px)"
+          sideOffset="clamp(26px, 13vw, 60px)"
+          sideSize={{ width: "clamp(258px, 15vw,290px)", height: "clamp(242px, 32vw, 290px)" }}
+          centerSize={{ width: "clamp(290px, 18vw, 322px)", height: "clamp(266px, 38vw, 310px)" }}
+          sideShadow="0.16"
+          centerShadow="0.2"
+        />
       </div>
-      <div className="max-w-3xl mx-auto ">
-        <p className="font-semibold text-lg text-center text-black/50">
-            At FitMom Club, we believe in a unique, personalized approach to fitness. We begin by assessing your fitness level, health conditions, and personal goals to design a plan just for you. With tailored workouts and expert guidance, we help you achieve sustainable results in your wellness journey.
+
+      {/* Desktop fan — original spacing, hidden below md */}
+      <div className="hidden md:flex w-full justify-center" style={{ transform: "translateY(-6%)" }}>
+        <PhoneFan
+          heightStyle="clamp(300px, 50vw, 540px)"
+          sideOffset="clamp(120px, 19vw, 210px)"
+          sideSize={{ width: "clamp(140px, 19vw, 220px)", height: "clamp(290px, 40vw, 500px)" }}
+          centerSize={{ width: "clamp(170px, 23vw, 250px)", height: "clamp(350px, 48vw, 510px)" }}
+          sideShadow="0.18"
+          centerShadow="0.22"
+        />
+      </div>
+
+      <div className="max-w-3xl mx-auto px-2 sm:px-0 pt-4">
+        <p className="font-semibold text-sm sm:text-base md:text-lg text-center text-black/50 leading-relaxed">
+          At FitMom Club, we believe in a unique, personalized approach to fitness. We begin by assessing your fitness level, health conditions, and personal goals to design a plan just for you. With tailored workouts and expert guidance, we help you achieve sustainable results in your wellness journey.
         </p>
       </div>
     </section>

@@ -23,20 +23,20 @@ const features = [
 
 export default function HealthCoachSection() {
   return (
-    <section className="w-full bg-[#f6f5f1] overflow-hidden py-18 md:py-16 lg:py-30">
+    <section className="w-full bg-[#f6f5f1] overflow-hidden py-18 md:py-16 lg:py-30 mx-auto">
 
       {/* ── Header ── */}
-      <div className="px-5 sm:px-8 md:p2-14 lg:pl-38 mb-10 md:mb-14 lg:mb-16 lg:max-w-4xl">
+      <div className="px-5 sm:px-8 md:p2-14 lg:pl-38 mb-10 md:mb-14 lg:mb-16 2xl:max-w-8xl mx-auto">
         <p className="text-xs sm:text-sm font-semibold text-slate-800 mb-2 md:mb-3 tracking-wide">
           Your FMC Personal Health Coach.
         </p>
         <h2
-  className="inline-block text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] mb-4 md:mb-6"
+  className="inline-block text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.05] mb-4 md:mb-6"
   style={{
-    backgroundImage: "linear-gradient(90deg, #111111, #4db8a5)",
-    backgroundClip: "text",
+    background: "linear-gradient(90deg, #A479C8 0%, #738AC7 50%, #64994F 100%)",
     WebkitBackgroundClip: "text",
-    color: "transparent",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
   }}
 >
     Tailored Guidance<br/> at Every Step
@@ -79,22 +79,20 @@ export default function HealthCoachSection() {
       </div>
 
       {/* ── Desktop: side-by-side layout ── */}
-      <div className="hidden lg:flex items-start">
+      <div className="hidden lg:flex md:items-start 2xl:items-center">
         {/* Image — bleeds from left edge */}
-        <div
-          className="flex-shrink-0 w-[58%] rounded-r-3xl overflow-hidden"
-          style={{ marginLeft: "-2px" }}
-        >
+       <div
+  className=" w-[58%] rounded-r-3xl overflow-hidden md:-ml-2 2xl:ml-38 2xl:rounded-3xl 2xl:w-[50%]"
+>
           <img
             src={img1}
             alt="Personal health coach session"
-            className="w-full object-cover"
-            style={{ height: "520px" }}
+            className="w-full object-cover md:h-[520px] 2xl:h-[600px]"
           />
         </div>
 
         {/* Features to the right */}
-        <div className="flex-1 pl-12 xl:pl-16 pr-16 xl:pr-24 pt-2 flex flex-col gap-9 max-w-lg">
+        <div className="flex-1 pl-12 xl:pl-16 pr-16 xl:pr-24 flex flex-col gap-9 max-w-lg">
           {features.map(({ icon: Icon, title, description }, i) => (
             <div key={i} className="flex flex-col items-start gap-4">
               <div className="flex-shrink-0 mt-0.5">
