@@ -51,9 +51,8 @@ export default function HealthCoachSection() {
 
       {/* ── Mobile & Tablet: stacked layout ── */}
       <div className="lg:hidden">
-        {/* Image — full bleed with rounded right on mobile, both sides clipped on tablet */}
         <div className="mb-8 sm:mb-10 md:mb-12">
-          <div className="ml-0 rounded-r-2xl sm:rounded-2xl sm:mx-5 md:mx-8 overflow-hidden">
+          <div className="m-4 rounded-2xl sm:rounded-2xl sm:mx-5 md:mx-8 overflow-hidden">
             <img
               src={img1}
               alt="Personal health coach session"

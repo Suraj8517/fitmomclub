@@ -2,10 +2,14 @@ import React from "react";
 import img1 from "../../assets/our app/mockup-left.png"
 import img2 from "../../assets/our app/mockup-right.png"
 import img3 from "../../assets/our app/mockup-mid.png"
+import img4 from "../../assets/our app/mockup-left-end.png"
+import img5 from "../../assets/our app/mockup-right-end.png"
 
+const FAR_LEFT_SRC = img4;
 const LEFT_SRC = img1;
 const CENTER_SRC = img3;
 const RIGHT_SRC = img2;
+const FAR_RIGHT_SRC = img5;
 
 function Placeholder({ label }) {
   return (
@@ -21,17 +25,43 @@ function Placeholder({ label }) {
   );
 }
 
-function PhoneFan({ heightStyle, sideOffset, sideSize, centerSize, sideShadow, centerShadow }) {
+function PhoneFan({
+  heightStyle,
+  sideOffset,
+  farOffset,
+  sideSize,
+  farSize,
+  centerSize,
+  sideShadow,
+  farShadow,
+  centerShadow,
+}) {
   return (
     <div
-      className="relative flex items-end justify-center w-full max-w-[900px]"
+      className="relative flex items-end justify-center w-full max-w-[1100px]"
       style={{ height: heightStyle }}
     >
+      {/* Far-left image */}
+      <div
+        className="absolute z-[0] lg:left-[23%] right-[48%] lg:bottom-12 bottom-[10%]"
+        style={{
+          transform: `translateX(-50%) translateX(-${farOffset})`,
+          width: farSize.width,
+          height: farSize.height,
+          filter: `drop-shadow(0 14px 28px rgba(0,0,0,${farShadow}))`,
+        }}
+      >
+        {FAR_LEFT_SRC ? (
+          <img src={FAR_LEFT_SRC} alt="App screen far left" className="w-full h-full object-contain" />
+        ) : (
+          <Placeholder label="Mockup image far left" />
+        )}
+      </div>
+
       {/* Left image */}
       <div
         className="absolute z-[1] lg:right-[50%] right-[30%] lg:bottom-0 bottom-[3%]"
         style={{
-        
           transform: `translateX(-50%) translateX(-${sideOffset})`,
           width: sideSize.width,
           height: sideSize.height,
@@ -65,7 +95,7 @@ function PhoneFan({ heightStyle, sideOffset, sideSize, centerSize, sideShadow, c
 
       {/* Right image */}
       <div
-        className="absolute z-[1] lg:left-[40%] left-[50%] lg:bottom-0 bottom-[3%]"
+        className="absolute z-[1] lg:left-[40%] left-[52%] lg:bottom-0 bottom-[3%]"
         style={{
           transform: `translateX(-50%) translateX(${sideOffset})`,
           width: sideSize.width,
@@ -77,6 +107,23 @@ function PhoneFan({ heightStyle, sideOffset, sideSize, centerSize, sideShadow, c
           <img src={RIGHT_SRC} alt="App screen 3" className="w-full h-full object-contain" />
         ) : (
           <Placeholder label="Mockup image 3" />
+        )}
+      </div>
+
+      {/* Far-right image */}
+      <div
+        className="absolute z-[0] lg:left-[34%] left-[53%] lg:bottom-12 bottom-[10%]"
+        style={{
+          transform: `translateX(-50%) translateX(${farOffset})`,
+          width: farSize.width,
+          height: farSize.height,
+          filter: `drop-shadow(0 14px 28px rgba(0,0,0,${farShadow}))`,
+        }}
+      >
+        {FAR_RIGHT_SRC ? (
+          <img src={FAR_RIGHT_SRC} alt="App screen far right" className="w-full h-full object-contain" />
+        ) : (
+          <Placeholder label="Mockup image far right" />
         )}
       </div>
     </div>
@@ -91,9 +138,12 @@ export default function PhoneMockupSection() {
         <PhoneFan
           heightStyle="clamp(290px, 58vw, 280px)"
           sideOffset="clamp(26px, 13vw, 60px)"
+          farOffset="clamp(48px, 24vw, 100px)"
           sideSize={{ width: "clamp(258px, 15vw,290px)", height: "clamp(242px, 32vw, 290px)" }}
+          farSize={{ width: "clamp(220px, 13vw, 250px)", height: "clamp(200px, 27vw, 250px)" }}
           centerSize={{ width: "clamp(290px, 18vw, 322px)", height: "clamp(266px, 38vw, 310px)" }}
           sideShadow="0.16"
+          farShadow="0.12"
           centerShadow="0.2"
         />
       </div>
@@ -103,9 +153,12 @@ export default function PhoneMockupSection() {
         <PhoneFan
           heightStyle="clamp(300px, 50vw, 540px)"
           sideOffset="clamp(120px, 19vw, 210px)"
+          farOffset="clamp(220px, 34vw, 380px)"
           sideSize={{ width: "clamp(140px, 19vw, 220px)", height: "clamp(290px, 40vw, 500px)" }}
+          farSize={{ width: "clamp(110px, 15vw, 180px)", height: "clamp(230px, 32vw, 400px)" }}
           centerSize={{ width: "clamp(170px, 23vw, 250px)", height: "clamp(350px, 48vw, 510px)" }}
           sideShadow="0.18"
+          farShadow="0.12"
           centerShadow="0.22"
         />
       </div>

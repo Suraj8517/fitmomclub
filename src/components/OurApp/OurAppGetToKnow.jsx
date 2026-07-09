@@ -1,133 +1,315 @@
-import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, FreeMode, Mousewheel } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Link } from "react-router-dom";
+import img1 from '../../assets/our app/bg/bg1.jpg'
+import img2 from '../../assets/our app/bg/bg2.png'
+import img3 from '../../assets/our app/bg/expert.png'
+import img4 from '../../assets/our app/bg/live.png'
+import img5 from '../../assets/our app/bg/bg5.png'
+import img6 from '../../assets/our app/bg/refer.png'
+import img7 from '../../assets/our app/bg/step.png'
+import img8 from '../../assets/our app/bg/program.png'
+import img9 from '../../assets/our app/bg/emotional.png'
+import TestimonialCard from "../Helper/TestimonialCard";
+import { HashLink } from "react-router-hash-link";
+import { color } from "framer-motion";
 
-import bg1 from "../../assets/home/bgImg/support.webp"
-import bg2 from "../../assets/home/bgImg/support.webp"
-import bg3 from "../../assets/home/bgImg/support.webp"
-import bg4 from "../../assets/home/bgImg/support.webp"
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const cards = [
   {
-    eyebrow: "Innovation",
-    title: ["Beautiful and durable,", "by design."],
-    image: bg1,
+    author: "Personalized Workouts",
+    quote: "Tailored workouts,\nmade for you.",
+    image: img1,
+    bg: "#0d0d14",
+    authorColor: "#A78BFA",
+    highlightColor: "#A78BFA",
+    quoteColor: "#E5E7EB",
+    accentBorder: "rgba(139, 92, 246, 0.3)",
+    link: "personalized-workouts",
   },
   {
-    eyebrow: "Cutting-Edge Cameras",
-    title: ["Picture your best", "photos and videos."],
-    image: bg2,
+    author: "Real-Time Progress Tracking",
+    quote: "Track every step,\nin real time.",
+    image: img2,
+    bg: "#F4CDFF",
+    authorColor: "#000000",
+    highlightColor: "#A21CAF",
+    quoteColor: "#000000",
+    accentBorder: "rgba(217, 70, 239, 0.3)",
+    link: "progress-tracking",
+  },
+  
+  {
+    author: "Expert Support",
+    quote: "Expert guidance,\nwhenever needed.",
+    image: img3,
+    bg: "#0f0a1e",
+    authorColor: "#C084FC",
+    highlightColor: "#C084FC",
+    quoteColor: "#E5E7EB",
+    accentBorder: "rgba(168, 85, 247, 0.3)",
+    link: "expert-support",
   },
   {
-    eyebrow: "Chip and Battery Life",
-    title: ["Fast that lasts."],
-    image: bg3,
+    author: "Nutrition Planning",
+    quote: "Eat smarter,\nfeel stronger.",
+    image: img5,
+    bg: "#F4CDFF",
+    authorColor: "#000000",
+    highlightColor: "#A21CAF",
+    quoteColor: "#000000",
+    accentBorder: "rgba(217, 70, 239, 0.3)",
+    link: "nutrition-planning",
   },
   {
-    eyebrow: "iOS and Apple Intelligence",
-    title: ["New look.", "Even more magic."],
-    image: bg4,
+    author: "On-Demand & Live Sessions",
+    quote: "Live or anytime,\nyour choice.",
+    image: img4,
+    bg: "#DED4FC",
+    authorColor: "#000000",
+    highlightColor: "#594889",
+    quoteColor: "#000000",
+    accentBorder: "rgba(99, 102, 241, 0.3)",
+    link: "live-sessions",
   },
   {
-    eyebrow: "iOS and Apple Intelligence",
-    title: ["New look.", "Even more magic."],
-    image: bg4,
-  },
-  {
-    eyebrow: "iOS and Apple Intelligence",
-    title: ["New look.", "Even more magic."],
-    image: bg4,
-  },
+  author: "Refer & Earn",
+  quote: "Share with friends,\nearn rewards.",
+  image: img6,
+  bg: "#DED4FC",
+  authorColor: "#000000",
+  highlightColor: "#594889",
+  quoteColor: "#000000",
+  accentBorder: "rgba(99, 102, 241, 0.3)",
+  link: "refer-and-earn",
+},
+{
+  author: "Step Counter",
+  quote: "Count every step,\nstay active.",
+  image: img7,
+  bg: "#0d0d14",
+  authorColor: "#A78BFA",
+  highlightColor: "#A78BFA",
+  quoteColor: "#E5E7EB",
+  accentBorder: "rgba(139, 92, 246, 0.3)",
+  link: "step-counter",
+},
+{
+  author: "Programs",
+  quote: "Programs for\nevery goal.",
+  image: img8,
+  bg: "#F4CDFF",
+  authorColor: "#000000",
+  highlightColor: "#A21CAF",
+  quoteColor: "#000000",
+  accentBorder: "rgba(217, 70, 239, 0.3)",
+  link: "programs",
+},
+{
+  author: "Emotional Well-Being",
+  quote: "Support your mind,\nevery day.",
+  image: img9,
+  bg: "#0f0a1e",
+  authorColor: "#C084FC",
+  highlightColor: "#C084FC",
+  quoteColor: "#E5E7EB",
+  accentBorder: "rgba(168, 85, 247, 0.3)",
+  link: "emotional-well-being",
+}
 ];
 
-export default function GetToKnowSection() {
-  const scrollerRef = useRef(null);
 
-  const scrollByCard = (direction) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const cardWidth = el.firstChild?.offsetWidth || 372;
-    el.scrollBy({ left: direction * (cardWidth + 16), behavior: "smooth" });
-  };
+
+
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+
+export default function CustomerSection() {
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const swiperRef = useRef(null);
+
+  const [isBeginning, setIsBeginning] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
+
+  const setPrevRef = useCallback((node) => {
+    prevRef.current = node;
+    if (swiperRef.current && node) {
+      swiperRef.current.params.navigation.prevEl = node;
+      swiperRef.current.navigation.init();
+      swiperRef.current.navigation.update();
+    }
+  }, []);
+
+  const setNextRef = useCallback((node) => {
+    nextRef.current = node;
+    if (swiperRef.current && node) {
+      swiperRef.current.params.navigation.nextEl = node;
+      swiperRef.current.navigation.init();
+      swiperRef.current.navigation.update();
+    }
+  }, []);
 
   return (
-    <section className="w-full bg-white py-10 sm:py-12 md:py-14 overflow-hidden">
-      {/* Heading stays inside the normal constrained content width */}
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 px-5 sm:px-8 md:px-12 mb-6 md:mb-8">
-          Get to know iPhone.
-        </h2>
-      </div>
+    <section className="bg-[#F6F5F1] py-28 ">
+      <style>{`
+        .customers-swiper {
+          cursor: grab;
+          overflow: visible !important;
+          will-change: transform;
+          --swiper-transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .customers-swiper .swiper-wrapper { overflow: visible; }
+        .customers-swiper.swiper-pointer-events { cursor: grabbing; }
 
-      {/* Scroller breaks out of the constrained width and runs to the viewport's right edge,
-          but its left edge still lines up with the heading above */}
-      <div
-        ref={scrollerRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory pl-5 sm:pl-8 md:pl-[max(3rem,calc((100vw-80rem)/2+3rem))] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      >
-        {cards.map((card, i) => (
-          <div
-            key={i}
-            className="relative flex-shrink-0 snap-start rounded-2xl overflow-hidden bg-black"
-            style={{ width: "372px", height: "660px" }}
-          >
-            {/* Background image */}
-            <img
-              src={card.image}
-              alt={card.eyebrow}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+        .cs-clip {
+          overflow: hidden;
+          margin-left: -9999px;
+          padding-left: 9999px;
+        }
 
-            {/* Top gradient for text legibility */}
-            <div className="absolute top-0 left-0 right-0 h-60 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
+        .customers-swiper-mobile .swiper-pagination {
+          position: static;
+          margin-top: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+        }
+        .customers-swiper-mobile .swiper-pagination-bullet {
+          width: 10px; 
+          height: 10px;
+          border-radius: 9999px;
+          background: #35c6a9;
+          opacity: 0.5; margin: 0 !important;
+          transition: width 0.25s cubic-bezier(0.4,0,0.2,1),
+                      background 0.25s cubic-bezier(0.4,0,0.2,1),
+                      opacity 0.25s;
+        }
+        .customers-swiper-mobile .swiper-pagination-bullet-active {
+          width: 24px;
+          background: #1c8c77;
+          opacity: 1;
+        }
+      `}</style>
 
-            {/* Text content */}
-            <div className="relative z-10 p-6 pt-7">
-              <p className="text-sm font-medium text-white/90 mb-2">
-                {card.eyebrow}
-              </p>
-              <h3 className="text-2xl font-semibold text-white leading-snug">
-                {card.title.map((line, j) => (
-                  <span key={j} className="block">
-                    {line}
-                  </span>
-                ))}
-              </h3>
-            </div>
-
-            {/* Optional + button — delete this block if not needed */}
-            <button
-              type="button"
-              aria-label="Learn more"
-              className="absolute bottom-5 right-5 z-10 w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
-            >
-              <span className="text-xl leading-none text-black">+</span>
-            </button>
-          </div>
-        ))}
-        {/* trailing spacer so the last card isn't flush against the viewport edge when fully scrolled */}
-        <div className="flex-shrink-0 w-5 sm:w-8 md:w-12" aria-hidden="true" />
-      </div>
-
-      {/* Navigation buttons — back inside the constrained width to match the heading */}
-      <div className="max-w-7xl mx-auto">
-        <div className="flex gap-3 px-5 sm:px-8 md:px-12 mt-4">
-          <button
-            type="button"
-            onClick={() => scrollByCard(-1)}
-            aria-label="Previous"
-            className="w-9 h-9 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-100 transition-colors"
-          >
-            <ChevronLeft size={18} className="text-slate-700" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollByCard(1)}
-            aria-label="Next"
-            className="w-9 h-9 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-100 transition-colors"
-          >
-            <ChevronRight size={18} className="text-slate-700" />
-          </button>
+      {/* ── Header ── */}
+      <div className="max-w-[75%] px-2 xl:px-4 2xl:px-16 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:mb-20 mb-12 mx-auto">
+        <div>
+            
+          <h2 className=" text-teal-700 leading-none font-[poppins] font-semibold text-[clamp(2.2rem,4.5vw,3.5rem)]">
+            FMC App Features
+          </h2>
         </div>
+       
+      </div>
+
+      {/* ── DESKTOP ── */}
+      <div className="hidden lg:block">
+        <div className="cs-clip">
+          <div className="2xl:pl-76 pl-36">
+            <Swiper
+              modules={[Navigation, FreeMode, Mousewheel]}
+              className="customers-swiper"
+              freeMode={{ enabled: true, momentum: true, momentumRatio: 0.55, momentumVelocityRatio: 0.55, minimumVelocity: 0.02, sticky: false }}
+              mousewheel={{
+                forceToAxis: true,
+                sensitivity: 1,
+                releaseOnEdges: true,
+              }}
+              slidesPerView="auto"
+              slidesOffsetAfter={80}
+              spaceBetween={15}
+              grabCursor={true}
+              simulateTouch={true}
+              touchRatio={1}
+              speed={520}
+              navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
+              onSwiper={(swiper) => {
+                swiperRef.current = swiper;
+                swiper.params.navigation.prevEl = prevRef.current;
+                swiper.params.navigation.nextEl = nextRef.current;
+                swiper.navigation.init();
+                swiper.navigation.update();
+              }}
+              onSlideChange={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
+              onReachBeginning={() => { setIsBeginning(true); setIsEnd(false); }}
+              onReachEnd={() => setIsEnd(true)}
+              onFromEdge={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
+            >
+              {cards.map((card, i) => (
+                <SwiperSlide key={i} style={{ width: 390 }}>
+                  <TestimonialCard card={card} width={"390px"} height={"690px"}/>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6 px-6 xl:px-10 2xl:px-16">
+          <button ref={setPrevRef} disabled={isBeginning} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+>
+  <path
+    d="M13 8H3M7 4L3 8l4 4"
+    stroke="#111111"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg></button>
+          <button ref={setNextRef} disabled={isEnd} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+>
+  <path
+    d="M3 8h10M9 4l4 4-4 4"
+    stroke="#111111"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg></button>
+        </div>
+      </div>
+
+      {/* ── MOBILE ── */}
+      <div className="lg:hidden px-4 sm:px-6 overflow-x-hidden ">
+        <Swiper
+          modules={[Pagination, FreeMode, Mousewheel]}
+          className="customers-swiper customers-swiper-mobile"
+          freeMode={{ enabled: true, momentum: true, momentumRatio: 0.5, minimumVelocity: 0.02, sticky: false }}
+          mousewheel={{
+            forceToAxis: true,
+            sensitivity: 1,
+            releaseOnEdges: true,
+          }}
+          slidesPerView={1.2}
+          spaceBetween={30}
+          grabCursor={true}
+          simulateTouch={true}
+          touchRatio={1}
+          speed={520}
+          pagination={{ clickable: true }}
+        >
+          {cards.map((card, i) => (
+            <SwiperSlide key={i}>
+              <TestimonialCard card={card} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );

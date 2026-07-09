@@ -52,7 +52,7 @@ export default function OurAppDataSection() {
           {features.map(({ icon: Icon, title, description, link }, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl p-7 md:p-10 flex flex-col gap-5 shadow-sm"
+              className="bg-white rounded-2xl p-10 md:p-10 flex flex-col gap-5 shadow-sm"
             >
               <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center flex-shrink-0">
                 <Icon className="w-5 h-5 text-slate-900" strokeWidth={1.75} />

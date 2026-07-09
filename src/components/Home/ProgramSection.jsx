@@ -157,7 +157,7 @@ function PlanCard({ plan, animIndex }) {
                   className="mt-[5px] shrink-0 rounded-full"
                   style={{ width: 5, height: 5, backgroundColor: C.text }}
                 />
-                <span className="text-xs sm:text-sm md:text-[13px] lg:text-sm xl:text-[16px]" style={{ color: C.textMid }}>
+                <span className="text-xs sm:text-sm md:text-[13px] lg:text-sm xl:text-[14px]" style={{ color: C.textMid }}>
                   {f}
                 </span>
               </li>

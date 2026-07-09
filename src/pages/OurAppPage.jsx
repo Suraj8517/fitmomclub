@@ -4,6 +4,7 @@ import PhoneMockupSection from '../components/OurApp/OurAppMockup'
 import OurAppHealthCoachSection from '../components/OurApp/PersonalHealthCoach'
 import OurAppDataSection from '../components/OurApp/OurAppDataSection'
 import GetToKnowSection from '../components/OurApp/OurAppGetToKnow'
+import CTASection from '../components/OurApp/OurAppCTA'
 
 export default function OurAppPage() {
   return (
@@ -13,6 +14,7 @@ export default function OurAppPage() {
     <OurAppHealthCoachSection/>
     <OurAppDataSection/>
     <GetToKnowSection/>
+    <CTASection/>
     </>
   )
 }
