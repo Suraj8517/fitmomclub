@@ -44,7 +44,7 @@ export default function LandingPage() {
         <Route path='/heart-rate-calculator' element={<HeartRateCalculator/>}/>
         <Route path='/calorie-calculator' element={<CalorieCalculator/>}/>
         <Route path='/weight-loss-calculator' element={<WeightGoalCalculator/>}/>
-        <Route path='/health-calculator' element={<HealthCalculators/>}/>
+        <Route path='/health-calculators' element={<HealthCalculators/>}/>
 
       </Routes>
     </Router>

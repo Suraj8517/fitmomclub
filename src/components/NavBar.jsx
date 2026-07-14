@@ -14,7 +14,7 @@ const WHAT_WE_OFFER = [
 
 const RESOURCES = [
   { label: "Blogs" },
-  { label: "Health Calculators" },
+  { label: "Health Calculators" ,links:"health-calculators"},
 ];
 
 const SUPPORT = [

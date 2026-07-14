@@ -19,7 +19,6 @@ import {
 const data = [
   { calculator: "BMI Calculator", url: "bmi-calculator", description: "Body mass from height & weight", icon: Scale },
   { calculator: "BMR Calculator", url: "bmr-calculator", description: "Calories burned at rest", icon: Flame },
-  { calculator: "Menstrual Calculator", url: "menstrual-calculator", description: "Track your cycle dates", icon: CalendarHeart },
   { calculator: "Water Intake Calculator", url: "water-intake-calculator", description: "Daily hydration target", icon: Droplet },
   { calculator: "Protein Intake Calculator", url: "protein-intake-calculator", description: "Daily protein needs", icon: Beef },
   { calculator: "Body Fat Calculator", url: "body-fat-calculator", description: "Estimate body fat %", icon: PieChart },
