@@ -71,7 +71,7 @@ export default function TransformationSection() {
   return (
     <section className="bg-[#ebeaea]">
     <div
-      className="px-5 md:py-20 py-8 sm:px-10 md:px-16 lg:px-20 xl:px-24 2xl:px-32"
+      className="px-5 md:py-10 py-8 sm:px-10 md:px-16 lg:px-20 xl:px-24 2xl:px-32"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Header */}

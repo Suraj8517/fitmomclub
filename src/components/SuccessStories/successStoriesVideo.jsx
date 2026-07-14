@@ -143,7 +143,7 @@ export default function SuccessStoriesVideoSection() {
               Short stories
               <br />
               <span className="text-teal-800">from members</span>
-              <Squiggle color={TOKENS.gold} className="mt-1 max-w-[220px] mx-auto sm:mx-0" />
+              <Squiggle color={TOKENS.sageDark} className="mt-1 max-w-[220px] 2xl:max-w-[380px] mx-auto sm:mx-0" />
             </h1>
           </div>
           <div className="lg:pt-4 lg:pl-22">

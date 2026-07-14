@@ -1,21 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-
+import { Link } from "react-router-dom";
 const NAV_LINKS = [
-  { label: "About Us" },
-  { label: "Our App" },
+  { label: "About Us",links:"about-us" },
+  { label: "Our Community", links:"community" },
 ];
 
-const HOW_WE_BUILT = [
-  { label: "Our experts" },
-  { label: "Our research" },
-  { label: "Privacy" },
+const WHAT_WE_OFFER = [
+  { label: "Success Stories",links:"success-stories" },
+  { label: "Our App",links:"our-app" },
+  { label: "Programs" },
+  {label:"Webinars",links:"webinar"}
 ];
 
-const RESOURCES = [{ label: "Published studies" }];
+const RESOURCES = [
+  { label: "Blogs" },
+  { label: "Health Calculators" },
+];
 
-const FOR_ENTERPRISE = [
-  { label: "Solutions" },
-  { label: "Proof it works" },
+const SUPPORT = [
+  { label: "FAQ",links:"FAQs" },
 ];
 
 const DOWNLOAD_LINKS = [
@@ -130,39 +133,39 @@ export default function Navbar() {
 
                 {/* Floating dropdown card — anchored to the right of the hamburger */}
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-3 w-64 bg-[#f5f0eb] rounded-2xl shadow-2xl border border-black/5 py-4 animate-fadeIn">
+                  <div className="absolute right-0 top-full mt-3 w-64 bg-[#f5f0eb] rounded-2xl shadow-2xl border border-black/5 py-2 animate-fadeIn">
 
                     {/* Main nav links */}
-                    <div className="px-5 pb-3">
+                    <div className="px-5 pb-2">
                       {NAV_LINKS.map((link) => (
-                        <a
+                        <Link
                           key={link.label}
-                          href="#"
+                          to={link.links}
                           className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
 
-                    {/* How we built this */}
-                    <div className="border-t border-gray-200/70 px-5 pt-3 pb-3">
+                    {/* What We Offer */}
+                    <div className="border-t border-gray-200/70 px-5 pt-2 pb-2">
                       <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
-                        How we built this
+                        What We Offer
                       </p>
-                      {HOW_WE_BUILT.map((link) => (
-                        <a
+                      {WHAT_WE_OFFER.map((link) => (
+                        <Link
                           key={link.label}
-                          href="#"
+                          to={link.links}
                           className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
 
                     {/* Resources */}
-                    <div className="border-t border-gray-200/70 px-5 pt-3 pb-3">
+                    <div className="border-t border-gray-200/70 px-5 pt-2 pb-2">
                       <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
                         Resources
                       </p>
@@ -177,19 +180,19 @@ export default function Navbar() {
                       ))}
                     </div>
 
-                    {/* For Enterprise */}
-                    <div className="border-t border-gray-200/70 px-5 pt-3">
+                    {/* Support */}
+                    <div className="border-t border-gray-200/70 px-5 pt-2">
                       <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
-                        For Enterprise
+                        Support
                       </p>
-                      {FOR_ENTERPRISE.map((link) => (
-                        <a
-                          key={link.label}
-                          href="#"
+                      {SUPPORT.map((link) => (
+                        <Link
+                           key={link.label}
+                          to={link.links}
                           className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
 

@@ -6,6 +6,8 @@ import Navbar from '../components/NavBar';
 import OurAppPage from './OurAppPage';
 import OurCommunity from './OurCommunity'
 import SuccessStories from './successStories';
+import WebinarPage from './WebinarPage';
+import FAQPage from './FAQPage';
 export default function LandingPage() {
   return (
     <>
@@ -17,6 +19,8 @@ export default function LandingPage() {
         <Route path='/our-app' element={<OurAppPage/>}/>
         <Route path='/community' element={<OurCommunity/>}/>
         <Route path='/success-stories' element={<SuccessStories/>}/>
+        <Route path='/webinars' element={<WebinarPage/>}/>
+        <Route path='/FAQs' element={<FAQPage/>}/>
 
       </Routes>
     </Router>
