@@ -170,13 +170,13 @@ export default function Navbar() {
                         Resources
                       </p>
                       {RESOURCES.map((link) => (
-                        <a
+                        <Link
                           key={link.label}
-                          href="#"
+                         to={link.links}
                           className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
                         >
                           {link.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
 
