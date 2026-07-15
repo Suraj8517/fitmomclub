@@ -157,7 +157,7 @@ function InfoCard({ card, onOpen }) {
         <button
           onClick={() => onOpen(card)}
           aria-label={`Learn more: ${card.modalTitle}`}
-          className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-transform hover:scale-110 hover:rotate-90 active:scale-95"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-transform hover:scale-110 active:scale-95"
           style={{
             backgroundColor: "#1B1523",
             transitionDuration: "260ms",
@@ -174,7 +174,7 @@ export default function FitMomSuccessSection() {
   const [activeCard, setActiveCard] = useState(null);
 
   return (
-    <section className=" min-h-screen w-full bg-[#F6F5F1] px-5 py-16 sm:px-10 sm:py-20">
+    <section className=" w-full bg-[#F6F5F1] px-5 py-16 sm:px-10 sm:py-20">
       <style>{`
      @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
         @keyframes popin { from { opacity: 0; transform: translateY(14px) scale(.97) } to { opacity: 1; transform: translateY(0) scale(1) } }

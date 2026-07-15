@@ -10,6 +10,12 @@ import {
   Zap,
   RotateCcw,
   Info,
+  Egg,
+  Fish,
+  Beef,
+  Milk,
+  Wheat,
+  Nut,
 } from "lucide-react";
 
 
@@ -26,6 +32,27 @@ const ACTIVITIES = [
   { key: "active", label: "Very active", factor: 1.15, icon: Zap },
 ];
 
+// Common Indian high-protein foods with approx grams of protein per typical
+// serving. Mix of veg, dairy, and non-veg staples so it works across diets.
+const FOOD_SUGGESTIONS = [
+  { key: "paneer", label: "Paneer", serving: "100g", proteinG: 18, icon: Milk },
+  { key: "dahi", label: "Dahi / curd", serving: "1 cup (250g)", proteinG: 11, icon: Milk },
+  { key: "moongdal", label: "Moong dal", serving: "1 cup cooked", proteinG: 14, icon: Wheat },
+  { key: "toordal", label: "Toor dal", serving: "1 cup cooked", proteinG: 13, icon: Wheat },
+  { key: "rajma", label: "Rajma", serving: "1 cup cooked", proteinG: 15, icon: Wheat },
+  { key: "chana", label: "Chana / chole", serving: "1 cup cooked", proteinG: 15, icon: Wheat },
+  { key: "sprouts", label: "Moong sprouts", serving: "1 cup", proteinG: 9, icon: Wheat },
+  { key: "soyachunks", label: "Soya chunks", serving: "50g dry, cooked", proteinG: 26, icon: Wheat },
+  { key: "tofu", label: "Tofu", serving: "100g", proteinG: 12, icon: Wheat },
+  { key: "milk", label: "Milk", serving: "1 cup (240ml)", proteinG: 8, icon: Milk },
+  { key: "eggs", label: "Eggs", serving: "2 large eggs", proteinG: 12, icon: Egg },
+  { key: "chicken-curry", label: "Chicken curry", serving: "100g chicken", proteinG: 27, icon: Beef },
+  { key: "fish-curry", label: "Fish curry", serving: "100g fish", proteinG: 20, icon: Fish },
+  { key: "peanuts", label: "Peanuts / groundnuts", serving: "1/4 cup (35g)", proteinG: 9, icon: Nut },
+  { key: "roasted-chana", label: "Roasted chana", serving: "1/4 cup (30g)", proteinG: 6, icon: Nut },
+  { key: "protein-shake", label: "Whey protein shake", serving: "1 scoop", proteinG: 24, icon: Dumbbell },
+];
+
 const RING_MAX_G = 250;
 const RING_R = 82;
 const RING_CIRC = 2 * Math.PI * RING_R;
@@ -33,6 +60,23 @@ const RING_CIRC = 2 * Math.PI * RING_R;
 function calcProteinG({ weightKg, goalPerKg, activityFactor, age }) {
   const ageFactor = age >= 50 ? 1.1 : 1.0;
   return Math.round(weightKg * goalPerKg * activityFactor * ageFactor);
+}
+
+// Greedily pick a handful of foods whose combined protein lands close to
+// the daily target, so the list feels like "here's a day that gets you
+// there" rather than a random assortment.
+function suggestFoodPlan(targetG) {
+  if (!targetG) return [];
+  const shuffled = [...FOOD_SUGGESTIONS].sort(() => Math.random() - 0.5);
+  const picked = [];
+  let running = 0;
+  for (const food of shuffled) {
+    if (running >= targetG) break;
+    picked.push(food);
+    running += food.proteinG;
+    if (picked.length >= 6) break;
+  }
+  return picked;
 }
 
 export default function ProteinIntakeCalculator() {
@@ -44,6 +88,7 @@ export default function ProteinIntakeCalculator() {
   const [goal, setGoal] = useState("fatloss");
   const [activity, setActivity] = useState("sedentary");
   const [resultG, setResultG] = useState(null);
+  const [foodPlan, setFoodPlan] = useState([]);
 
   const totalInches = heightCm / 2.54;
   const feet = Math.floor(totalInches / 12);
@@ -89,12 +134,15 @@ export default function ProteinIntakeCalculator() {
     setGoal("fatloss");
     setActivity("sedentary");
     setResultG(null);
+    setFoodPlan([]);
   }
 
   function handleCalculate() {
     const goalPerKg = GOALS.find((g) => g.key === goal).perKg;
     const activityFactor = ACTIVITIES.find((a) => a.key === activity).factor;
-    setResultG(calcProteinG({ weightKg, goalPerKg, activityFactor, age }));
+    const g = calcProteinG({ weightKg, goalPerKg, activityFactor, age });
+    setResultG(g);
+    setFoodPlan(suggestFoodPlan(g));
   }
 
   const ringPercent = resultG ? Math.min(100, (resultG / RING_MAX_G) * 100) : 0;
@@ -103,6 +151,7 @@ export default function ProteinIntakeCalculator() {
   const caloriesFromProtein = resultG ? resultG * 4 : 0;
   const perMeal = resultG ? Math.round(resultG / 4) : 0;
   const perKgActual = resultG && weightKg ? (resultG / weightKg).toFixed(1) : 0;
+  const foodPlanTotal = foodPlan.reduce((sum, f) => sum + f.proteinG, 0);
 
   return (
     <div className="min-h-screen w-full bg-stone-50 flex items-center justify-center p-6">
@@ -125,7 +174,7 @@ export default function ProteinIntakeCalculator() {
         }
       `}</style>
 
-      <div className="w-full max-w-3xl font-body mt-28">
+      <div className="w-full max-w-3xl font-body mt-28 mb-16">
         <div className="flex items-end justify-between mb-6">
           <div>
             <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
@@ -400,6 +449,64 @@ export default function ProteinIntakeCalculator() {
               </p>
             </div>
           </div>
+
+          {/* Food suggestions -- appears after the first calculation */}
+          {resultG ? (
+            <div className="md:col-span-5 bg-white rounded-2xl border border-stone-200 p-5">
+              <div className="flex items-end justify-between mb-1">
+                <div>
+                  <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
+                    Food ideas
+                  </p>
+                  <h2 className="font-display text-xl font-semibold text-stone-900">
+                    A day that gets you there
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setFoodPlan(suggestFoodPlan(resultG))}
+                  className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors border border-stone-200 hover:border-stone-300 rounded-full px-3 py-1.5 bg-white"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Shuffle
+                </button>
+              </div>
+              <p className="font-mono-data text-xs text-stone-400 mb-4">
+                ~{foodPlanTotal}g of your {resultG}g target from these servings
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {foodPlan.map((food) => {
+                  const Icon = food.icon;
+                  return (
+                    <div
+                      key={food.key}
+                      className="flex items-start gap-2.5 bg-stone-50 border border-stone-200 rounded-xl px-3 py-3"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-stone-800 leading-tight">
+                          {food.label}
+                        </p>
+                        <p className="text-[11px] text-stone-400 leading-tight mt-0.5">
+                          {food.serving}
+                        </p>
+                        <p className="font-mono-data text-xs font-semibold text-teal-700 mt-1">
+                          {food.proteinG}g protein
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs text-stone-400 mt-4">
+                Mix and match across meals -- these are just a starting point. Combine plant
+                and animal sources freely based on what you actually enjoy eating.
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

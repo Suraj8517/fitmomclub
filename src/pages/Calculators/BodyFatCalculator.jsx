@@ -12,23 +12,29 @@ const RING_MAX_PCT = 45;
 const RING_R = 82;
 const RING_CIRC = 2 * Math.PI * RING_R;
 
-// Categories per Jackson & Pollock / ACE norms
+// Categories per Jackson & Pollock / ACE norms.
+// `min`/`max` are used both for classifying a result AND for drawing the
+// levels bar below (max: Infinity is visually capped at BAR_MAX_PCT).
 const CATEGORIES = {
   male: [
-    { max: 6, label: "Essential fat" },
-    { max: 14, label: "Athletic" },
-    { max: 18, label: "Fit" },
-    { max: 25, label: "Average" },
-    { max: Infinity, label: "Above average" },
+    { min: 0, max: 6, label: "Essential fat", color: "bg-stone-300" },
+    { min: 6, max: 14, label: "Athletic", color: "bg-teal-600" },
+    { min: 14, max: 18, label: "Fit", color: "bg-teal-400" },
+    { min: 18, max: 25, label: "Average", color: "bg-amber-400" },
+    { min: 25, max: Infinity, label: "Above average", color: "bg-orange-500" },
   ],
   female: [
-    { max: 14, label: "Essential fat" },
-    { max: 21, label: "Athletic" },
-    { max: 25, label: "Fit" },
-    { max: 32, label: "Average" },
-    { max: Infinity, label: "Above average" },
+    { min: 0, max: 14, label: "Essential fat", color: "bg-stone-300" },
+    { min: 14, max: 21, label: "Athletic", color: "bg-teal-600" },
+    { min: 21, max: 25, label: "Fit", color: "bg-teal-400" },
+    { min: 25, max: 32, label: "Average", color: "bg-amber-400" },
+    { min: 32, max: Infinity, label: "Above average", color: "bg-orange-500" },
   ],
 };
+
+// Visual cap for the levels bar so the open-ended last band still renders
+// as a normal-sized segment instead of infinite width.
+const BAR_MAX_PCT = 45;
 
 function calcBodyFatPct({ heightCm, weightKg, age, gender }) {
   const heightM = heightCm / 100;
@@ -106,6 +112,9 @@ export default function BodyFatCalculator() {
   const fatMassKg = resultPct ? Math.round((resultPct / 100) * weightKg * 10) / 10 : 0;
   const leanMassKg = resultPct ? Math.round((weightKg - fatMassKg) * 10) / 10 : 0;
 
+  const bands = CATEGORIES[gender];
+  const markerLeftPct = resultPct ? Math.min(100, (resultPct / BAR_MAX_PCT) * 100) : null;
+
   return (
     <div className="min-h-screen w-full bg-stone-50 flex items-center justify-center p-6">
       <style>{`
@@ -127,7 +136,7 @@ export default function BodyFatCalculator() {
         }
       `}</style>
 
-      <div className="w-full max-w-3xl font-body mt-28">
+      <div className="w-full max-w-3xl font-body mt-28 mb-16">
         <div className="flex items-end justify-between mb-6">
           <div>
             <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
@@ -367,6 +376,94 @@ export default function BodyFatCalculator() {
                 Informational only -- not medical advice.
               </p>
             </div>
+          </div>
+
+          {/* Category levels -- always visible so users can see the scale
+              before calculating, with a marker added once they do */}
+          <div className="md:col-span-5 bg-white rounded-2xl border border-stone-200 p-5">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
+                  Reference ranges
+                </p>
+                <h2 className="font-display text-xl font-semibold text-stone-900">
+                  Body fat levels &middot; {gender === "male" ? "Men" : "Women"}
+                </h2>
+              </div>
+            </div>
+
+            {/* Segmented bar */}
+            <div className="relative">
+              <div className="w-full h-3 rounded-full overflow-hidden flex">
+                {bands.map((band) => {
+                  const segStart = Math.min(band.min, BAR_MAX_PCT);
+                  const segEnd = Math.min(band.max, BAR_MAX_PCT);
+                  const widthPct = ((segEnd - segStart) / BAR_MAX_PCT) * 100;
+                  return (
+                    <div
+                      key={band.label}
+                      className={band.color}
+                      style={{ width: `${widthPct}%` }}
+                      title={band.label}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Marker for the user's current result */}
+              {markerLeftPct !== null ? (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-500"
+                  style={{ left: `${markerLeftPct}%` }}
+                >
+                  <div className="w-4 h-4 rounded-full bg-stone-900 border-2 border-white shadow-md" />
+                  <div className="mt-1.5 -translate-x-1/2 left-1/2 relative">
+                    <span className="font-mono-data text-[10px] font-semibold text-stone-900 bg-white border border-stone-200 rounded-full px-1.5 py-0.5 whitespace-nowrap shadow-sm">
+                      You: {resultPct}%
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Legend */}
+            <div className={`grid grid-cols-2 sm:grid-cols-5 gap-2 ${markerLeftPct !== null ? "mt-8" : "mt-4"}`}>
+              {bands.map((band) => {
+                const isCurrent = category === band.label;
+                const rangeLabel =
+                  band.max === Infinity
+                    ? `${band.min}%+`
+                    : band.min === 0
+                    ? `< ${band.max}%`
+                    : `${band.min}-${band.max}%`;
+                return (
+                  <div
+                    key={band.label}
+                    className={`rounded-lg border px-2.5 py-2 transition-colors ${
+                      isCurrent ? "border-teal-300 bg-teal-50" : "border-stone-200 bg-stone-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${band.color}`} />
+                      <span
+                        className={`text-[11px] font-semibold leading-tight ${
+                          isCurrent ? "text-teal-800" : "text-stone-700"
+                        }`}
+                      >
+                        {band.label}
+                      </span>
+                    </div>
+                    <p className="font-mono-data text-[10px] text-stone-400">{rangeLabel}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-xs text-stone-400 mt-4">
+              Ranges follow common ACE / Jackson &amp; Pollock body composition norms and
+              differ by gender due to typical essential fat differences. Switch the gender
+              toggle above to compare scales.
+            </p>
           </div>
         </div>
       </div>

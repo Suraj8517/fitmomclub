@@ -4,7 +4,7 @@ import { HeartHandshake,Form ,Earth ,HandHeart  } from 'lucide-react'
 const features =[
     {
        title:"Real-time interaction with experts" ,
-       icon:HandHeart
+       icon:HeartHandshake
     },
      {
        title:"Practical advice on fitness, nutrition, skin care, and mental health" ,
@@ -17,7 +17,7 @@ const features =[
     },
      {
        title:"Tailored for moms at every stage of motherhood" ,
-       icon:HeartHandshake
+       icon:HandHeart
     }
 ]
 export default function WebinarFeatures() {
