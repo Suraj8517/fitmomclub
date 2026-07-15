@@ -24,6 +24,7 @@ import ContactUs from './contactUsPage';
 import BookConsultationForm from './BookConsultation';
 import TermsAndConditions from './TermsAndConditions';
 import PrivacyPage from './PrivacyPolicy';
+import Footer from '../components/Footer';
 export default function LandingPage() {
   return (
     <>
@@ -54,6 +55,7 @@ export default function LandingPage() {
         <Route path='/terms-and-conditions' element={<TermsAndConditions/>}/>
         <Route path='/privacy-policy' element={<PrivacyPage/>}/>
       </Routes>
+      <Footer/>
     </Router>
     </>
   )
