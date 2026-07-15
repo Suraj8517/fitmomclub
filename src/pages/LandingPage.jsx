@@ -22,6 +22,8 @@ import WeightGoalCalculator from './Calculators/WeightLossCalculator';
 import HealthCalculators from './HealthCalculators';
 import ContactUs from './contactUsPage';
 import BookConsultationForm from './BookConsultation';
+import TermsAndConditions from './TermsAndConditions';
+import PrivacyPage from './PrivacyPolicy';
 export default function LandingPage() {
   return (
     <>
@@ -49,7 +51,8 @@ export default function LandingPage() {
         <Route path='/health-calculators' element={<HealthCalculators/>}/>
         <Route path='/contact-us' element={<ContactUs/>}/>
         <Route path='/book-consultation' element={<BookConsultationForm/>}/>
-
+        <Route path='/terms-and-conditions' element={<TermsAndConditions/>}/>
+        <Route path='/privacy-policy' element={<PrivacyPage/>}/>
       </Routes>
     </Router>
     </>

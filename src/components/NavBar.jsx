@@ -40,46 +40,19 @@ const DOWNLOAD_LINKS = [
   },
 ];
 
-/**
- * ROUTE_THEME_MAP
- *
- * Since Navbar is rendered ONCE at the top level (e.g. in App.jsx / a
- * shared layout with <Outlet />) instead of per-page, it can't receive a
- * different `textTheme` prop for each route. Instead it looks at the
- * current URL itself (via useLocation) and looks up the right theme here.
- *
- * - "light" -> white "FitMom Club" text + white hamburger. Use for routes
- *              whose hero/top section is dark or an image.
- * - "dark"  -> dark gray text + dark hamburger. Use for routes whose
- *              hero/top section is light/white (otherwise the navbar
- *              disappears against it, which was the original bug).
- *
- * Add an entry here for every route path that needs something other than
- * DEFAULT_THEME. Paths not listed fall back to DEFAULT_THEME.
- */
 const DEFAULT_THEME = "dark";
 const ROUTE_THEME_MAP = {
-  "/": "light",              // e.g. landing page has a dark/image hero
+  "/": "light",              
   "/about-us": "dark",
   "/community": "dark",
-  // add more routes as needed...
+ "/terms-and-conditions":"dark"
 };
 
 function getThemeForPath(pathname) {
   return ROUTE_THEME_MAP[pathname] ?? DEFAULT_THEME;
 }
 
-/**
- * Navbar
- *
- * Controls the color of "FitMom Club" and the hamburger icon/bg WHILE THE
- * NAVBAR IS TRANSPARENT (before scrolling), based on the current route —
- * see ROUTE_THEME_MAP above.
- *
- * Once the user scrolls past the navbar (scrolled === true), the navbar
- * always switches to its white/blurred background with dark text,
- * regardless of route — that part is unaffected.
- */
+
 export default function Navbar() {
   const { pathname } = useLocation();
   const textTheme = getThemeForPath(pathname);
@@ -122,18 +95,13 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close the hamburger menu and download dropdown whenever the route
-  // changes (e.g. after clicking a Link inside the menu). Client-side
-  // routing doesn't unmount Navbar, so without this the menu would stay
-  // open on the new page.
+  
   useEffect(() => {
     setMenuOpen(false);
     setDownloadOpen(false);
   }, [pathname]);
 
-  // Whether the logo/hamburger should render as "light" (white) styling
-  // right now. Once scrolled, we always use dark styling (navbar bg is
-  // white/blurred), otherwise we defer to the textTheme prop.
+ 
   const useLightStyling = !scrolled && textTheme === "light";
 
   return (
@@ -149,8 +117,13 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20 sm:h-28">
 
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2.5 shrink-0">
-
+            <a
+              href="#"
+              className={[
+                "flex items-center gap-2.5 shrink-0",
+                pathname === "/terms-and-conditions" ? "invisible" : "",
+              ].join(" ")}
+            >
               <span
                 className={[
                   "font-semibold text-xl sm:text-2xl tracking-tight transition-colors duration-300",
@@ -163,9 +136,6 @@ export default function Navbar() {
 
             {/* Right side */}
             <div className="flex items-center gap-8">
-
-
-
               {/* Hamburger / X — with floating menu panel */}
               <div className="relative" ref={menuRef}>
                 <button

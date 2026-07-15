@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Target, HeartPulse, Baby, Sparkles, Dumbbell, Wind, Bone,
   Clock3, BookOpen, Utensils, Frown, BatteryLow, Bandage, Wallet, SmilePlus,
   Droplet, Activity, Flame, CircleDot, Gauge, Droplets, Leaf, CheckCircle2, Plus,
   User, Ruler, Weight, Cake, ArrowRight, ArrowLeft,
   Phone, Mail, MapPin, Globe, Gift, PartyPopper, ChevronDown, Check, Footprints,
-  Salad, ShieldCheck, Languages, Briefcase
+  Salad, ShieldCheck, Languages, Briefcase, Loader2, AlertCircle, RotateCcw
 } from "lucide-react";
 
 /* ---------------------------------- data ---------------------------------- */
@@ -103,6 +103,69 @@ const cmToFtIn = (cm) => {
   return `${ft} ft ${inch} in`;
 };
 
+const EMPTY_DATA = {
+  goal: "", pain: "", health: [], healthOther: "", bodypain: [],
+  whyNow: "", whyNowOther: "", timeline: "", triedBefore: "", commitment: 6,
+  profession: "", language: "", gender: "", age: "",
+  height: 165, weight: "", firstName: "", lastName: "",
+  phone: "", email: "", city: "", country: "India",
+  howHeard: "", referral: "",
+};
+
+
+const API_ENDPOINT = "https://example.com/api/consultations";
+
+const DRAFT_KEY = "fitmom:consultation:draft";
+const hasStorage = () => typeof window !== "undefined" && !!window.storage;
+
+async function loadDraft() {
+  if (!hasStorage()) return null;
+  try {
+    const res = await window.storage.get(DRAFT_KEY, false);
+    return res ? JSON.parse(res.value) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveDraft(payload) {
+  if (!hasStorage()) return;
+  try {
+    await window.storage.set(DRAFT_KEY, JSON.stringify(payload), false);
+  } catch {
+    /* non-fatal */
+  }
+}
+
+async function clearDraft() {
+  if (!hasStorage()) return;
+  try {
+    await window.storage.delete(DRAFT_KEY, false);
+  } catch {
+    /* non-fatal */
+  }
+}
+
+async function archiveSubmission(data) {
+  if (!hasStorage()) return;
+  try {
+    const id = `fitmom:consultation:submission:${Date.now()}`;
+    await window.storage.set(id, JSON.stringify(data), false);
+  } catch {
+    /* non-fatal */
+  }
+}
+
+async function submitToApi(data) {
+  const res = await fetch(API_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data, submittedAt: new Date().toISOString() }),
+  });
+  if (!res.ok) throw new Error(`Request failed (${res.status})`);
+  return res;
+}
+
 /* ------------------------------ illustrations ------------------------------- */
 
 const ORBIT_POS = [
@@ -111,27 +174,6 @@ const ORBIT_POS = [
   { bottom: "-10px", right: "14px", delay: "1.1s" },
 ];
 
-function AnimatedOrb({ icon: Icon, orbit = [] }) {
-  return (
-    <div className="relative mx-auto mb-1 flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
-      <div className="absolute inset-0 rounded-full bg-[#0EA5A0]/10 blob1" />
-      <svg className="absolute inset-0 h-full w-full spin-slow" viewBox="0 0 120 120">
-      </svg>
-      <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#0A0A0A] shadow-[0_10px_24px_-10px_rgba(0,0,0,0.45)] breathe sm:h-16 sm:w-16">
-        <Icon size={24} className="text-white" strokeWidth={1.8} />
-      </div>
-      {orbit.map((OIcon, i) => (
-        <div
-          key={i}
-          className="absolute flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-black/5 float-orbit"
-          style={{ ...ORBIT_POS[i % ORBIT_POS.length], animationDelay: ORBIT_POS[i % ORBIT_POS.length].delay }}
-        >
-          <OIcon size={13} className="text-[#0EA5A0]" strokeWidth={2} />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 const STEP_ILLUSTRATIONS = {
   goal: { icon: Target, orbit: [Dumbbell, HeartPulse, Baby] },
@@ -239,14 +281,39 @@ export default function BookConsultationForm() {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [shake, setShake] = useState(false);
-  const [data, setData] = useState({
-    goal: "", pain: "", health: [], healthOther: "", bodypain: [],
-    whyNow: "", whyNowOther: "", timeline: "", triedBefore: "", commitment: 6,
-    profession: "", language: "", gender: "", age: "",
-    height: 165, weight: "", firstName: "", lastName: "",
-    phone: "", email: "", city: "", country: "India",
-    howHeard: "", referral: "",
-  });
+  const [data, setData] = useState(EMPTY_DATA);
+  const [hydrated, setHydrated] = useState(false);
+  const [savedPulse, setSavedPulse] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const saveTimer = useRef(null);
+
+  // restore any in-progress draft on load
+  useEffect(() => {
+    (async () => {
+      const draft = await loadDraft();
+      if (draft && draft.data) {
+        setData({ ...EMPTY_DATA, ...draft.data });
+        if (typeof draft.step === "number" && draft.step > 0 && draft.step < STEP_META.length - 1) {
+          setStep(draft.step);
+        }
+      }
+      setHydrated(true);
+    })();
+  }, []);
+
+  // autosave draft (debounced) whenever data or step changes
+  useEffect(() => {
+    if (!hydrated) return;
+    if (step === 0 || step >= STEP_META.length - 1) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      await saveDraft({ data, step });
+      setSavedPulse(true);
+      setTimeout(() => setSavedPulse(false), 1400);
+    }, 500);
+    return () => clearTimeout(saveTimer.current);
+  }, [data, step, hydrated]);
 
   const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
   const toggleMulti = (k, v, exclusiveNone) => {
@@ -290,7 +357,32 @@ export default function BookConsultationForm() {
     setDir(1);
     setStep((s) => Math.min(s + 1, STEP_META.length - 1));
   };
-  const goBack = () => { setDir(-1); setStep((s) => Math.max(s - 1, 0)); };
+  const goBack = () => { setDir(-1); setSubmitError(""); setStep((s) => Math.max(s - 1, 0)); };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await submitToApi(data);
+      await archiveSubmission(data);
+      await clearDraft();
+      setDir(1);
+      setStep((s) => s + 1);
+    } catch (err) {
+      setSubmitError(
+        "We couldn't reach the server. Your answers are saved on this device — please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const startOver = async () => {
+    await clearDraft();
+    setData(EMPTY_DATA);
+    setDir(-1);
+    setStep(0);
+  };
 
   const meta = STEP_META[step];
   const illo = STEP_ILLUSTRATIONS[meta.key];
@@ -319,6 +411,8 @@ export default function BookConsultationForm() {
         .pop-in { animation: pop .5s cubic-bezier(.22,.68,0,1.01); }
         @keyframes confetti { 0%{ transform: translateY(0) rotate(0deg); opacity:1;} 100%{ transform: translateY(220px) rotate(540deg); opacity:0;} }
         .confetti-piece { animation: confetti 1.6s ease-in forwards; }
+        @keyframes fadeInOut { 0%{opacity:0; transform:translateY(2px);} 15%{opacity:1; transform:translateY(0);} 85%{opacity:1;} 100%{opacity:0;} }
+        .saved-pulse { animation: fadeInOut 1.4s ease; }
         input[type=range] { accent-color: #0EA5A0; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 3px; }
@@ -326,9 +420,9 @@ export default function BookConsultationForm() {
 
       {/* header */}
       {meta.key !== "welcome" && meta.key !== "done" && (
-        <div className="shrink-0 bg-white/90 px-5 pb-3 pt-25 backdrop-blur sm:px-10">
+        <div className="shrink-0 bg-white/90 px-5 pb-3 pt-5 backdrop-blur sm:px-10">
           <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-            <div className="mb-2 flex w-full items-center gap-3">
+            <div className="mb-2 flex w-full items-center gap-3 pt-26">
               <span className="font-mono text-[11px] tracking-wider text-[#9CA3AF]">
                 {String(progressIndex).padStart(2, "0")}/{String(TOTAL_PROGRESS_STEPS).padStart(2, "0")}
               </span>
@@ -338,7 +432,14 @@ export default function BookConsultationForm() {
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
-              <span className="font-mono text-[11px] tracking-wider text-[#9CA3AF]">FitMom Club</span>
+              <span className="flex items-center gap-1 font-mono text-[11px] tracking-wider text-[#9CA3AF]">
+                {savedPulse && (
+                  <span className="saved-pulse flex items-center gap-1 text-[#0EA5A0]">
+                    <Check size={12} /> Saved
+                  </span>
+                )}
+                <span className="hidden sm:inline">FitMom Club</span>
+              </span>
             </div>
           </div>
         </div>
@@ -348,8 +449,8 @@ export default function BookConsultationForm() {
       <div className="flex-1 overflow-y-auto px-5 sm:px-10">
         <div className="mx-auto w-full max-w-2xl py-8">
           <div key={step} className={`${dir === 1 ? "step-in-r" : "step-in-l"} ${shake ? "shake" : ""}`}>
-            {meta.key === "welcome" && <Welcome onStart={() => setStep(1)} />}
-            {illo && <AnimatedOrb icon={illo.icon} orbit={illo.orbit} />}
+            {meta.key === "welcome" && <Welcome onStart={() => setStep(1)} resuming={step === 0 && data.firstName !== ""} />}
+           
             {meta.key === "goal" && (
               <StepShell title="What's your primary health & fitness goal?" sub="Pick the one that matters most right now.">
                 <div className="grid gap-2.5">
@@ -561,8 +662,10 @@ export default function BookConsultationForm() {
                 </div>
               </StepShell>
             )}
-            {meta.key === "review" && <Review data={data} onEdit={(s) => { setDir(-1); setStep(s); }} />}
-            {meta.key === "done" && <Done name={data.firstName} />}
+            {meta.key === "review" && (
+              <Review data={data} onEdit={(s) => { setDir(-1); setSubmitError(""); setStep(s); }} error={submitError} />
+            )}
+            {meta.key === "done" && <Done name={data.firstName} onReset={startOver} />}
           </div>
         </div>
       </div>
@@ -571,16 +674,32 @@ export default function BookConsultationForm() {
       {meta.key !== "welcome" && meta.key !== "done" && (
         <div className="shrink-0 border-t border-[#F0F1F2] bg-white/90 px-5 py-4 backdrop-blur sm:px-10">
           <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-            <button type="button" onClick={goBack} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[14px] font-medium text-[#6B7280] transition-colors hover:bg-[#F5F5F5]">
+            <button type="button" onClick={goBack} disabled={submitting} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[14px] font-medium text-[#6B7280] transition-colors hover:bg-[#F5F5F5] disabled:opacity-40">
               <ArrowLeft size={16} /> Back
             </button>
             <button
               type="button"
-              onClick={meta.key === "review" ? () => setStep(step + 1) : goNext}
-              className="group inline-flex items-center gap-2 rounded-full bg-[#0A0A0A] px-6 py-3 text-[14.5px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              onClick={meta.key === "review" ? handleSubmit : goNext}
+              disabled={submitting}
+              className="group inline-flex items-center gap-2 rounded-full bg-[#0A0A0A] px-6 py-3 text-[14.5px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
             >
-              {meta.key === "review" ? "Confirm & submit" : "Continue"}
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+              {meta.key === "review" ? (
+                submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Submitting…
+                  </>
+                ) : (
+                  <>
+                    Confirm & submit
+                    <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+                  </>
+                )
+              ) : (
+                <>
+                  Continue
+                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -601,10 +720,9 @@ function StepShell({ title, sub, children }) {
   );
 }
 
-function Welcome({ onStart }) {
+function Welcome({ onStart, resuming }) {
   return (
     <div className="flex min-h-[calc(100vh-64px)] flex-col items-center justify-center text-center pop-in">
-      <AnimatedOrb icon={HeartPulse} orbit={[Dumbbell, Salad, Sparkles]} />
       <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#9CA3AF]">FitMom Club · Free Consultation</span>
       <h1 className="mt-3 max-w-md font-display text-[32px] font-extrabold leading-[1.12] text-[#0A0A0A] sm:text-[42px]">
         Book your free health &amp; fitness report
@@ -617,13 +735,13 @@ function Welcome({ onStart }) {
         onClick={onStart}
         className="group mt-8 inline-flex items-center gap-2 rounded-full bg-[#0A0A0A] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_30px_-12px_rgba(0,0,0,0.5)] transition-transform hover:scale-[1.03] active:scale-[0.98]"
       >
-        Start my free consultation
+        {resuming ? "Resume where I left off" : "Start my free consultation"}
         <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
       </button>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-[#9CA3AF]">
         <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> 100% free</span>
         <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> No card needed</span>
-        <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> 60 seconds</span>
+        <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> Auto-saved as you go</span>
       </div>
     </div>
   );
@@ -642,7 +760,7 @@ function ReviewRow({ label, value, onEdit }) {
   );
 }
 
-function Review({ data, onEdit }) {
+function Review({ data, onEdit, error }) {
   const goalLabel = GOALS.find((g) => g.v === data.goal)?.label;
   const painLabel = PAIN_POINTS.find((p) => p.v === data.pain)?.label;
   const healthLabels = data.health.map((v) => HEALTH_ISSUES.find((h) => h.v === v)?.label).join(", ");
@@ -664,11 +782,17 @@ function Review({ data, onEdit }) {
         <ReviewRow label="Location" value={`${data.city}, ${data.country}`} onEdit={() => onEdit(11)} />
         <ReviewRow label="Heard via" value={data.howHeard} onEdit={() => onEdit(12)} />
       </div>
+      {error && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] px-4 py-3 text-[13.5px] text-[#B91C1C]">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
     </StepShell>
   );
 }
 
-function Done({ name }) {
+function Done({ name, onReset }) {
   const pieces = Array.from({ length: 14 });
   const colors = ["#0A0A0A", "#0EA5A0", "#4CD9CE", "#D1D5DB"];
   return (
@@ -686,7 +810,6 @@ function Done({ name }) {
           />
         ))}
       </div>
-      <AnimatedOrb icon={PartyPopper} orbit={[Sparkles, CheckCircle2]} />
       <h2 className="mt-4 font-display text-[28px] font-extrabold text-[#0A0A0A]">
         {name ? `You're all set, ${name}!` : "You're all set!"}
       </h2>
@@ -696,6 +819,13 @@ function Done({ name }) {
       <div className="mt-7 rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] px-5 py-3 font-mono text-[12.5px] text-[#6B7280]">
         Expect a call within 24 hours
       </div>
+      <button
+        type="button"
+        onClick={onReset}
+        className="mt-6 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium text-[#6B7280] transition-colors hover:bg-[#F5F5F5]"
+      >
+        <RotateCcw size={14} /> Submit another response
+      </button>
     </div>
   );
 }
