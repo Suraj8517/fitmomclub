@@ -25,10 +25,12 @@ import BookConsultationForm from './BookConsultation';
 import TermsAndConditions from './TermsAndConditions';
 import PrivacyPage from './PrivacyPolicy';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/Helper/ScrollToTop';
 export default function LandingPage() {
   return (
     <>
     <Router>
+      <ScrollToTop/>
       <Navbar/>
       <Routes>
         <Route path='/' element={<HomePage/>}/>

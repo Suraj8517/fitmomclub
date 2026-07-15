@@ -61,7 +61,7 @@ export default function Footer() {
               <a
                 key={link.label}
                 href={link.href}
-                className="font-extrabold text-2xl sm:text-3xl lg:text-4xl leading-none hover:text-pink-400 transition-colors"
+                className="font-extrabold text-2xl sm:text-3xl lg:text-4xl leading-none hover:text-teal-400 transition-colors"
               >
                 {link.label}
               </a>
@@ -76,7 +76,7 @@ export default function Footer() {
               key={label}
               to={href}
               aria-label={label}
-              className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center hover:bg-pink-400 transition-colors"
+              className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center hover:bg-teal-400 transition-colors"
             >
               {icon}
             </Link>
