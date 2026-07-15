@@ -20,6 +20,8 @@ import HeartRateCalculator from './Calculators/HeartRateCalculator';
 import CalorieCalculator from './Calculators/CalorieCalculator';
 import WeightGoalCalculator from './Calculators/WeightLossCalculator';
 import HealthCalculators from './HealthCalculators';
+import ContactUs from './contactUsPage';
+import BookConsultationForm from './BookConsultation';
 export default function LandingPage() {
   return (
     <>
@@ -45,6 +47,8 @@ export default function LandingPage() {
         <Route path='/calorie-calculator' element={<CalorieCalculator/>}/>
         <Route path='/weight-loss-calculator' element={<WeightGoalCalculator/>}/>
         <Route path='/health-calculators' element={<HealthCalculators/>}/>
+        <Route path='/contact-us' element={<ContactUs/>}/>
+        <Route path='/book-consultation' element={<BookConsultationForm/>}/>
 
       </Routes>
     </Router>

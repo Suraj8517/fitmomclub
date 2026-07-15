@@ -40,7 +40,7 @@ export default function CTASection({
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-6 px-6 sm:px-10 md:px-12 pt-12 sm:pt-14 md:pt-16">
             {/* Left CTA block */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <h3 className="text-xl sm:text-2xl font-semibold leading-snug text-neutral-900 max-w-xs">
+              <h3 className="text-xl sm:text-4xl font-semibold leading-snug text-neutral-900 max-w-xl">
                 {left.heading}
               </h3>
               <button
@@ -54,7 +54,7 @@ export default function CTASection({
 
             {/* Right CTA block */}
             <div className="flex flex-col items-center md:items-end text-center md:text-right">
-              <h3 className="text-xl sm:text-2xl font-semibold leading-snug text-white max-w-xs">
+              <h3 className="text-xl sm:text-4xl font-semibold leading-snug text-white max-w-xl">
                 {right.heading}
               </h3>
               <button
