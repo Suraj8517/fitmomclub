@@ -1,4 +1,3 @@
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
   HeartPulse,
@@ -118,65 +117,6 @@ const stories = [
     overlay: "nutrition2",
   },
 ];
-
-// Animation variants
-const badgeVariants = {
-  hidden: { opacity: 0, scale: 0.5, y: -20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 18,
-      delay: 0.1,
-    },
-  },
-};
-
-const iconVariants = {
-  hidden: { opacity: 0, scale: 0, rotate: -30 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    transition: {
-      type: "spring",
-      stiffness: 500,
-      damping: 15,
-      delay: 0.25, // slightly after badge
-    },
-  },
-};
-
-const titleVariants = {
-  hidden: { opacity: 0, x: 80 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 22,
-      delay: 0.15,
-    },
-  },
-};
-
-const descVariants = {
-  hidden: { opacity: 0, x: 60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "spring",
-      stiffness: 220,
-      damping: 22,
-      delay: 0.3,
-    },
-  },
-};
 
 function FloatingOverlay({ type }) {
   switch (type) {
@@ -360,19 +300,6 @@ function FloatingOverlay({ type }) {
 
 function StoryScene({ story, index }) {
   const ref = useRef(null);
-  const contentRef = useRef(null);
-  const isFirst = index === 0;
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end end"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
-
-  // inView triggers animations each time the sticky scene is visible
-  const isInView = useInView(ref, { amount: 0.3, once: false });
-
   const Icon = story.icon;
 
   return (
@@ -405,66 +332,48 @@ function StoryScene({ story, index }) {
           }}
         />
 
-        {/* Slide-up motion wrapper */}
-        <motion.div
-          className="absolute inset-0"
-          style={isFirst ? {} : { y }}
-        >
-          {/* ── Badge + Icon (pop animation) ── */}
+        <div className="absolute inset-0">
+          {/* ── Badge + Icon ── */}
           <div
             className="absolute left-5 top-[45vh] sm:top-10 sm:left-10 flex items-center gap-2"
             style={{ zIndex: 2 }}
           >
             {/* Badge pill */}
-            <motion.div
-              variants={badgeVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+            <div
               className="rounded-full backdrop-blur-sm px-5 py-4.5 font-medium text-sm shadow-lg"
               style={{ backgroundColor: story.badgeBg, color: story.iconColor }}
             >
               {story.badge}
-            </motion.div>
+            </div>
 
-            {/* Icon circle — delayed pop with rotation */}
-            <motion.div
-              variants={iconVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+            {/* Icon circle */}
+            <div
               className="flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-sm shadow-lg"
               style={{ backgroundColor: story.badgeBg }}
             >
               <Icon size={26} color={story.iconColor} strokeWidth={2.3} />
-            </motion.div>
+            </div>
           </div>
 
-          {/* ── Title + Description (pop from right) ── */}
+          {/* ── Title + Description ── */}
           <div
             className="absolute bottom-20 lg:left-14 left-4 max-w-3xl"
             style={{ zIndex: 2 }}
           >
-            <motion.h1
-              variants={titleVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+            <h1
               className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em]"
               style={{ fontSize: "clamp(28px, 4vw, 64px)" }}
             >
               {story.title}
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              variants={descVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl"
-            >
+            <p className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl">
               {story.description}
-            </motion.p>
+            </p>
           </div>
 
           <FloatingOverlay type={story.overlay} />
-        </motion.div>
+        </div>
       </div>
     </div>
   );
