@@ -149,34 +149,6 @@ const iconVariants = {
   },
 };
 
-const titleVariants = {
-  hidden: { opacity: 0, x: 80 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 22,
-      delay: 0.15,
-    },
-  },
-};
-
-const descVariants = {
-  hidden: { opacity: 0, x: 60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "spring",
-      stiffness: 220,
-      damping: 22,
-      delay: 0.3,
-    },
-  },
-};
-
 function FloatingOverlay({ type }) {
   switch (type) {
     case "nutrition":
@@ -359,7 +331,6 @@ function FloatingOverlay({ type }) {
 
 function StoryScene({ story, index }) {
   const ref = useRef(null);
-  const contentRef = useRef(null);
   const isFirst = index === 0;
 
   const { scrollYProgress } = useScroll({
@@ -369,7 +340,7 @@ function StoryScene({ story, index }) {
 
   const y = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
 
-  // inView triggers animations each time the sticky scene is visible
+  // inView still drives the badge/icon pop; title & description are now static (no animation) for performance
   const isInView = useInView(ref, { amount: 0.3, once: false });
 
   const Icon = story.icon;
@@ -437,29 +408,21 @@ function StoryScene({ story, index }) {
             </motion.div>
           </div>
 
-          {/* ── Title + Description (pop from right) ── */}
+          {/* ── Title + Description (static, no enter animation) ── */}
           <div
             className="absolute bottom-20 lg:left-14 left-4 max-w-3xl"
             style={{ zIndex: 2 }}
           >
-            <motion.h1
-              variants={titleVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+            <h1
               className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em]"
               style={{ fontSize: "clamp(28px, 4vw, 64px)" }}
             >
               {story.title}
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              variants={descVariants}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl"
-            >
+            <p className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl">
               {story.description}
-            </motion.p>
+            </p>
           </div>
 
           <FloatingOverlay type={story.overlay} />
