@@ -412,7 +412,7 @@ function StoryScene({ story, index }) {
         >
           {/* ── Badge + Icon (pop animation) ── */}
           <div
-            className="absolute left-5 top-[55vh] sm:top-10 sm:left-10 flex items-center gap-2"
+            className="absolute left-5 top-[45vh] sm:top-10 sm:left-10 flex items-center gap-2"
             style={{ zIndex: 2 }}
           >
             {/* Badge pill */}
