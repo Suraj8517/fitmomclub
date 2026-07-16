@@ -168,13 +168,6 @@ async function submitToApi(data) {
 
 /* ------------------------------ illustrations ------------------------------- */
 
-const ORBIT_POS = [
-  { top: "-6px", right: "2px", delay: "0s" },
-  { bottom: "-2px", left: "-10px", delay: ".6s" },
-  { bottom: "-10px", right: "14px", delay: "1.1s" },
-];
-
-
 const STEP_ILLUSTRATIONS = {
   goal: { icon: Target, orbit: [Dumbbell, HeartPulse, Baby] },
   pain: { icon: Clock3, orbit: [Frown, BatteryLow, Utensils] },
@@ -256,9 +249,9 @@ const SelectNative = ({ value, onChange, options, placeholder }) => (
 );
 
 /* --------------------------------- steps ----------------------------------- */
+/* The form now opens directly on the first question (goal) — no welcome screen. */
 
 const STEP_META = [
-  { key: "welcome", title: "" },
   { key: "goal", title: "Your goal" },
   { key: "pain", title: "Your biggest blocker" },
   { key: "health", title: "Health check" },
@@ -275,7 +268,7 @@ const STEP_META = [
   { key: "done", title: "" },
 ];
 
-const TOTAL_PROGRESS_STEPS = STEP_META.length - 2;
+const TOTAL_PROGRESS_STEPS = STEP_META.length - 1;
 
 export default function BookConsultationForm() {
   const [step, setStep] = useState(0);
@@ -294,7 +287,7 @@ export default function BookConsultationForm() {
       const draft = await loadDraft();
       if (draft && draft.data) {
         setData({ ...EMPTY_DATA, ...draft.data });
-        if (typeof draft.step === "number" && draft.step > 0 && draft.step < STEP_META.length - 1) {
+        if (typeof draft.step === "number" && draft.step >= 0 && draft.step < STEP_META.length - 1) {
           setStep(draft.step);
         }
       }
@@ -305,7 +298,7 @@ export default function BookConsultationForm() {
   // autosave draft (debounced) whenever data or step changes
   useEffect(() => {
     if (!hydrated) return;
-    if (step === 0 || step >= STEP_META.length - 1) return;
+    if (step >= STEP_META.length - 1) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       await saveDraft({ data, step });
@@ -388,7 +381,7 @@ export default function BookConsultationForm() {
   const illo = STEP_ILLUSTRATIONS[meta.key];
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-white font-[Inter] text-[#0A0A0A]">
+    <div className="flex pt-26 mb-16 h-screen w-full flex-col overflow-hidden bg-white font-[Inter] text-[#0A0A0A]">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
         .font-display { font-family: 'Manrope', 'Inter', sans-serif; }
@@ -419,12 +412,12 @@ export default function BookConsultationForm() {
       `}</style>
 
       {/* header */}
-      {meta.key !== "welcome" && meta.key !== "done" && (
+      {meta.key !== "done" && (
         <div className="shrink-0 bg-white/90 px-5 pb-3 pt-5 backdrop-blur sm:px-10">
           <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-            <div className="mb-2 flex w-full items-center gap-3 pt-26">
+            <div className="mb-2 flex w-full items-center gap-3">
               <span className="font-mono text-[11px] tracking-wider text-[#9CA3AF]">
-                {String(progressIndex).padStart(2, "0")}/{String(TOTAL_PROGRESS_STEPS).padStart(2, "0")}
+                {String(progressIndex + 1).padStart(2, "0")}/{String(TOTAL_PROGRESS_STEPS).padStart(2, "0")}
               </span>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#F0F1F2]">
                 <div
@@ -449,8 +442,6 @@ export default function BookConsultationForm() {
       <div className="flex-1 overflow-y-auto px-5 sm:px-10">
         <div className="mx-auto w-full max-w-2xl py-8">
           <div key={step} className={`${dir === 1 ? "step-in-r" : "step-in-l"} ${shake ? "shake" : ""}`}>
-            {meta.key === "welcome" && <Welcome onStart={() => setStep(1)} resuming={step === 0 && data.firstName !== ""} />}
-           
             {meta.key === "goal" && (
               <StepShell title="What's your primary health & fitness goal?" sub="Pick the one that matters most right now.">
                 <div className="grid gap-2.5">
@@ -671,10 +662,10 @@ export default function BookConsultationForm() {
       </div>
 
       {/* footer */}
-      {meta.key !== "welcome" && meta.key !== "done" && (
+      {meta.key !== "done" && (
         <div className="shrink-0 border-t border-[#F0F1F2] bg-white/90 px-5 py-4 backdrop-blur sm:px-10">
           <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-            <button type="button" onClick={goBack} disabled={submitting} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[14px] font-medium text-[#6B7280] transition-colors hover:bg-[#F5F5F5] disabled:opacity-40">
+            <button type="button" onClick={goBack} disabled={submitting || step === 0} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[14px] font-medium text-[#6B7280] transition-colors hover:bg-[#F5F5F5] disabled:opacity-40">
               <ArrowLeft size={16} /> Back
             </button>
             <button
@@ -720,33 +711,6 @@ function StepShell({ title, sub, children }) {
   );
 }
 
-function Welcome({ onStart, resuming }) {
-  return (
-    <div className="flex min-h-[calc(100vh-64px)] flex-col items-center justify-center text-center pop-in">
-      <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#9CA3AF]">FitMom Club · Free Consultation</span>
-      <h1 className="mt-3 max-w-md font-display text-[32px] font-extrabold leading-[1.12] text-[#0A0A0A] sm:text-[42px]">
-        Book your free health &amp; fitness report
-      </h1>
-      <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-[#6B7280]">
-        It takes just a minute to fill out this form — a few taps and you're done. No typing marathons, promise.
-      </p>
-      <button
-        type="button"
-        onClick={onStart}
-        className="group mt-8 inline-flex items-center gap-2 rounded-full bg-[#0A0A0A] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_30px_-12px_rgba(0,0,0,0.5)] transition-transform hover:scale-[1.03] active:scale-[0.98]"
-      >
-        {resuming ? "Resume where I left off" : "Start my free consultation"}
-        <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
-      </button>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-[#9CA3AF]">
-        <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> 100% free</span>
-        <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> No card needed</span>
-        <span className="flex items-center gap-1.5"><Check size={14} className="text-[#0EA5A0]" /> Auto-saved as you go</span>
-      </div>
-    </div>
-  );
-}
-
 function ReviewRow({ label, value, onEdit }) {
   if (!value) return null;
   return (
@@ -769,18 +733,18 @@ function Review({ data, onEdit, error }) {
   return (
     <StepShell title="Review your answers" sub="Everything look right? You can edit any section before submitting.">
       <div className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] px-5">
-        <ReviewRow label="Goal" value={goalLabel} onEdit={() => onEdit(1)} />
-        <ReviewRow label="Biggest blocker" value={painLabel} onEdit={() => onEdit(2)} />
-        <ReviewRow label="Health issues" value={healthLabels} onEdit={() => onEdit(3)} />
-        <ReviewRow label="Body pain" value={bodyPainLabels} onEdit={() => onEdit(4)} />
-        <ReviewRow label="Why now / timeline" value={`${data.whyNow}${data.timeline ? " · " + data.timeline : ""}`} onEdit={() => onEdit(5)} />
-        <ReviewRow label="Commitment" value={`${data.commitment}/10`} onEdit={() => onEdit(6)} />
-        <ReviewRow label="Profession / language / gender" value={[data.profession, data.language, data.gender].filter(Boolean).join(" · ")} onEdit={() => onEdit(7)} />
-        <ReviewRow label="Age / height / weight" value={`${data.age} yrs · ${data.height} cm (${cmToFtIn(data.height)}) · ${data.weight} kg`} onEdit={() => onEdit(8)} />
-        <ReviewRow label="Name" value={`${data.firstName} ${data.lastName}`} onEdit={() => onEdit(9)} />
-        <ReviewRow label="Phone / email" value={`+91 ${data.phone} · ${data.email}`} onEdit={() => onEdit(10)} />
-        <ReviewRow label="Location" value={`${data.city}, ${data.country}`} onEdit={() => onEdit(11)} />
-        <ReviewRow label="Heard via" value={data.howHeard} onEdit={() => onEdit(12)} />
+        <ReviewRow label="Goal" value={goalLabel} onEdit={() => onEdit(0)} />
+        <ReviewRow label="Biggest blocker" value={painLabel} onEdit={() => onEdit(1)} />
+        <ReviewRow label="Health issues" value={healthLabels} onEdit={() => onEdit(2)} />
+        <ReviewRow label="Body pain" value={bodyPainLabels} onEdit={() => onEdit(3)} />
+        <ReviewRow label="Why now / timeline" value={`${data.whyNow}${data.timeline ? " · " + data.timeline : ""}`} onEdit={() => onEdit(4)} />
+        <ReviewRow label="Commitment" value={`${data.commitment}/10`} onEdit={() => onEdit(5)} />
+        <ReviewRow label="Profession / language / gender" value={[data.profession, data.language, data.gender].filter(Boolean).join(" · ")} onEdit={() => onEdit(6)} />
+        <ReviewRow label="Age / height / weight" value={`${data.age} yrs · ${data.height} cm (${cmToFtIn(data.height)}) · ${data.weight} kg`} onEdit={() => onEdit(7)} />
+        <ReviewRow label="Name" value={`${data.firstName} ${data.lastName}`} onEdit={() => onEdit(8)} />
+        <ReviewRow label="Phone / email" value={`+91 ${data.phone} · ${data.email}`} onEdit={() => onEdit(9)} />
+        <ReviewRow label="Location" value={`${data.city}, ${data.country}`} onEdit={() => onEdit(10)} />
+        <ReviewRow label="Heard via" value={data.howHeard} onEdit={() => onEdit(11)} />
       </div>
       {error && (
         <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-[#FCA5A5] bg-[#FEF2F2] px-4 py-3 text-[13.5px] text-[#B91C1C]">

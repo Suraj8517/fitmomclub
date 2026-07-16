@@ -135,17 +135,14 @@ export default function HealthCoachSection() {
         <div className="relative w-full 2xl:max-w-8xl mx-auto px-18 2xl:px-40 min-h-screen flex flex-col lg:flex-row items-center justify-between">
           <div className="flex-shrink-0 w-full 2xl:w-[42%] lg:w-[52%] pt-22 lg:pt-0 z-30">
             <h2 className="text-4xl lg:text-5xl 2xl:text-[4rem] xl:text-[3rem] font-normal text-[#1C1B1F] leading-[1.15] tracking-tight mb-6">
-              Have a question<br />
-              about your health<br />
-              and wellness?
-            </h2>
-            <p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-lg">
-              Users can ask Google Health Coach anything, anytime.{" "}
-              Get evidence-backed answers and tailored insights based on your data.
-            </p>
-            <button className="bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium px-7 py-3 rounded-full transition-colors duration-200 shadow-sm">
-              Book A Consultation
-            </button>
+  Your complete<br />
+  fitness companion<br />
+</h2>
+
+<p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-lg">
+  Access personalized workout plans, nutrition guidance, live classes, progress tracking, and expert support, all in one app designed to help you achieve lasting results.
+</p>
+           
           </div>
 
           {/* Phones with parallax */}
