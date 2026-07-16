@@ -45,7 +45,8 @@ const ROUTE_THEME_MAP = {
   "/": "light",              
   "/about-us": "dark",
   "/community": "dark",
- "/terms-and-conditions":"dark"
+ "/terms-and-conditions":"dark",
+ "/community":"light"
 };
 
 function getThemeForPath(pathname) {
@@ -117,8 +118,8 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20 sm:h-28">
 
             {/* Logo */}
-            <a
-              href="#"
+            <Link
+              to="/"
               className={[
                 "flex items-center gap-2.5 shrink-0",
                 pathname === "/terms-and-conditions" ? "invisible" : "",
@@ -132,7 +133,7 @@ export default function Navbar() {
               >
                 FitMom Club
               </span>
-            </a>
+            </Link>
 
             {/* Right side */}
             <div className="flex items-center gap-8">

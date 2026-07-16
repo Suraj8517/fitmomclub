@@ -47,7 +47,7 @@ export default function Footer() {
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10 lg:gap-6">
           {/* Left: headline + CTA */}
           <div className="flex-1 min-w-0">
-            <h2 className="font-extrabold leading-[1.1] tracking-tight text-[clamp(2.2rem,7vw,4.5rem)]">
+            <h2 className="font-bold leading-[1.1] tracking-tight text-[clamp(2rem,5vw,4rem)]">
               #1 Fitness & Wellness 
               <br />
               <span className="text-teal-400">Community for Moms</span>

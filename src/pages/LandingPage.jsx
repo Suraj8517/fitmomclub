@@ -26,6 +26,8 @@ import TermsAndConditions from './TermsAndConditions';
 import PrivacyPage from './PrivacyPolicy';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/Helper/ScrollToTop';
+import Blog from './blogs';
+import BlogPost from './blogPost';
 export default function LandingPage() {
   return (
     <>
@@ -56,6 +58,9 @@ export default function LandingPage() {
         <Route path='/book-consultation' element={<BookConsultationForm/>}/>
         <Route path='/terms-and-conditions' element={<TermsAndConditions/>}/>
         <Route path='/privacy-policy' element={<PrivacyPage/>}/>
+        <Route path='/blogs' element={<Blog/>}/>
+        <Route path="/blogs/:slug" element={<BlogPost />} /> 
+
       </Routes>
       <Footer/>
     </Router>
