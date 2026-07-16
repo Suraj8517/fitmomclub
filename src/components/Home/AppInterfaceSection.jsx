@@ -486,7 +486,7 @@ export default function AppInterfaceSection() {
   return (
     <section
       ref={wrapperRef}
-      className="relative bg-[#F6F5F1]"
+      className="hidden sm:block relative bg-[#F6F5F1]"
       style={{ height: `${SCROLL_LENGTH_VH}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
