@@ -16,7 +16,7 @@ const GRID_H  = 600;
 const PAD     = 24;
 const SCR_W   = GRID_W - PAD * 2;
 const SCR_H   = GRID_H - PAD * 2;
-const GAP     = 2;
+const GAP     = 4;
 const COL     = (SCR_W - GAP) / 2;
 
 const PHOTO_H = 180;
@@ -34,13 +34,7 @@ const PHONE_FRAME_MAX_H = 680;
 const PHONE_FADE_START = 0.82;
 const PHONE_FADE_END   = 0.98;
 
-// Fallback fractions describing the transparent screen cutout, used only
-// until the real phone-frame.png has been analyzed (or if analysis fails,
-// e.g. a tainted canvas). Once the image loads, these are replaced with
-// values measured directly from the asset's alpha channel — see
-// analyzePhoneFrame() below — so the code adapts automatically to whatever
-// artwork is dropped in, including a taller/differently-shaped image,
-// without needing these numbers hand-tuned again.
+
 const FALLBACK_SCREEN_RATIOS = {
   wRatio: 0.90,
   hRatio: 0.84,
@@ -223,18 +217,13 @@ export default function AppInterfaceSection() {
     steps:     { w: 193, h: 62  },
     ready:     { w: 193, h: 62  },
     sleepPill: { w: 215, h: 62  },
-    heart:     { w: 215, h: 155 },
-    run:       { w: 215, h: 155 },
-    med:       { w: 432, h: 62  },
+    heart:     { w: 195, h: 155 },
+    run:       { w: 195, h: 155 },
+    med:       { w: 332, h: 62  },
   };
 
   useEffect(() => {
-    // ── Measure the phone-frame.png's actual transparent screen cutout ──
-    // Instead of hand-tuned ratios (which drift the moment the artwork
-    // changes — e.g. a taller mobile image), draw the image to an
-    // off-screen canvas and scan its alpha channel to find the
-    // transparent rectangle. This makes the layout adapt to whatever
-    // phone-frame.png is in place, automatically.
+ 
     const analyzePhoneFrame = () => {
       const img = phoneFrameRef.current;
       if (!img || !img.naturalWidth || !img.naturalHeight) return;
@@ -480,7 +469,7 @@ export default function AppInterfaceSection() {
     return (
       <div
         ref={el => { cardRefs.current[name] = el; }}
-        className="absolute overflow-hidden"
+        className="absolute overflow-hidden mt-4"
         style={{
           width:  fs.w,
           height: fs.h,
@@ -541,7 +530,7 @@ export default function AppInterfaceSection() {
             <CardGPU name="yoga">
               <div
                 ref={el => { cardRefs.current["yoga_inner"] = el; }}
-                className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4"
+                className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4 border border-neutral-800 "
                 style={{ borderRadius: 16 }}
               >
                 <p className="text-sm text-neutral-300 font-semibold mb-3">Track your Daily Calorie</p>
@@ -575,7 +564,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="sleep">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden border border-neutral-800 ">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(56,189,248,0.15)" color="#38BDF8" size={32}>{Icons.moon}</IconBadge>
@@ -601,7 +590,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="steps">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800">
                 <IconBadge bg="rgba(59,130,246,0.15)" color="#3B82F6" size={32}>{Icons.drop}</IconBadge>
                 <div className="min-w-0">
                   <p className="text-[10px] text-blue-400 leading-none">Water</p>
@@ -611,7 +600,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="ready">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 ">
                 <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.heartbeat}</IconBadge>
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] text-teal-400 leading-none">Health</p>
@@ -622,7 +611,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="sleepPill">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800">
                 <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32}>{Icons.moon}</IconBadge>
                 <div className="min-w-0">
                   <p className="text-[10px] text-pink-400 leading-none">Emotional</p>
@@ -632,7 +621,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="heart">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(52,211,153,0.15)" color="#34D399" size={32}>{Icons.scale}</IconBadge>
@@ -655,7 +644,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="run">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.ratio}</IconBadge>
@@ -675,7 +664,7 @@ export default function AppInterfaceSection() {
             </CardGPU>
 
             <CardGPU name="med">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between border border-neutral-800">
                 <div className="flex items-center gap-3">
                   <IconBadge bg="rgba(255,255,255,0.06)" color="#9CA3AF" size={30}>
                     <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
