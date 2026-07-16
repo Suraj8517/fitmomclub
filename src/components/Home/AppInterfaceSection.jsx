@@ -1,10 +1,6 @@
-
-
 import { useEffect, useRef } from "react";
 import yogaimage from "../../assets/home/hero.webp";
 import logo from "../../assets/home/fitmom.png";
-// NEW: real phone mockup image, used as an overlay instead of coded bezel chrome.
-// Replace this asset with your own transparent-screen phone mockup PNG/SVG.
 import phoneFrame from "../../assets/home/phone-frame.png";
 
 // ── Scroll section height ────────────────────────────────────────────────────
@@ -14,38 +10,56 @@ const SCROLL_LENGTH_VH = 320;
 const SCROLL_SPRING = 7.5;
 const ENTRY_SPRING  = 6.0;
 
-// ── Grid layout constants ───────────────────────────────────────────────────
+// ── Grid layout constants (internal design coordinates — NOT screen px) ────
 const GRID_W  = 380;
-const GRID_H  = 600; // was 680 — matches the phone's screen cutout, not the full bezel height
+const GRID_H  = 600;
 const PAD     = 24;
 const SCR_W   = GRID_W - PAD * 2;
 const SCR_H   = GRID_H - PAD * 2;
-const GAP     = 2; // was 5 — tighter spacing once cards dock into the grid
+const GAP     = 2;
 const COL     = (SCR_W - GAP) / 2;
 
-const PHOTO_H = 180; // was 224 — trimmed to fit the shorter screen cutout
-const ROW2_H  = 150; // was 168
-const ROW3_H  = 138; // was 154
-const MED_H   = 56;  // was 62
+const PHOTO_H = 180;
+const ROW2_H  = 150;
+const ROW3_H  = 138;
+const MED_H   = 56;
 const TOP_PAD = Math.floor(
   (SCR_H - (PHOTO_H + GAP + ROW2_H + GAP + ROW3_H + GAP + MED_H)) / 2
 );
 
 const DESIGN_W = 390;
 
-// NEW: how tall the phone mockup image renders relative to the viewport.
-// Reduced so the mockup doesn't dominate the screen.
-const PHONE_FRAME_MAX_H = 720; // px, was 900
+const PHONE_FRAME_MAX_H = 680;
 
 const PHONE_FADE_START = 0.82;
 const PHONE_FADE_END   = 0.98;
 
-// NEW: fine-tune alignment against the actual phone-frame.png screen cutout.
-// Positive values nudge the assembled grid DOWN, negative nudge it UP.
-// Adjust this until row2/row3 sit fully inside the phone's screen area.
-const PHONE_SCREEN_Y_OFFSET = 0; // px
+// Fallback fractions describing the transparent screen cutout, used only
+// until the real phone-frame.png has been analyzed (or if analysis fails,
+// e.g. a tainted canvas). Once the image loads, these are replaced with
+// values measured directly from the asset's alpha channel — see
+// analyzePhoneFrame() below — so the code adapts automatically to whatever
+// artwork is dropped in, including a taller/differently-shaped image,
+// without needing these numbers hand-tuned again.
+const FALLBACK_SCREEN_RATIOS = {
+  wRatio: 0.90,
+  hRatio: 0.84,
+  centerYRatio: 0.50,
+};
 
-// ── Utility: linear interpolate (unchanged) ──────────────────────────────────
+// Floor/ceiling on the measured scale so a truly degenerate detection
+// can't collapse the grid to zero or blow it up to infinity. Kept wide
+// on purpose — the old tight floor (0.55) was what forced the grid to
+// render larger than the real screen space and caused the overlap.
+const SCALE_MIN = 0.32;
+const SCALE_MAX = 1.3;
+
+// Manual px nudge on top of measured alignment. Kept separate per
+// breakpoint since a nudge tuned for mobile framing usually looks wrong
+// on desktop and vice versa.
+const PHONE_SCREEN_Y_OFFSET_MOBILE  = 50;
+const PHONE_SCREEN_Y_OFFSET_DESKTOP = 10;
+
 const lerp = (a, b, t) => a + (b - a) * t;
 
 function ease(t) {
@@ -53,15 +67,6 @@ function ease(t) {
   return c * c * c * (c * (c * 6 - 15) + 10);
 }
 
-function cardTransform(x, y, sw, fw, sh, fh) {
-  const scaleX = sw / fw;
-  const scaleY = sh / fh;
-  return `translate3d(calc(${x}px - 50%), calc(${y}px - 50%), 0) scale(${scaleX}, ${scaleY})`;
-}
-
-// ── shared dark-theme building blocks matching the screenshot ─────────
-
-/** Small colored icon badge used in every card header (Weight, WHR, Sleep...) */
 function IconBadge({ bg, color, children, size = 28 }) {
   return (
     <div
@@ -73,11 +78,9 @@ function IconBadge({ bg, color, children, size = 28 }) {
   );
 }
 
-/** The blue → orange → red gradient progress bar used on Weight / WHR cards */
 function GradientBar({ value }) {
-  // value: 0..1 position of the marker along the bar
   return (
-    <div className="relative w-full h-1.5 rounded-full  bg-neutral-800">
+    <div className="relative w-full h-1.5 rounded-full bg-neutral-800">
       <div
         className="absolute inset-y-0 left-0 rounded-full"
         style={{
@@ -87,14 +90,13 @@ function GradientBar({ value }) {
         }}
       />
       <div
-        className="absolute top-1/2 w-2 h-4 rounded-full bg-white  -translate-y-1/2"
+        className="absolute top-1/2 w-2 h-4 rounded-full bg-white -translate-y-1/2"
         style={{ left: `calc(${value * 100}% - 6px)` }}
       />
     </div>
   );
 }
 
-// Icon glyphs (inline SVG, no icon library dependency)
 const Icons = {
   scale: (
     <svg viewBox="0 0 24 24" className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -138,20 +140,27 @@ export default function AppInterfaceSection() {
   const targetRef        = useRef(0);
   const entryTargetRef   = useRef(0);
   const scaleRef         = useRef(1);
+  const screenOffsetYRef = useRef(0);
   const isMobileRef      = useRef(
     typeof window !== "undefined" && window.innerWidth < 480
   );
   const rafRef      = useRef(null);
   const lastTimeRef = useRef(null);
 
+  // Ratios describing where the transparent screen cutout sits inside the
+  // phone-frame.png, as a fraction of the rendered image's width/height.
+  // Starts at the fallback and gets overwritten once analyzePhoneFrame()
+  // has measured the actual asset.
+  const screenRatioRef = useRef({ ...FALLBACK_SCREEN_RATIOS });
+
   const scalerRef     = useRef(null);
   const bandRef       = useRef(null);
   const cardRefs      = useRef({});
-  const phoneFrameRef = useRef(null); // the mockup <img>, opacity driven from RAF
+  const phoneFrameRef = useRef(null);
 
-  const weightNodeRef    = useRef(null); // Weight card kg value
-  const sleepHoursNodeRef = useRef(null); // Sleep card "hr" value
-  const emotionalNodeRef  = useRef(null); // Emotional mini pill subtext
+  const weightNodeRef     = useRef(null);
+  const sleepHoursNodeRef = useRef(null);
+  const emotionalNodeRef  = useRef(null);
 
   const row2Y  = TOP_PAD + PHOTO_H + GAP;
   const row3Y  = row2Y + ROW2_H + GAP;
@@ -220,14 +229,99 @@ export default function AppInterfaceSection() {
   };
 
   useEffect(() => {
-    const computeScale = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const s  = Math.min(vw / (GRID_W + 32), vh / (GRID_H + 32), 1);
-      scaleRef.current = s;
-      if (scalerRef.current) {
-        scalerRef.current.style.transform = `scale(${s})`;
+    // ── Measure the phone-frame.png's actual transparent screen cutout ──
+    // Instead of hand-tuned ratios (which drift the moment the artwork
+    // changes — e.g. a taller mobile image), draw the image to an
+    // off-screen canvas and scan its alpha channel to find the
+    // transparent rectangle. This makes the layout adapt to whatever
+    // phone-frame.png is in place, automatically.
+    const analyzePhoneFrame = () => {
+      const img = phoneFrameRef.current;
+      if (!img || !img.naturalWidth || !img.naturalHeight) return;
+
+      try {
+        const nw = img.naturalWidth;
+        const nh = img.naturalHeight;
+
+        // Downsample for performance; we only need the bounding box, not
+        // per-pixel precision.
+        const maxDim = 300;
+        const scale  = Math.min(1, maxDim / Math.max(nw, nh));
+        const cw = Math.max(1, Math.round(nw * scale));
+        const ch = Math.max(1, Math.round(nh * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width  = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, cw, ch);
+
+        const { data } = ctx.getImageData(0, 0, cw, ch);
+        const ALPHA_THRESHOLD = 10;
+
+        // Stay away from the outer edges so the frame's own rounded
+        // outer corners (also transparent) don't get mistaken for the
+        // screen cutout.
+        const marginX = Math.round(cw * 0.05);
+        const marginY = Math.round(ch * 0.05);
+
+        let minX = cw, maxX = 0, minY = ch, maxY = 0;
+        let found = false;
+
+        for (let y = marginY; y < ch - marginY; y++) {
+          for (let x = marginX; x < cw - marginX; x++) {
+            const alpha = data[(y * cw + x) * 4 + 3];
+            if (alpha < ALPHA_THRESHOLD) {
+              found = true;
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+
+        if (!found || maxX <= minX || maxY <= minY) return;
+
+        const wRatio       = (maxX - minX) / cw;
+        const hRatio       = (maxY - minY) / ch;
+        const centerYRatio = ((minY + maxY) / 2) / ch;
+
+        // Sanity guard: a "cutout" smaller than ~35% or larger than ~99%
+        // of the frame is almost certainly a bad detection, so ignore it
+        // and keep whatever ratios we already have (fallback or a prior
+        // good measurement) rather than corrupt the layout.
+        if (wRatio < 0.35 || wRatio > 0.99 || hRatio < 0.35 || hRatio > 0.99) {
+          return;
+        }
+
+        screenRatioRef.current = { wRatio, hRatio, centerYRatio };
+      } catch (e) {
+        // Canvas may be tainted (cross-origin asset) or unsupported.
+        // Silently keep the fallback ratios.
       }
+    };
+
+    const computeScale = () => {
+      const phoneEl = phoneFrameRef.current;
+      if (!phoneEl) return;
+      const rect = phoneEl.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const { wRatio, hRatio, centerYRatio } = screenRatioRef.current;
+
+      const screenW = rect.width  * wRatio;
+      const screenH = rect.height * hRatio;
+
+      // Clamp so an odd aspect ratio at an extreme breakpoint can't crush
+      // or balloon the grid.
+      const raw = Math.min(screenW / GRID_W, screenH / GRID_H, 1);
+      const s   = Math.min(Math.max(raw, SCALE_MIN), SCALE_MAX);
+      scaleRef.current = s;
+
+      const phoneCenterY    = rect.top + rect.height * centerYRatio;
+      const viewportCenterY = window.innerHeight / 2;
+      screenOffsetYRef.current = phoneCenterY - viewportCenterY;
     };
 
     const updateTarget = () => {
@@ -259,6 +353,7 @@ export default function AppInterfaceSection() {
 
       const easedEntry = ease(entryProgressRef.current);
       const p          = ease(progressRef.current);
+      const s          = scaleRef.current || 1;
 
       if (bandRef.current) {
         const bandScale   = lerp(1, 0.35, p);
@@ -269,9 +364,16 @@ export default function AppInterfaceSection() {
 
       const vh    = window.innerHeight;
       const riseY = (1 - easedEntry) * (vh || 800);
+
       if (scalerRef.current) {
+        const yOffset = isMobileRef.current
+          ? PHONE_SCREEN_Y_OFFSET_MOBILE
+          : PHONE_SCREEN_Y_OFFSET_DESKTOP;
+
         scalerRef.current.style.transform =
-          `scale(${scaleRef.current}) translateY(${(riseY / scaleRef.current) + PHONE_SCREEN_Y_OFFSET}px)`;
+          `scale(${s}) translateY(${
+            (riseY / s) + (screenOffsetYRef.current / s) + yOffset
+          }px)`;
       }
 
       const spreadScale = window.innerWidth / DESIGN_W;
@@ -286,11 +388,11 @@ export default function AppInterfaceSection() {
         const fs = FINAL_SIZES[key];
         const ss = SPREAD_SIZES[key];
 
-        const x = lerp(S[key].x * spreadScale, F[key].fx, p);
-        const y = lerp(S[key].y,               F[key].fy, p);
+        const x = lerp((S[key].x * spreadScale)/s, F[key].fx, p);
+        const y = lerp(S[key].y / s,                 F[key].fy, p);
 
-        const sw = lerp(ss.w, fs.w, p);
-        const sh = lerp(ss.h, fs.h, p);
+        const sw = lerp(ss.w / s, fs.w, p);
+        const sh = lerp(ss.h / s, fs.h, p);
         const scaleX = sw / fs.w;
         const scaleY = sh / fs.h;
 
@@ -303,7 +405,6 @@ export default function AppInterfaceSection() {
         yogaInner.style.borderRadius = `${lerp(16, 12, p)}px`;
       }
 
-      // ── phone frame fade-in, only once cards have reached center ──────
       if (phoneFrameRef.current) {
         const fadeT = Math.min(
           Math.max((p - PHONE_FADE_START) / (PHONE_FADE_END - PHONE_FADE_START), 0),
@@ -312,9 +413,8 @@ export default function AppInterfaceSection() {
         phoneFrameRef.current.style.opacity = fadeT;
       }
 
-      // ── Live-updating values (direct DOM text writes, no React state) ──────
-      const weightKg   = lerp(70, 68, p).toFixed(1);   // Weight card
-      const sleepHours = Math.round(lerp(6, 8, p));    // Sleep card
+      const weightKg   = lerp(70, 68, p).toFixed(1);
+      const sleepHours = Math.round(lerp(6, 8, p));
       const mood       = p > 0.6 ? "Calm" : p > 0.3 ? "Okay" : "Tracking";
 
       if (weightNodeRef.current)     weightNodeRef.current.textContent     = weightKg;
@@ -324,20 +424,45 @@ export default function AppInterfaceSection() {
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    window.addEventListener("scroll", updateTarget, { passive: true });
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       updateTarget();
       computeScale();
       isMobileRef.current = window.innerWidth < 480;
-    });
+    };
+
+    window.addEventListener("scroll", updateTarget, { passive: true });
+    window.addEventListener("resize", handleResize);
+
+    let ro;
+    if (phoneFrameRef.current && "ResizeObserver" in window) {
+      ro = new ResizeObserver(() => computeScale());
+      ro.observe(phoneFrameRef.current);
+    }
+
+    // If the image is already cached/loaded by the time this effect runs,
+    // its onLoad handler in JSX won't fire — so analyze it here too.
+    if (phoneFrameRef.current && phoneFrameRef.current.complete) {
+      analyzePhoneFrame();
+    }
 
     updateTarget();
     computeScale();
     rafRef.current = requestAnimationFrame(tick);
 
+    // Expose analyzePhoneFrame to the img's onLoad handler via a stable
+    // window-scoped hook isn't ideal, so instead we listen for a custom
+    // event dispatched from onLoad below.
+    const handleFrameLoaded = () => {
+      analyzePhoneFrame();
+      computeScale();
+    };
+    window.addEventListener("__phoneFrameLoaded", handleFrameLoaded);
+
     return () => {
       window.removeEventListener("scroll", updateTarget);
-      window.removeEventListener("resize", computeScale);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("__phoneFrameLoaded", handleFrameLoaded);
+      if (ro) ro.disconnect();
       cancelAnimationFrame(rafRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -382,9 +507,13 @@ export default function AppInterfaceSection() {
           src={phoneFrame}
           alt=""
           aria-hidden="true"
+          onLoad={() => {
+            window.dispatchEvent(new Event("__phoneFrameLoaded"));
+            window.dispatchEvent(new Event("resize"));
+          }}
           className="pointer-events-none select-none absolute z-0"
           style={{
-            height: `min(${PHONE_FRAME_MAX_H}px, 92vh)`,
+            height: `min(${PHONE_FRAME_MAX_H}px, 82vh)`,
             width: "auto",
             opacity: 0,
             transition: "opacity 0.15s linear",
@@ -401,7 +530,6 @@ export default function AppInterfaceSection() {
         >
           <div className="relative" style={{ width: 0, height: 0 }}>
 
-            {/* ── LOGO BAND ── */}
             <div
               ref={bandRef}
               className="absolute pointer-events-none w-[150px] mt:w-[220px] mt:h-[300px]"
@@ -410,7 +538,6 @@ export default function AppInterfaceSection() {
               <img src={logo} className="w-full h-full object-contain" alt="FitMom logo" />
             </div>
 
-            {/* ── HERO: "Track your Daily Calorie" rings card ──────────────── */}
             <CardGPU name="yoga">
               <div
                 ref={el => { cardRefs.current["yoga_inner"] = el; }}
@@ -447,7 +574,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── SLEEP CARD ── */}
             <CardGPU name="sleep">
               <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden">
                 <div className="flex items-center justify-between">
@@ -474,7 +600,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── WATER (compact mini stat) ── */}
             <CardGPU name="steps">
               <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
                 <IconBadge bg="rgba(59,130,246,0.15)" color="#3B82F6" size={32}>{Icons.drop}</IconBadge>
@@ -485,7 +610,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── HEALTH (compact mini stat) ── */}
             <CardGPU name="ready">
               <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
                 <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.heartbeat}</IconBadge>
@@ -497,7 +621,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── EMOTIONAL (compact mini stat) ── */}
             <CardGPU name="sleepPill">
               <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5">
                 <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32}>{Icons.moon}</IconBadge>
@@ -508,7 +631,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── WEIGHT CARD ── */}
             <CardGPU name="heart">
               <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -532,7 +654,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── WHR CARD ── */}
             <CardGPU name="run">
               <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -553,7 +674,6 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
-            {/* ── BOTTOM ROW (kept as a compact dark nav-style row) ── */}
             <CardGPU name="med">
               <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
