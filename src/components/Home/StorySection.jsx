@@ -10,14 +10,15 @@ import {
   Target,
   Apple,
 } from "lucide-react";
-import mom from "../../assets/home/bgImg/mother.webp"
-import wellness from "../../assets/home/bgImg/wellness.webp"
-import online from "../../assets/home/bgImg/online.webp"
-import trainer from "../../assets/home/bgImg/trainer.webp"
-import support from "../../assets/home/bgImg/support.webp"
-import family from "../../assets/home/bgImg/family.webp"
-import goals from "../../assets/home/bgImg/goal.webp"
-import nutrition from "../../assets/home/bgImg/nutrition.webp"
+const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
+const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
+const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
+const trainer = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204590/trainer_pwlz4t.webp"
+const support ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/support_xav2qs.webp"
+const family = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/family_madgcc.webp"
+const goals="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/goal_myqwro.webp"
+const nutrition ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/nutrition_zyz46h.webp"
+
 
 const stories = [
   {
@@ -145,6 +146,34 @@ const iconVariants = {
       stiffness: 500,
       damping: 15,
       delay: 0.25, // slightly after badge
+    },
+  },
+};
+
+const titleVariants = {
+  hidden: { opacity: 0, x: 80 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 260,
+      damping: 22,
+      delay: 0.15,
+    },
+  },
+};
+
+const descVariants = {
+  hidden: { opacity: 0, x: 60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 220,
+      damping: 22,
+      delay: 0.3,
     },
   },
 };
@@ -331,6 +360,7 @@ function FloatingOverlay({ type }) {
 
 function StoryScene({ story, index }) {
   const ref = useRef(null);
+  const contentRef = useRef(null);
   const isFirst = index === 0;
 
   const { scrollYProgress } = useScroll({
@@ -340,7 +370,7 @@ function StoryScene({ story, index }) {
 
   const y = useTransform(scrollYProgress, [0, 1], ["100%", "0%"]);
 
-  // inView still drives the badge/icon pop; title & description are now static (no animation) for performance
+  // inView triggers animations each time the sticky scene is visible
   const isInView = useInView(ref, { amount: 0.3, once: false });
 
   const Icon = story.icon;
@@ -382,7 +412,7 @@ function StoryScene({ story, index }) {
         >
           {/* ── Badge + Icon (pop animation) ── */}
           <div
-            className="absolute left-10 top-10 md:left-10 flex items-center gap-2"
+            className="absolute left-5 top-[60vh] sm:top-10 sm:left-10 flex items-center gap-2"
             style={{ zIndex: 2 }}
           >
             {/* Badge pill */}
@@ -408,21 +438,29 @@ function StoryScene({ story, index }) {
             </motion.div>
           </div>
 
-          {/* ── Title + Description (static, no enter animation) ── */}
+          {/* ── Title + Description (pop from right) ── */}
           <div
             className="absolute bottom-20 lg:left-14 left-4 max-w-3xl"
             style={{ zIndex: 2 }}
           >
-            <h1
+            <motion.h1
+              variants={titleVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
               className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em]"
               style={{ fontSize: "clamp(28px, 4vw, 64px)" }}
             >
               {story.title}
-            </h1>
+            </motion.h1>
 
-            <p className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl">
+            <motion.p
+              variants={descVariants}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl"
+            >
               {story.description}
-            </p>
+            </motion.p>
           </div>
 
           <FloatingOverlay type={story.overlay} />
