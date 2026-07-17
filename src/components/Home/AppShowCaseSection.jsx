@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import screen1 from "../../assets/home/mobile/img1.png";
 import screen2 from "../../assets/home/mobile/img2.png";
 import useDeviceType from "../../components/Helper/DeviceType";
+import { Link } from "react-router-dom";
 
 export default function HealthCoachSection() {
   const phone1Ref = useRef(null);
@@ -23,15 +24,15 @@ export default function HealthCoachSection() {
       );
 
       if (phone1Ref.current) {
-        const rotateZ = 0 - progress * 12;
-        const rotateX = 0 + progress * 5;
-        const translateY = 0 + progress * 60;
-        const translateX = 0 - progress * 30;
+      const rotateZ = -progress * 35;
+const rotateX = progress * 12;
+const translateY = progress * 80;
+const translateX = -progress * 40;
         phone1Ref.current.style.transform = `perspective(1400px) rotateZ(${rotateZ}deg) rotateX(${rotateX}deg) translateY(${translateY}px) translateX(${translateX}px)`;
       }
 
       if (phone2Ref.current) {
-        const rotateZ = 0 + progress * 20;
+        const rotateZ = 0 + progress * 30;
         const rotateX = 0 + progress * 10;
         const translateY = 0 - progress * 40;
         const translateX = 0 + progress * 20;
@@ -61,24 +62,16 @@ export default function HealthCoachSection() {
             and expert support,{" "}
             <span className="text-teal-800">all in one app.</span>
           </p>
-          <a
-            href="#"
+          
+          <Link
+            to="our-app"
             className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-base font-medium hover:underline underline-offset-4 transition-all"
           >
             See how it works
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-base font-medium hover:underline underline-offset-4 transition-all"
-          >
-            See how it works
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+          </Link>
         </div>
 
         {/* Phone images — stacked, centered, no parallax */}
@@ -100,9 +93,6 @@ export default function HealthCoachSection() {
             Ask anything, anytime. Get evidence-backed answers and tailored
             insights based on your data.
           </p>
-          <button className="bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium px-7 py-3 rounded-full transition-colors duration-200 shadow-sm">
-            Book A Consultation
-          </button>
         </div>
 
       </section>

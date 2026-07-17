@@ -174,7 +174,7 @@ export default function Blog() {
               </span>
             </button>
             <Link
-              to="/pricing"
+              to="/fmc"
               className="w-full sm:w-auto bg-transparent text-[#0A0A0A] border-[1.5px] border-[#E5E7EB] rounded-full px-8 py-4 text-[15px] font-semibold cursor-pointer tracking-[-0.01em] transition-colors duration-200 hover:border-[#0a6c58]"
             >
               View Programs

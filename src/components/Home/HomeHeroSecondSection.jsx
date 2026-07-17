@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function HomeHeroSecondSection() {
   return (
     <section
@@ -14,12 +16,12 @@ export default function HomeHeroSecondSection() {
           and your lifestyle. Rediscover your strength with the support you deserve.
         </p>
 
-        <a
-          href="#"
+        <Link
+          to="/fmc"
           className="inline-flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors px-8 py-3.5 text-sm font-medium text-white shadow-sm"
         >
           Learn more
-        </a>
+        </Link>
       </div>
     </section>
   );

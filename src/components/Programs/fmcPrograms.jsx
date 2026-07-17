@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Clock, Heart,
   Activity, User, Stethoscope
 } from "lucide-react";
-import handleConsultation from "../Helper/handleClick";
+import handleConsultation from "../Helper/handleClick"
 const PREVIEW_COUNT = 4;
 
 const plans = [
@@ -85,7 +85,6 @@ const C = {
   textMuted: "#424245",
   footerGrad: "linear-gradient(to bottom, transparent 0%, #ffffff 45%)",
 };
-
 
 function PlanCard({ plan, animIndex }) {
   const { icon: Icon, name, subtitle, tag, duration, features } = plan;
@@ -265,7 +264,7 @@ function NavBtn({ onClick, disabled, children, ...rest }) {
   );
 }
 
-export default function ProgramSection() {
+export default function FMCProgramSection() {
   // Shared index state used by both mobile (1 card) and desktop (3 cards)
   const [startIndex, setStartIndex] = useState(0);
   const [animKey, setAnimKey] = useState(0);
@@ -299,7 +298,7 @@ export default function ProgramSection() {
   };
 
   return (
-    <section className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-24" style={{ backgroundColor: C.pageBg, }}>
+    <section className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-32" style={{ backgroundColor: C.pageBg, }}>
       <div className="mx-auto max-w-7xl">
 
         {/* Section header */}
@@ -313,15 +312,7 @@ export default function ProgramSection() {
           <p className="text-lg sm:text-xl lg:text-2xl text-[#6e6e73] leading-relaxed mb-8 max-w-3xl">
             Customized. Effective. Nurturing.<br className="hidden sm:block" /> Expert-backed solutions to fit your lifestyle.
           </p>
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 text-[#1d1d1f] text-lg sm:text-xl font-medium hover:underline underline-offset-4 transition-all"
-          >
-            See how it works
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+         
         </div>
 
         {/* ── MOBILE: 1 card at a time ── */}

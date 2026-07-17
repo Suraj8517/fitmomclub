@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 const NAV_LINKS = [
+  { label: "Home",links:"/" },
   { label: "About Us",links:"about-us" },
   { label: "Our Community", links:"community" },
 ];
@@ -8,12 +9,14 @@ const NAV_LINKS = [
 const WHAT_WE_OFFER = [
   { label: "Success Stories",links:"success-stories" },
   { label: "Our App",links:"our-app" },
-  { label: "Programs" },
   {label:"Webinars",links:"webinars"}
 ];
-
+const Programs = [
+  { label: "Health & Lifestyle Management",links:"fmc" },
+  { label: "Natural Conception & Fertility",links:"miracle" },
+];
 const RESOURCES = [
-  { label: "Blogs" },
+  { label: "Blogs" ,links:"blogs"},
   { label: "Health Calculators" ,links:"health-calculators"},
 ];
 
@@ -53,6 +56,39 @@ function getThemeForPath(pathname) {
   return ROUTE_THEME_MAP[pathname] ?? DEFAULT_THEME;
 }
 
+function MenuLink({ to, children }) {
+  return (
+    <Link
+      to={to}
+      className="group flex items-center gap-1.5 -mx-2 px-2 py-[7px] rounded-lg text-[14.5px] font-medium text-gray-700 transition-colors hover:bg-black/[0.04] hover:text-gray-900"
+    >
+      {children}
+      <svg
+        className="w-3 h-3 opacity-0 -translate-x-0.5 transition-all duration-150 group-hover:opacity-40 group-hover:translate-x-0"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
+    </Link>
+  );
+}
+
+function MenuColumn({ title, items }) {
+  return (
+    <div>
+      <p className="text-[10.5px] text-teal-700/70 font-bold uppercase tracking-[0.08em] mb-1.5">
+        {title}
+      </p>
+      <div className="flex flex-col">
+        {items.map((link) => (
+          <MenuLink key={link.label} to={link.links}>
+            {link.label}
+          </MenuLink>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -114,8 +150,8 @@ export default function Navbar() {
           scrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent",
         ].join(" ")}
       >
-        <div className="max-w-8xl mx-auto px-5 sm:px-12">
-          <div className="flex items-center justify-between h-20 sm:h-28">
+        <div className="max-w-8xl mx-auto px-4 sm:px-12">
+          <div className="flex items-center justify-between h-16 sm:h-28">
 
             {/* Logo */}
             <Link
@@ -127,7 +163,7 @@ export default function Navbar() {
             >
               <span
                 className={[
-                  "font-semibold text-xl sm:text-2xl tracking-tight transition-colors duration-300",
+                  "font-semibold text-lg sm:text-2xl tracking-tight transition-colors duration-300",
                   useLightStyling ? "text-white" : "text-gray-800",
                 ].join(" ")}
               >
@@ -136,20 +172,20 @@ export default function Navbar() {
             </Link>
 
             {/* Right side */}
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3 sm:gap-8">
               {/* Hamburger / X — with floating menu panel */}
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => { setMenuOpen((v) => !v); setDownloadOpen(false); }}
                   className={[
-                    "flex items-center justify-center w-13 h-13 rounded-xl transition-colors duration-200",
+                    "flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-xl transition-colors duration-200",
                     useLightStyling
                       ? "bg-white/20 hover:bg-white/30 text-white"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-700",
                   ].join(" ")}
                   aria-label="Menu"
                 >
-                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     {menuOpen ? (
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     ) : (
@@ -158,75 +194,58 @@ export default function Navbar() {
                   </svg>
                 </button>
 
-                {/* Floating dropdown card — anchored to the right of the hamburger */}
+                {/* Floating dropdown card — anchored to the right of the hamburger.
+                    Width is capped relative to the viewport so it never runs off
+                    the edge of small phone screens. */}
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-3 w-64 bg-[#f5f0eb] rounded-2xl shadow-2xl border border-black/5 py-2 animate-fadeIn">
+                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-[68px] sm:top-full sm:mt-3 w-auto sm:w-[440px] max-h-[calc(100vh-84px)] sm:max-h-[80vh] overflow-y-auto bg-[#f5f0eb] rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-black/[0.06] p-4 sm:p-5 animate-fadeIn">
 
-                    {/* Main nav links */}
-                    <div className="px-5 pb-2">
+                    {/* Main nav links — pill row, wraps on narrow screens */}
+                    <div className="flex flex-wrap items-center gap-2 pb-4 mb-4 border-b border-black/[0.07]">
                       {NAV_LINKS.map((link) => (
                         <Link
                           key={link.label}
                           to={link.links}
-                          className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
+                          className="text-[13.5px] sm:text-[14px] font-semibold text-white bg-teal-800/80 hover:bg-teal-800 px-3.5 py-1.5 rounded-full border border-black/[0.05] transition-colors"
                         >
                           {link.label}
                         </Link>
                       ))}
                     </div>
 
-                    {/* What We Offer */}
-                    <div className="border-t border-gray-200/70 px-5 pt-2 pb-2">
-                      <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
-                        What We Offer
-                      </p>
-                      {WHAT_WE_OFFER.map((link) => (
-                        <Link
-                          key={link.label}
-                          to={link.links}
-                          className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                    {/* Sections — single column on mobile, 2-column grid from sm up */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                      <MenuColumn title="What We Offer" items={WHAT_WE_OFFER} />
+                      <MenuColumn title="Programs" items={Programs} />
+                      <MenuColumn title="Resources" items={RESOURCES} />
+                      <MenuColumn title="Support" items={SUPPORT} />
                     </div>
 
-                    {/* Resources */}
-                    <div className="border-t border-gray-200/70 px-5 pt-2 pb-2">
-                      <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
-                        Resources
+                    {/* Get the app — only shown here on mobile, since the
+                        standalone download button is hidden below sm */}
+                    <div className="sm:hidden mt-5 pt-4 border-t border-black/[0.07]">
+                      <p className="text-[10.5px] text-teal-700/70 font-bold uppercase tracking-[0.08em] mb-1.5">
+                        Get The App
                       </p>
-                      {RESOURCES.map((link) => (
-                        <Link
-                          key={link.label}
-                         to={link.links}
-                          className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                    </div>
-
-                    {/* Support */}
-                    <div className="border-t border-gray-200/70 px-5 pt-2">
-                      <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5">
-                        Support
-                      </p>
-                      {SUPPORT.map((link) => (
-                        <Link
-                           key={link.label}
-                          to={link.links}
-                          className="block py-1.5 text-[15px] font-medium text-gray-800 hover:text-gray-500 transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                      <div className="flex flex-col">
+                        {DOWNLOAD_LINKS.map((dl) => (
+                          <a
+                            key={dl.label}
+                            href="#"
+                            className="flex items-center gap-3 -mx-2 px-2 py-2 rounded-lg text-[14.5px] font-medium text-gray-700 hover:bg-black/[0.04] hover:text-gray-900 transition-colors"
+                          >
+                            <span className="text-gray-500 shrink-0">{dl.icon}</span>
+                            {dl.label}
+                          </a>
+                        ))}
+                      </div>
                     </div>
 
                   </div>
                 )}
               </div>
-{/* Download button */}
+{/* Download button — desktop/tablet only; mobile users get the
+                  same links inside the hamburger menu above */}
               <div className="hidden sm:block relative" ref={downloadRef}>
                 <button
                   onClick={() => { setDownloadOpen((v) => !v); setMenuOpen(false); }}

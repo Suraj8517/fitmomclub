@@ -5,30 +5,107 @@ import {
   Activity, User, Stethoscope
 } from "lucide-react";
 import handleConsultation from "../Helper/handleClick";
-const PREVIEW_COUNT = 4;
+const PREVIEW_SECTIONS = 2;
+
+const sharedSection1 = [
+  {
+    title: "Personal Health Coaches",
+    items: [
+      "Certified Fitcoach",
+      "Physiotherapist",
+      "Clinical Dietitian",
+    ],
+  },
+  {
+    title: "Premium Services",
+    items: [
+      "Input call + Induction call + 2 Review calls",
+    ],
+  },
+  {
+    title: "Special Features",
+    items: [
+      "Blood work monitoring",
+      "Habit inculcation",
+      "Lifestyle modification",
+      "Addition of super foods",
+    ],
+  },
+  {
+    title: "Add Ons",
+    items: [
+      "Meditation techniques",
+    ],
+  },
+  {
+    title: "Complementary",
+    items: [
+      "Fitness/ Nutrition Webinars",
+      "Handouts and checklist on stress, sleep, unhealthy habits, environmental factors and intimacy management",
+    ],
+  },
+];
+const sharedSection2 = [
+  {
+    title: "Personal Health Coaches",
+    items: [
+      "Clinical Dietitian",
+    ],
+  },
+  {
+    title: "Premium Services",
+    items: [
+      "Input call + Induction call + 2 Review calls",
+    ],
+  },
+  {
+    title: "Special Features",
+    items: [
+      "Blood work monitoring",
+      "Habit inculcation",
+      "Lifestyle modification",
+      "Addition of super foods",
+    ],
+  },
+  {
+    title: "Add Ons",
+    items: [
+      "Meditation techniques",
+    ],
+  },
+  {
+    title: "Complementary",
+    items: [
+      "Fitness/ Nutrition Webinars",
+      "Handouts and checklist on stress, sleep, unhealthy habits, environmental factors and intimacy management",
+    ],
+  },
+];
 
 const plans = [
   {
     icon: Heart,
-    name: "Prenatal Conditions",
-    subtitle: "Weight Management",
-    tag: "Blossom",
+    name: "Natural Conception",
+    subtitle: "Tailored To Fit Your Needs",
+    tag: "TTC Naturally",
     duration: "6 / 9 / 12 months",
     features: [
-      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
-      "Induction Call + Post Plan Call + 2 review calls with fitness experts (1st month)",
-      "Customised diet plan with periodic revisions",
-      "36+ live group prenatal workout sessions",
+      "Customized Diet Plan",
+      "Live group workout sessions - Cardio, Yoga & S&C",
+      "Diet review call -Monthly twice",
+      "Meal plate review and progress follow-up in WhatsApp",
       "Diet & fitness review calls — twice monthly",
       "Meal plate review and progress follow-up on WhatsApp",
+      "Monthly revisions in the diet plan",
       "Access to recipe vault",
     ],
+    sections: sharedSection1,
   },
   {
     icon: Activity,
     name: "Postnatal Conditions",
-    subtitle: "Weight Management",
-    tag: "Queen",
+    subtitle: "Tailored To Fit Your Needs",
+    tag: "TTC Treatment",
     duration: "6 / 9 / 12 months",
     features: [
       "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
@@ -40,37 +117,7 @@ const plans = [
       "Monthly revisions to diet plan",
       "Access to recipe vault",
     ],
-  },
-  {
-    icon: User,
-    name: "No Health Conditions",
-    subtitle: "Weight Management",
-    tag: "Pro",
-    duration: "6 / 9 / 12 months",
-    features: [
-      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
-      "Customised diet plan with periodic revisions",
-      "23+ live group workout sessions",
-      "Diet review calls — twice monthly",
-      "Daily meal plate review and progress follow-up on WhatsApp",
-      "Access to recipe vault",
-    ],
-  },
-  {
-    icon: Stethoscope,
-    name: "With Health Conditions",
-    subtitle: "Weight Management",
-    tag: "Elite",
-    duration: "6 / 9 / 12 months",
-    features: [
-      "Input Call + Induction Call + 3 review calls with nutrition experts (1st month)",
-      "Induction Call + Post Plan Call + 2 review calls with fitness experts (1st month)",
-      "Customised diet & workout plan with periodic revisions",
-      "41+ live group workout sessions",
-      "Diet & fitness review calls — twice monthly",
-      "Daily meal plate review and progress follow-up on WhatsApp",
-      "Access to recipe vault",
-    ],
+    sections: sharedSection2,
   },
 ];
 
@@ -88,13 +135,14 @@ const C = {
 
 
 function PlanCard({ plan, animIndex }) {
-  const { icon: Icon, name, subtitle, tag, duration, features } = plan;
+  const { icon: Icon, name, subtitle, tag, duration, sections } = plan;
   const [expanded, setExpanded] = useState(false);
   const [btnHover, setBtnHover] = useState(false);
   const [btnActive, setBtnActive] = useState(false);
 
-  const visible = expanded ? features : features.slice(0, PREVIEW_COUNT);
-  const hasMore = features.length > PREVIEW_COUNT;
+  const visibleSections = expanded ? sections : sections.slice(0, PREVIEW_SECTIONS);
+  const hasMore = sections.length > PREVIEW_SECTIONS;
+  const hiddenCount = sections.length - PREVIEW_SECTIONS;
 
   return (
     <div
@@ -148,37 +196,48 @@ function PlanCard({ plan, animIndex }) {
           </div>
         </div>
 
-        {/* Features */}
+        {/* Titled feature sections */}
         <div className="px-9 pt-5 pb-24 flex-1">
-          <ul className="flex flex-col gap-3.5">
-            {visible.map((f, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3"
-                style={{ animation: `fadeUp 0.4s ease ${i * 0.04}s both` }}
+          <div className="flex flex-col gap-5">
+            {visibleSections.map((section, sIdx) => (
+              <div
+                key={section.title}
+                style={{ animation: `fadeUp 0.4s ease ${sIdx * 0.05}s both` }}
               >
-                <span
-                  className="mt-[9px] shrink-0 rounded-full"
-                  style={{ width: 6, height: 6, backgroundColor: C.black }}
-                />
-                <span className="text-[15px] sm:text-base md:text-[16px] lg:text-[15px] xl:text-base leading-relaxed" style={{ color: C.textMuted }}>
-                  {f}
-                </span>
-              </li>
+                <p
+                  className="text-[11px] sm:text-xs font-bold uppercase mb-2"
+                  style={{ color: C.black, letterSpacing: "0.06em" }}
+                >
+                  {section.title}
+                </p>
+                <ul className="flex flex-col gap-2">
+                  {section.items.map((f, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className="mt-[9px] shrink-0 rounded-full"
+                        style={{ width: 6, height: 6, backgroundColor: C.black }}
+                      />
+                      <span className="text-[15px] sm:text-base md:text-[16px] lg:text-[15px] xl:text-base leading-relaxed" style={{ color: C.textMuted }}>
+                        {f}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
 
           {hasMore && (
             <button
               onClick={() => setExpanded(v => !v)}
-              className="mt-3.5 flex items-center gap-1.5 text-sm sm:text-[15px] font-semibold transition-colors"
+              className="mt-4 flex items-center gap-1.5 text-sm sm:text-[15px] font-semibold transition-colors"
               style={{ color: C.black, background: "none", border: "none", cursor: "pointer", padding: 0 }}
               onMouseEnter={e => e.currentTarget.style.opacity = 0.6}
               onMouseLeave={e => e.currentTarget.style.opacity = 1}
             >
               {expanded
                 ? <><ChevronUp size={15} /> Show less</>
-                : <><ChevronDown size={15} /> +{features.length - PREVIEW_COUNT} more</>}
+                : <><ChevronDown size={15} /> +{hiddenCount} more {hiddenCount === 1 ? "section" : "sections"}</>}
             </button>
           )}
         </div>
@@ -265,7 +324,7 @@ function NavBtn({ onClick, disabled, children, ...rest }) {
   );
 }
 
-export default function ProgramSection() {
+export default function MiracleProgramSection() {
   // Shared index state used by both mobile (1 card) and desktop (3 cards)
   const [startIndex, setStartIndex] = useState(0);
   const [animKey, setAnimKey] = useState(0);
@@ -299,7 +358,7 @@ export default function ProgramSection() {
   };
 
   return (
-    <section className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-24" style={{ backgroundColor: C.pageBg, }}>
+    <section className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-32" style={{ backgroundColor: C.pageBg, }}>
       <div className="mx-auto max-w-7xl">
 
         {/* Section header */}
@@ -308,20 +367,11 @@ export default function ProgramSection() {
             className="text-[2.75rem] sm:text-5xl lg:text-6xl xl:text-7xl font-semibold text-[#1d1d1f] leading-[1.07] tracking-tight max-w-5xl 2xl:max-w-6xl mb-6"
             style={{ letterSpacing: "-0.02em" }}
           >
-            FitMom Club Plans
+            FitMom Club <br/>Miracle Plans
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-[#6e6e73] leading-relaxed mb-8 max-w-3xl">
             Customized. Effective. Nurturing.<br className="hidden sm:block" /> Expert-backed solutions to fit your lifestyle.
           </p>
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 text-[#1d1d1f] text-lg sm:text-xl font-medium hover:underline underline-offset-4 transition-all"
-          >
-            See how it works
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
         </div>
 
         {/* ── MOBILE: 1 card at a time ── */}
@@ -369,37 +419,13 @@ export default function ProgramSection() {
 
         {/* ── DESKTOP: 3 cards with carousel ── */}
         <div className="hidden lg:block">
-          <div key={`desktop-${animKey}`} className="grid grid-cols-3 gap-7 pt-8">
+          <div key={`desktop-${animKey}`} className="grid grid-cols-2 gap-7 pt-8 max-w-4xl mx-auto">
             {plans.slice(startIndex, startIndex + VISIBLE_DESKTOP).map((plan, i) => (
               <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
             ))}
           </div>
 
-          {/* Desktop nav */}
-          <div className="mt-8 flex items-center justify-end gap-3">
-            <div className="flex items-center gap-2 mr-3">
-              {plans.map((_, i) => {
-                const active = i >= startIndex && i < startIndex + VISIBLE_DESKTOP;
-                return (
-                  <span
-                    key={i}
-                    className="block rounded-full transition-all duration-300"
-                    style={{
-                      width: active ? 22 : 9,
-                      height: 9,
-                      backgroundColor: active ? C.black : "#d2d2d7",
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <NavBtn onClick={() => prev(1)} disabled={!canPrevDesktop} aria-label="Previous">
-              <ChevronLeft size={18} />
-            </NavBtn>
-            <NavBtn onClick={() => next(1)} disabled={!canNextDesktop} aria-label="Next">
-              <ChevronRight size={18} />
-            </NavBtn>
-          </div>
+          
         </div>
 
       </div>

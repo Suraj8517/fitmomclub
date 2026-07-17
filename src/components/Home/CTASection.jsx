@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import heroBg from "../../assets/home/hero.webp";
+import { Link } from "react-router-dom";
 
 export default function CTASection() {
   const imgRef = useRef(null);
@@ -56,19 +57,19 @@ export default function CTASection() {
         </p>
 
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <a
-            href="#"
+          <Link
+           to="book-consultation"
             className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium transition-colors duration-200 shadow-md"
           >
             Consult With Our Experts
-          </a>
+          </Link>
 
-          <a
-            href="#"
+          <Link
+            to="blogs"
             className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-white/90 hover:bg-white text-[#2C2C2C] text-sm font-medium transition-colors duration-200 shadow-md"
           >
             Explore Our Latest Blog Posts
-          </a>
+          </Link>
         </div>
 
       </div>

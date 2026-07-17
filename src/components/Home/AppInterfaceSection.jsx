@@ -1,80 +1,79 @@
-import { useEffect, useRef } from "react";
-import yogaimage from "../../assets/home/hero.webp";
+import { useEffect, useRef, forwardRef } from "react";
 import logo from "../../assets/home/fitmom.png";
 import phoneFrame from "../../assets/home/phone-frame.png";
 
 // ── Scroll section height ────────────────────────────────────────────────────
-const SCROLL_LENGTH_VH = 320;
+const SCROLL_LENGTH_VH = 280;
 
 // ── Spring constants ─────────────────────────────────────────────────────────
-const SCROLL_SPRING = 7.5;
-const ENTRY_SPRING  = 6.0;
+const SCROLL_SPRING = 7.5;   // exponential decay coefficient for scroll progress
+const ENTRY_SPRING  = 6.0;   // exponential decay coefficient for entry progress
 
-// ── Grid layout constants (internal design coordinates — NOT screen px) ────
-const GRID_W  = 380;
-const GRID_H  = 600;
+// ── Grid layout constants (UNCHANGED from file 1, except GAP split) ─────────
+const GRID_W  = 480;
+const GRID_H  = 680;
 const PAD     = 24;
 const SCR_W   = GRID_W - PAD * 2;
 const SCR_H   = GRID_H - PAD * 2;
-const GAP     = 4;
-const COL     = (SCR_W - GAP) / 2;
 
-const PHOTO_H = 180;
-const ROW2_H  = 150;
-const ROW3_H  = 138;
-const MED_H   = 56;
+// Horizontal gap between the two columns (rows 2 & 3) — reduce this to tighten.
+const COL_GAP = 2;
+// Vertical gap between rows, and between stacked pills in the right column.
+const ROW_GAP = 5;
+
+const COL     = (SCR_W - COL_GAP-80) / 2;
+
+const PHOTO_H = 188;
+const ROW2_H  = 168;
+const ROW3_H  = 154;
+const MED_H   = 62;
 const TOP_PAD = Math.floor(
-  (SCR_H - (PHOTO_H + GAP + ROW2_H + GAP + ROW3_H + GAP + MED_H)) / 2
+  (SCR_H - (PHOTO_H + ROW_GAP + ROW2_H + ROW_GAP + ROW3_H + ROW_GAP + MED_H)) / 2
 );
 
 const DESIGN_W = 390;
 
+// ── Phone frame — simple static sizing, no measurement/canvas work ─────────
 const PHONE_FRAME_MAX_H = 680;
+const PHONE_FADE_START  = 0.82;
+const PHONE_FADE_END    = 0.98;
 
-const PHONE_FADE_START = 0.82;
-const PHONE_FADE_END   = 0.98;
-
-
-const FALLBACK_SCREEN_RATIOS = {
-  wRatio: 0.90,
-  hRatio: 0.84,
-  centerYRatio: 0.50,
-};
-
-// Floor/ceiling on the measured scale so a truly degenerate detection
-// can't collapse the grid to zero or blow it up to infinity. Kept wide
-// on purpose — the old tight floor (0.55) was what forced the grid to
-// render larger than the real screen space and caused the overlap.
-const SCALE_MIN = 0.32;
-const SCALE_MAX = 1.3;
-
-// Manual px nudge on top of measured alignment. Kept separate per
-// breakpoint since a nudge tuned for mobile framing usually looks wrong
-// on desktop and vice versa.
-const PHONE_SCREEN_Y_OFFSET_MOBILE  = 50;
-const PHONE_SCREEN_Y_OFFSET_DESKTOP = 10;
-
+// ── Utility: linear interpolate ──────────────────────────────────────────────
 const lerp = (a, b, t) => a + (b - a) * t;
+const fmt  = (n) => Math.round(n).toLocaleString();
 
+/**
+ * Smootherstep (Ken Perlin) easing — unchanged from file 1.
+ */
 function ease(t) {
   const c = Math.min(Math.max(t, 0), 1);
   return c * c * c * (c * (c * 6 - 15) + 10);
 }
 
-function IconBadge({ bg, color, children, size = 28 }) {
+// ── Small presentational helpers ────────────────────────────────────────────
+function IconBadge({ bg, color, children, size = 28, live = false }) {
   return (
-    <div
-      className="flex items-center justify-center rounded-full flex-shrink-0"
-      style={{ width: size, height: size, background: bg, color }}
-    >
-      {children}
+    <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+      <div
+        className="flex items-center justify-center rounded-full w-full h-full transition-transform duration-300"
+        style={{ background: bg, color }}
+      >
+        {children}
+      </div>
+      {live && (
+        <>
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400" />
+        </>
+      )}
     </div>
   );
 }
 
-function GradientBar({ value }) {
+// Marker slides via ref (imperative, RAF-driven — avoids React re-render churn)
+const GradientBar = forwardRef(function GradientBar({ initialValue = 0 }, ref) {
   return (
-    <div className="relative w-full h-1.5 rounded-full bg-neutral-800">
+    <div className="relative w-full h-1.5 rounded-full bg-neutral-800 overflow-visible">
       <div
         className="absolute inset-y-0 left-0 rounded-full"
         style={{
@@ -84,12 +83,13 @@ function GradientBar({ value }) {
         }}
       />
       <div
-        className="absolute top-1/2 w-2 h-4 rounded-full bg-white -translate-y-1/2"
-        style={{ left: `calc(${value * 100}% - 6px)` }}
+        ref={ref}
+        className="absolute top-1/2 w-2 h-4 rounded-full bg-white -translate-y-1/2 shadow-[0_0_6px_rgba(255,255,255,0.6)]"
+        style={{ left: `calc(${initialValue * 100}% - 6px)`, willChange: "left" }}
       />
     </div>
   );
-}
+});
 
 const Icons = {
   scale: (
@@ -126,41 +126,56 @@ const Icons = {
   ),
 };
 
+const RING_CIRC = 2 * Math.PI * 17;
+
 export default function AppInterfaceSection() {
   const wrapperRef = useRef(null);
 
+  // ── All animation state lives in refs (unchanged from file 1) ─────────────
   const progressRef      = useRef(0);
   const entryProgressRef = useRef(0);
   const targetRef        = useRef(0);
   const entryTargetRef   = useRef(0);
   const scaleRef         = useRef(1);
-  const screenOffsetYRef = useRef(0);
   const isMobileRef      = useRef(
     typeof window !== "undefined" && window.innerWidth < 480
   );
   const rafRef      = useRef(null);
   const lastTimeRef = useRef(null);
 
-  // Ratios describing where the transparent screen cutout sits inside the
-  // phone-frame.png, as a fraction of the rendered image's width/height.
-  // Starts at the fallback and gets overwritten once analyzePhoneFrame()
-  // has measured the actual asset.
-  const screenRatioRef = useRef({ ...FALLBACK_SCREEN_RATIOS });
-
   const scalerRef     = useRef(null);
   const bandRef       = useRef(null);
   const cardRefs      = useRef({});
   const phoneFrameRef = useRef(null);
 
-  const weightNodeRef     = useRef(null);
-  const sleepHoursNodeRef = useRef(null);
-  const emotionalNodeRef  = useRef(null);
+  // ── Dynamic text / visual nodes for the dark cards ─────────────────────────
+  const weightNodeRef     = useRef(null); // "Weight" card kg value
+  const sleepHoursNodeRef = useRef(null); // "Sleep" card hr value
+  const emotionalNodeRef  = useRef(null); // "Emotional" card status text
 
-  const row2Y  = TOP_PAD + PHOTO_H + GAP;
-  const row3Y  = row2Y + ROW2_H + GAP;
-  const medY   = row3Y + ROW3_H + GAP;
-  const rightX = COL + GAP;
-  const pill3H = (ROW2_H - GAP * 2) / 3;
+  const calorieIntakeRef  = useRef(null);
+  const workoutBurnRef    = useRef(null);
+  const stepsBurnRef      = useRef(null);
+  const waterMlRef        = useRef(null);
+  const whrValueRef       = useRef(null);
+  const bmiValueRef       = useRef(null);
+
+  const ringRefs         = useRef([]); // 3 <circle> refs for calorie rings
+  const weightBarRef     = useRef(null);
+  const whrBarRef        = useRef(null);
+  const sleepGoalBarRef  = useRef(null);
+
+  // ── LAYOUT CONSTANTS derived from grid (unchanged, using split gaps) ───────
+  const row2Y  = TOP_PAD + PHOTO_H + ROW_GAP;
+  const row3Y  = row2Y + ROW2_H + ROW_GAP;
+  const medY   = row3Y + ROW3_H + ROW_GAP;
+  const pill3H = (ROW2_H - ROW_GAP * 2) / 3;
+
+  const GROUP_W      = COL * 2 + COL_GAP;
+  const GROUP_OFFSET = (SCR_W - GROUP_W) / 2;
+
+  const leftX  = GROUP_OFFSET;
+  const rightX = leftX + COL + COL_GAP;
 
   const sc = (lx, ly) => ({
     fx: lx - SCR_W / 2,
@@ -169,23 +184,23 @@ export default function AppInterfaceSection() {
 
   const F = {
     yoga:      sc(SCR_W / 2,         TOP_PAD + PHOTO_H / 2),
-    sleep:     sc(COL / 2,           row2Y + ROW2_H / 2),
+    sleep:     sc(leftX + COL / 2,   row2Y + ROW2_H / 2),
     steps:     sc(rightX + COL / 2,  row2Y + pill3H / 2),
-    ready:     sc(rightX + COL / 2,  row2Y + pill3H + GAP + pill3H / 2),
-    sleepPill: sc(rightX + COL / 2,  row2Y + (pill3H + GAP) * 2 + pill3H / 2),
-    heart:     sc(COL / 2,           row3Y + ROW3_H / 2),
+    ready:     sc(rightX + COL / 2,  row2Y + pill3H + ROW_GAP + pill3H / 2),
+    sleepPill: sc(rightX + COL / 2,  row2Y + (pill3H + ROW_GAP) * 2 + pill3H / 2),
+    heart:     sc(leftX + COL / 2,   row3Y + ROW3_H / 2),
     run:       sc(rightX + COL / 2,  row3Y + ROW3_H / 2),
     med:       sc(SCR_W / 2,         medY + MED_H / 2),
   };
 
   const S_desktop = {
-    yoga:      { x: -120, y: -240 },
-    sleep:     { x: -170, y:  -20 },
-    steps:     { x:  100, y: -280 },
-    ready:     { x:  120, y: -175 },
-    sleepPill: { x:  140, y:  -70 },
-    heart:     { x: -110, y:  220 },
-    run:       { x:  100, y:  120 },
+    yoga:      { x: -50, y: -240 },
+    sleep:     { x: -70, y:  -20 },
+    steps:     { x:  50, y: -280 },
+    ready:     { x:  40, y: -175 },
+    sleepPill: { x:  80, y:  -70 },
+    heart:     { x: -60, y:  220 },
+    run:       { x:  80, y:  120 },
     med:       { x:   60, y:  250 },
   };
 
@@ -201,116 +216,36 @@ export default function AppInterfaceSection() {
   };
 
   const FINAL_SIZES = {
-    yoga:      { w: SCR_W,  h: PHOTO_H },
-    sleep:     { w: COL,    h: ROW2_H  },
-    steps:     { w: COL,    h: pill3H  },
-    ready:     { w: COL,    h: pill3H  },
-    sleepPill: { w: COL,    h: pill3H  },
-    heart:     { w: COL,    h: ROW3_H  },
-    run:       { w: COL,    h: ROW3_H  },
-    med:       { w: SCR_W,  h: MED_H   },
+    yoga:      { w: 350,  h: 188 },
+    sleep:     { w: 175,    h: 168  },
+    steps:     { w: 175,    h: pill3H  },
+    ready:     { w: 175,    h: pill3H  },
+    sleepPill: { w: 175,    h: pill3H  },
+    heart:     { w: 175,    h: ROW3_H  },
+    run:       { w: 175,    h: ROW3_H  },
+    med:       { w: 350,  h: MED_H   },
   };
 
   const SPREAD_SIZES = {
-    yoga:      { w: 350, h: 185 },
-    sleep:     { w: 193, h: 170 },
-    steps:     { w: 193, h: 62  },
-    ready:     { w: 193, h: 62  },
-    sleepPill: { w: 215, h: 62  },
-    heart:     { w: 195, h: 155 },
-    run:       { w: 195, h: 155 },
-    med:       { w: 332, h: 62  },
+    yoga:      { w: 300, h: 165 },
+    sleep:     { w: 165, h: 160 },
+    steps:     { w: 165, h: 52  },
+    ready:     { w: 165, h: 52  },
+    sleepPill: { w: 165, h: 52  },
+    heart:     { w: 165, h: 145 },
+    run:       { w: 165, h: 145 },
+    med:       { w: 300, h: 52  },
   };
 
   useEffect(() => {
- 
-    const analyzePhoneFrame = () => {
-      const img = phoneFrameRef.current;
-      if (!img || !img.naturalWidth || !img.naturalHeight) return;
-
-      try {
-        const nw = img.naturalWidth;
-        const nh = img.naturalHeight;
-
-        // Downsample for performance; we only need the bounding box, not
-        // per-pixel precision.
-        const maxDim = 300;
-        const scale  = Math.min(1, maxDim / Math.max(nw, nh));
-        const cw = Math.max(1, Math.round(nw * scale));
-        const ch = Math.max(1, Math.round(nh * scale));
-
-        const canvas = document.createElement("canvas");
-        canvas.width  = cw;
-        canvas.height = ch;
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        ctx.drawImage(img, 0, 0, cw, ch);
-
-        const { data } = ctx.getImageData(0, 0, cw, ch);
-        const ALPHA_THRESHOLD = 10;
-
-        // Stay away from the outer edges so the frame's own rounded
-        // outer corners (also transparent) don't get mistaken for the
-        // screen cutout.
-        const marginX = Math.round(cw * 0.05);
-        const marginY = Math.round(ch * 0.05);
-
-        let minX = cw, maxX = 0, minY = ch, maxY = 0;
-        let found = false;
-
-        for (let y = marginY; y < ch - marginY; y++) {
-          for (let x = marginX; x < cw - marginX; x++) {
-            const alpha = data[(y * cw + x) * 4 + 3];
-            if (alpha < ALPHA_THRESHOLD) {
-              found = true;
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
-            }
-          }
-        }
-
-        if (!found || maxX <= minX || maxY <= minY) return;
-
-        const wRatio       = (maxX - minX) / cw;
-        const hRatio       = (maxY - minY) / ch;
-        const centerYRatio = ((minY + maxY) / 2) / ch;
-
-        // Sanity guard: a "cutout" smaller than ~35% or larger than ~99%
-        // of the frame is almost certainly a bad detection, so ignore it
-        // and keep whatever ratios we already have (fallback or a prior
-        // good measurement) rather than corrupt the layout.
-        if (wRatio < 0.35 || wRatio > 0.99 || hRatio < 0.35 || hRatio > 0.99) {
-          return;
-        }
-
-        screenRatioRef.current = { wRatio, hRatio, centerYRatio };
-      } catch (e) {
-        // Canvas may be tainted (cross-origin asset) or unsupported.
-        // Silently keep the fallback ratios.
-      }
-    };
-
     const computeScale = () => {
-      const phoneEl = phoneFrameRef.current;
-      if (!phoneEl) return;
-      const rect = phoneEl.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-
-      const { wRatio, hRatio, centerYRatio } = screenRatioRef.current;
-
-      const screenW = rect.width  * wRatio;
-      const screenH = rect.height * hRatio;
-
-      // Clamp so an odd aspect ratio at an extreme breakpoint can't crush
-      // or balloon the grid.
-      const raw = Math.min(screenW / GRID_W, screenH / GRID_H, 1);
-      const s   = Math.min(Math.max(raw, SCALE_MIN), SCALE_MAX);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const s  = Math.min(vw / (GRID_W + 32), vh / (GRID_H + 32), 1);
       scaleRef.current = s;
-
-      const phoneCenterY    = rect.top + rect.height * centerYRatio;
-      const viewportCenterY = window.innerHeight / 2;
-      screenOffsetYRef.current = phoneCenterY - viewportCenterY;
+      if (scalerRef.current) {
+        scalerRef.current.style.transform = `scale(${s})`;
+      }
     };
 
     const updateTarget = () => {
@@ -342,7 +277,6 @@ export default function AppInterfaceSection() {
 
       const easedEntry = ease(entryProgressRef.current);
       const p          = ease(progressRef.current);
-      const s          = scaleRef.current || 1;
 
       if (bandRef.current) {
         const bandScale   = lerp(1, 0.35, p);
@@ -353,16 +287,9 @@ export default function AppInterfaceSection() {
 
       const vh    = window.innerHeight;
       const riseY = (1 - easedEntry) * (vh || 800);
-
       if (scalerRef.current) {
-        const yOffset = isMobileRef.current
-          ? PHONE_SCREEN_Y_OFFSET_MOBILE
-          : PHONE_SCREEN_Y_OFFSET_DESKTOP;
-
         scalerRef.current.style.transform =
-          `scale(${s}) translateY(${
-            (riseY / s) + (screenOffsetYRef.current / s) + yOffset
-          }px)`;
+          `scale(${scaleRef.current}) translateY(${riseY / scaleRef.current}px)`;
       }
 
       const spreadScale = window.innerWidth / DESIGN_W;
@@ -377,11 +304,11 @@ export default function AppInterfaceSection() {
         const fs = FINAL_SIZES[key];
         const ss = SPREAD_SIZES[key];
 
-        const x = lerp((S[key].x * spreadScale)/s, F[key].fx, p);
-        const y = lerp(S[key].y / s,                 F[key].fy, p);
+        const x = lerp(S[key].x * spreadScale, F[key].fx, p);
+        const y = lerp(S[key].y,               F[key].fy, p);
 
-        const sw = lerp(ss.w / s, fs.w, p);
-        const sh = lerp(ss.h / s, fs.h, p);
+        const sw = lerp(ss.w, fs.w, p);
+        const sh = lerp(ss.h, fs.h, p);
         const scaleX = sw / fs.w;
         const scaleY = sh / fs.h;
 
@@ -394,6 +321,7 @@ export default function AppInterfaceSection() {
         yogaInner.style.borderRadius = `${lerp(16, 12, p)}px`;
       }
 
+      // ── Phone frame fade ──────────────────────────────────────────────────
       if (phoneFrameRef.current) {
         const fadeT = Math.min(
           Math.max((p - PHONE_FADE_START) / (PHONE_FADE_END - PHONE_FADE_START), 0),
@@ -402,6 +330,7 @@ export default function AppInterfaceSection() {
         phoneFrameRef.current.style.opacity = fadeT;
       }
 
+      // ── Core stat text values ───────────────────────────────────────────────
       const weightKg   = lerp(70, 68, p).toFixed(1);
       const sleepHours = Math.round(lerp(6, 8, p));
       const mood       = p > 0.6 ? "Calm" : p > 0.3 ? "Okay" : "Tracking";
@@ -410,48 +339,57 @@ export default function AppInterfaceSection() {
       if (sleepHoursNodeRef.current) sleepHoursNodeRef.current.textContent = sleepHours;
       if (emotionalNodeRef.current)  emotionalNodeRef.current.textContent  = mood;
 
+      // ── Increasing dashboard stats, all driven by scroll progress p ────────
+      const calorieIntake = fmt(lerp(0, 1200, p));
+      const workoutBurn   = fmt(lerp(0, 500, p));
+      const stepsBurn     = fmt(lerp(0, 500, p));
+      const waterMl       = fmt(lerp(0, 5000, p));
+      const whrValue      = lerp(0.50, 0.80, p).toFixed(2);
+      const bmiValue      = lerp(18.0, 23.14, p).toFixed(2);
+
+      if (calorieIntakeRef.current) calorieIntakeRef.current.textContent = `${calorieIntake} / 1000`;
+      if (workoutBurnRef.current)   workoutBurnRef.current.textContent   = workoutBurn;
+      if (stepsBurnRef.current)     stepsBurnRef.current.textContent     = stepsBurn;
+      if (waterMlRef.current)       waterMlRef.current.textContent       = `${waterMl} ml`;
+      if (whrValueRef.current)      whrValueRef.current.textContent      = whrValue;
+      if (bmiValueRef.current)      bmiValueRef.current.textContent      = bmiValue;
+
+      // ── Calorie rings fill up as the section scrolls ────────────────────────
+      const ringTargets = [0.72, 0.5, 0.5];
+      ringRefs.current.forEach((circle, i) => {
+        if (!circle) return;
+        const pct = ringTargets[i] * p;
+        circle.style.strokeDashoffset = `${RING_CIRC * (1 - pct)}`;
+      });
+
+      // ── Gradient bar markers slide into position ────────────────────────────
+      const weightBarValue = lerp(0, 0.42, p);
+      const whrBarValue    = lerp(0, 0.18, p);
+      if (weightBarRef.current) weightBarRef.current.style.left = `calc(${weightBarValue * 100}% - 6px)`;
+      if (whrBarRef.current)    whrBarRef.current.style.left    = `calc(${whrBarValue * 100}% - 6px)`;
+
+      // ── Sleep goal bar fills 0 → 100% ───────────────────────────────────────
+      if (sleepGoalBarRef.current) {
+        sleepGoalBarRef.current.style.width = `${lerp(0, 100, p)}%`;
+      }
+
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    const handleResize = () => {
+    window.addEventListener("scroll", updateTarget, { passive: true });
+    window.addEventListener("resize", () => {
       updateTarget();
       computeScale();
       isMobileRef.current = window.innerWidth < 480;
-    };
-
-    window.addEventListener("scroll", updateTarget, { passive: true });
-    window.addEventListener("resize", handleResize);
-
-    let ro;
-    if (phoneFrameRef.current && "ResizeObserver" in window) {
-      ro = new ResizeObserver(() => computeScale());
-      ro.observe(phoneFrameRef.current);
-    }
-
-    // If the image is already cached/loaded by the time this effect runs,
-    // its onLoad handler in JSX won't fire — so analyze it here too.
-    if (phoneFrameRef.current && phoneFrameRef.current.complete) {
-      analyzePhoneFrame();
-    }
+    });
 
     updateTarget();
     computeScale();
     rafRef.current = requestAnimationFrame(tick);
 
-    // Expose analyzePhoneFrame to the img's onLoad handler via a stable
-    // window-scoped hook isn't ideal, so instead we listen for a custom
-    // event dispatched from onLoad below.
-    const handleFrameLoaded = () => {
-      analyzePhoneFrame();
-      computeScale();
-    };
-    window.addEventListener("__phoneFrameLoaded", handleFrameLoaded);
-
     return () => {
       window.removeEventListener("scroll", updateTarget);
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("__phoneFrameLoaded", handleFrameLoaded);
-      if (ro) ro.disconnect();
+      window.removeEventListener("resize", computeScale);
       cancelAnimationFrame(rafRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -469,7 +407,7 @@ export default function AppInterfaceSection() {
     return (
       <div
         ref={el => { cardRefs.current[name] = el; }}
-        className="absolute overflow-hidden mt-4"
+        className="absolute overflow-hidden"
         style={{
           width:  fs.w,
           height: fs.h,
@@ -486,7 +424,7 @@ export default function AppInterfaceSection() {
   return (
     <section
       ref={wrapperRef}
-      className="hidden sm:block relative bg-[#F6F5F1]"
+      className="relative bg-[#F6F5F1]"
       style={{ height: `${SCROLL_LENGTH_VH}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
@@ -496,16 +434,11 @@ export default function AppInterfaceSection() {
           src={phoneFrame}
           alt=""
           aria-hidden="true"
-          onLoad={() => {
-            window.dispatchEvent(new Event("__phoneFrameLoaded"));
-            window.dispatchEvent(new Event("resize"));
-          }}
           className="pointer-events-none select-none absolute z-0"
           style={{
-            height: `min(${PHONE_FRAME_MAX_H}px, 82vh)`,
+            height: `0vh`,
             width: "auto",
             opacity: 0,
-            transition: "opacity 0.15s linear",
           }}
         />
 
@@ -519,6 +452,7 @@ export default function AppInterfaceSection() {
         >
           <div className="relative" style={{ width: 0, height: 0 }}>
 
+            {/* ── LOGO BAND ── */}
             <div
               ref={bandRef}
               className="absolute pointer-events-none w-[150px] mt:w-[220px] mt:h-[300px]"
@@ -526,36 +460,55 @@ export default function AppInterfaceSection() {
             >
               <img src={logo} className="w-full h-full object-contain" alt="FitMom logo" />
             </div>
+            <img
+              src={phoneFrame}
+              alt=""
+              aria-hidden="true"
+              onLoad={() => {
+                window.dispatchEvent(new Event("__phoneFrameLoaded"));
+                window.dispatchEvent(new Event("resize"));
+              }}
+              className="pointer-events-none select-none absolute z-0"
+              style={{
+                height: `min(${PHONE_FRAME_MAX_H}px, 82vh)`,
+                width: "auto",
+                opacity: 0,
+                transition: "opacity 0.15s linear",
+              }}
+            />
 
+            {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}
             <CardGPU name="yoga">
               <div
                 ref={el => { cardRefs.current["yoga_inner"] = el; }}
-                className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4 border border-neutral-800 "
+                className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4 border border-neutral-800 transition-colors duration-300 hover:border-neutral-700"
                 style={{ borderRadius: 16 }}
               >
                 <p className="text-sm text-neutral-300 font-semibold mb-3">Track your Daily Calorie</p>
                 <div className="flex items-center justify-between flex-1">
                   {[
-                    { label: "Calories Intake", value: "1,200 / 1000", unit: "Kcal", color: "#2DD4BF", pct: 0.72, emoji: "🥗" },
-                    { label: "Workout",         value: "500",          unit: "Kcal Burned", color: "#F87171", pct: 0.5,  emoji: "⚡️" },
-                    { label: "Steps",           value: "500",          unit: "Kcal Burned", color: "#FB923C", pct: 0.5,  emoji: "👟" },
+                    { label: "Calories Intake", ref: calorieIntakeRef, unit: "Kcal", color: "#2DD4BF", emoji: "🥗" },
+                    { label: "Workout",         ref: workoutBurnRef,   unit: "Kcal Burned", color: "#F87171", emoji: "⚡️" },
+                    { label: "Steps",           ref: stepsBurnRef,     unit: "Kcal Burned", color: "#FB923C", emoji: "👟" },
                   ].map((ring, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
+                    <div key={i} className="flex flex-col items-center gap-1.5 flex-1 transition-transform duration-300 hover:scale-105">
                       <div className="relative w-20 h-20">
                         <svg viewBox="0 0 40 40" className="w-full h-full -rotate-90">
                           <circle cx="20" cy="20" r="17" fill="none" stroke="#2A2A2E" strokeWidth="2" />
                           <circle
+                            ref={el => { ringRefs.current[i] = el; }}
                             cx="20" cy="20" r="17" fill="none" stroke={ring.color} strokeWidth="2"
-                            strokeDasharray={`${2 * Math.PI * 17}`}
-                            strokeDashoffset={`${2 * Math.PI * 17 * (1 - ring.pct)}`}
+                            strokeDasharray={`${RING_CIRC}`}
+                            strokeDashoffset={`${RING_CIRC}`}
                             strokeLinecap="round"
+                            style={{ transition: "stroke-dashoffset 0.1s linear" }}
                           />
                         </svg>
                         <span className="absolute inset-0 flex items-center justify-center text-2xl">{ring.emoji}</span>
                       </div>
                       <p className="text-[11px] text-neutral-300 text-center leading-tight font-medium">{ring.label}</p>
                       <p className="text-[10px] font-bold text-center leading-tight" style={{ color: ring.color }}>
-                        {ring.value} <span className="text-neutral-500 font-medium">{ring.unit}</span>
+                        <span ref={ring.ref}>0</span> <span className="text-neutral-500 font-medium">{ring.unit}</span>
                       </p>
                     </div>
                   ))}
@@ -563,8 +516,9 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
+            {/* ── SLEEP ── */}
             <CardGPU name="sleep">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden border border-neutral-800 ">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(56,189,248,0.15)" color="#38BDF8" size={32}>{Icons.moon}</IconBadge>
@@ -580,7 +534,11 @@ export default function AppInterfaceSection() {
                 </div>
                 <p className="text-[11px] text-neutral-500">100% Goal</p>
                 <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
-                  <div className="h-full rounded-full bg-blue-400" style={{ width: "100%" }} />
+                  <div
+                    ref={sleepGoalBarRef}
+                    className="h-full rounded-full bg-blue-400"
+                    style={{ width: "0%", transition: "width 0.1s linear" }}
+                  />
                 </div>
                 <div className="flex justify-between text-[10px] text-neutral-500">
                   <span>Deep: 5h 10m</span>
@@ -589,19 +547,21 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
+            {/* ── WATER (count-up ml) ── */}
             <CardGPU name="steps">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
                 <IconBadge bg="rgba(59,130,246,0.15)" color="#3B82F6" size={32}>{Icons.drop}</IconBadge>
                 <div className="min-w-0">
                   <p className="text-[10px] text-blue-400 leading-none">Water</p>
-                  <p className="text-base font-normal text-white leading-tight">5,000 ml</p>
+                  <p ref={waterMlRef} className="text-base font-normal text-white leading-tight">0 ml</p>
                 </div>
               </div>
             </CardGPU>
 
+            {/* ── HEALTH / VIEW ALL ── */}
             <CardGPU name="ready">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 ">
-                <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.heartbeat}</IconBadge>
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32} >{Icons.heartbeat}</IconBadge>
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] text-teal-400 leading-none">Health</p>
                   <p className="text-[12px] font-normal text-white leading-tight">View all</p>
@@ -610,9 +570,10 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
+            {/* ── EMOTIONAL ── */}
             <CardGPU name="sleepPill">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800">
-                <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32}>{Icons.moon}</IconBadge>
+              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32} >{Icons.moon}</IconBadge>
                 <div className="min-w-0">
                   <p className="text-[10px] text-pink-400 leading-none">Emotional</p>
                   <p ref={emotionalNodeRef} className="text-[12px] font-normal text-white leading-tight">Tracking</p>
@@ -620,8 +581,9 @@ export default function AppInterfaceSection() {
               </div>
             </CardGPU>
 
+            {/* ── WEIGHT ── */}
             <CardGPU name="heart">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(52,211,153,0.15)" color="#34D399" size={32}>{Icons.scale}</IconBadge>
@@ -636,15 +598,16 @@ export default function AppInterfaceSection() {
                     <path d="M4 6l8 8 4-4 6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
                   </svg>
                 </div>
-                <GradientBar value={0.42} />
+                <GradientBar ref={weightBarRef} initialValue={0} />
                 <p className="text-[11px] text-neutral-500">
-                  BMI <span className="text-emerald-400 font-semibold">23.14</span>
+                  BMI <span ref={bmiValueRef} className="text-emerald-400 font-semibold">18.00</span>
                 </p>
               </div>
             </CardGPU>
 
+            {/* ── WHR ── */}
             <CardGPU name="run">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.ratio}</IconBadge>
@@ -653,18 +616,19 @@ export default function AppInterfaceSection() {
                   <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-normal text-white">0.80</span>
+                  <span ref={whrValueRef} className="text-3xl font-normal text-white">0.50</span>
                   <span className="text-[11px] text-neutral-400">Ratio</span>
                 </div>
-                <GradientBar value={0.18} />
+                <GradientBar ref={whrBarRef} initialValue={0} />
                 <p className="text-[11px] text-neutral-500">
                   Progress <span className="text-teal-400 font-semibold">↘ Good</span>
                 </p>
               </div>
             </CardGPU>
 
+            {/* ── MEDICAL RECORDS ── */}
             <CardGPU name="med">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between border border-neutral-800">
+              <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01]">
                 <div className="flex items-center gap-3">
                   <IconBadge bg="rgba(255,255,255,0.06)" color="#9CA3AF" size={30}>
                     <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">

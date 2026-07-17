@@ -28,6 +28,8 @@ import Footer from '../components/Footer';
 import ScrollToTop from '../components/Helper/ScrollToTop';
 import Blog from './blogs';
 import BlogPost from './blogPost';
+import Miracle from './programs/miracle';
+import FMC from './programs/fmc';
 export default function LandingPage() {
   return (
     <>
@@ -60,6 +62,10 @@ export default function LandingPage() {
         <Route path='/privacy-policy' element={<PrivacyPage/>}/>
         <Route path='/blogs' element={<Blog/>}/>
         <Route path="/blogs/:slug" element={<BlogPost />} /> 
+        <Route path='/miracle' element={<Miracle/>}/>
+        <Route path='/fmc' element={<FMC/>}/>
+
+
 
       </Routes>
       <Footer/>

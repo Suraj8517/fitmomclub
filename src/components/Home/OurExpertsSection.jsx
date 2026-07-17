@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 export default function OurExpertSection() {
   return (
     <section className="bg-[#F6F5F1] px-6 py-16 md:px-16 md:py-24 lg:px-20 lg:py-28 min-h-[60vh] items-center">
@@ -14,11 +15,11 @@ Guidance You Can Trust, Expertise You Can Rely On
 Our certified fitness and health experts provide personalized support for womenâ€™s wellness, including prenatal and postnatal care.
           </p>
 
-          <a
-            href="#"
+          <Link
+            to="book-consultation"
             className="inline-flex items-center gap-1.5 text-sm md:text-base font-medium text-[#2C2C2C]  pb-0.5 hover:opacity-60 transition-opacity duration-200 no-underline"
           >
-            Meet our experts
+            Book A Consultation
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="15"
@@ -32,7 +33,7 @@ Our certified fitness and health experts provide personalized support for womenâ
             >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </a>
+          </Link>
         </div>
 
       </div>
