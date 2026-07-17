@@ -30,6 +30,7 @@ import Blog from './blogs';
 import BlogPost from './blogPost';
 import Miracle from './programs/miracle';
 import FMC from './programs/fmc';
+import NotFound from './notFound';
 export default function LandingPage() {
   return (
     <>
@@ -64,9 +65,7 @@ export default function LandingPage() {
         <Route path="/blogs/:slug" element={<BlogPost />} /> 
         <Route path='/miracle' element={<Miracle/>}/>
         <Route path='/fmc' element={<FMC/>}/>
-
-
-
+        <Route path='*' element={<NotFound/>}/>
       </Routes>
       <Footer/>
     </Router>
