@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import heroBg from "../../assets/home/hero.webp";
 import { Link } from "react-router-dom";
+import handleConsultation from "../Helper/handleClick";
 
 export default function CTASection() {
   const imgRef = useRef(null);
@@ -57,12 +58,12 @@ export default function CTASection() {
         </p>
 
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <Link
-           to="book-consultation"
-            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium transition-colors duration-200 shadow-md"
+          <button
+           onClick={handleConsultation}
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors duration-200 shadow-md"
           >
             Consult With Our Experts
-          </Link>
+          </button>
 
           <Link
             to="blogs"
