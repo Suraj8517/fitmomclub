@@ -23,7 +23,7 @@ const features =[
 export default function WebinarFeatures() {
 
   return (
-    <section className=' flex justify-center my-14'>
+    <section className=' flex justify-center py-14 bg-white'>
          <div className='max-w-5xl'>
                                         <div className='grid grid-cols-2 md:grid-cols-4 max-w-5xl gap-6'>
 

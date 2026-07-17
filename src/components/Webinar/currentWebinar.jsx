@@ -2,7 +2,7 @@ import React from 'react'
 const img = "https://res.cloudinary.com/q1vba78b/image/upload/v1783676813/Website-FitMom-Momentum-League-1536x763_on7z30.jpg";
 export default function CurrentWebinar() {
   return (
-    <div className='w-full p-6 flex justify-center flex-col mb-4'>
+    <div className='w-full p-6 flex justify-center flex-col pb-4 bg-white'>
         <div className='w-[50%] mx-auto'>
             <img src={img} className='rounded-xl '/>
         </div>
