@@ -1,5 +1,7 @@
 import { useRef, useEffect } from "react";
 import heroBg from "../../assets/our community/cta.webp";
+import { Link } from "react-router-dom";
+import handleConsultation from "../Helper/handleClick";
 
 export default function CTASection() {
   const imgRef = useRef(null);
@@ -57,18 +59,18 @@ Ready to Transform? Join the FitMom Club Community Today.
         </p>
 
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          <a
-            href="#"
-            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#1A73E8] hover:bg-[#1557B0] text-white text-sm font-medium transition-colors duration-200 shadow-md"
+          <button
+            onClick={handleConsultation}
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors duration-200 shadow-md"
           >
-Create Your Profile Now          </a>
+Create Your Profile Now          </button>
 
-          <a
-            href="#"
+          <Link
+            to="blogs"
             className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-white/90 hover:bg-white text-[#2C2C2C] text-sm font-medium transition-colors duration-200 shadow-md"
           >
             Explore Our Latest Blog Posts
-          </a>
+          </Link>
         </div>
 
       </div>

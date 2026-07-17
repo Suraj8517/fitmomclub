@@ -3,6 +3,7 @@ import communityHero from "../../assets/our community/ourcommunityhero.webp";
 import communityMobile from "../../assets/home/hero.webp";
 import { HashLink } from "react-router-hash-link";
 import { ArrowRight } from "lucide-react";
+import handleConsultation from "../Helper/handleClick";
 
 // ─────────────────────────────────────────────
 // MOBILE VERSION – no scroll animation, mobile-first
@@ -271,13 +272,13 @@ function OurCommunityDesktop({ imageUrl, content, content2 }) {
                 {content2}
               </p>
 
-              <HashLink
-                to="/#cta"
+              <button
+                onClick={handleConsultation}
                 className="pointer-events-auto inline-flex items-center gap-2 h-12 2xl:h-14 px-6 mt-6 rounded-full text-white text-sm 2xl:text-base font-semibold bg-teal-500 shadow-lg shadow-black/30 transition-all duration-200 hover:bg-teal-600 hover:scale-[1.02] active:scale-[0.97]"
               >
                 Join Now
                 <ArrowRight size={14} />
-              </HashLink>
+              </button>
             </div>
           </div>
         </div>

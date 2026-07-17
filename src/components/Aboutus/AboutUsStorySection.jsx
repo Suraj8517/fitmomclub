@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import challenge from "../../assets/aboutus/pritika-mobile.webp"
-import comeback from "../../assets/aboutus/pritika-mobile.webp"
-import community from "../../assets/aboutus/pritika-mobile.webp"
-import wellness from "../../assets/aboutus/pritika-mobile.webp"
+import handleConsultation from "../Helper/handleClick";
 import { HashLink } from "react-router-hash-link";
 const DURATION = 6000;
 const TICK_MS = 50;
@@ -13,7 +11,6 @@ const features = [
     title: "The Challenge",
     description:
       "Motherhood brought immense joy, but it also came with postpartum weight gain and a struggle to regain confidence—both physically and mentally.",
-    image: challenge,
     bg: "#F7E8E3",
     text: "#6B4A3F",
   },
@@ -22,7 +19,6 @@ const features = [
     title: "The Comeback",
     description:
       "Through disciplined workouts and balanced nutrition, Pritika rebuilt her strength, confidence, and discovered the life-changing power of a healthy lifestyle.",
-    image: comeback,
     bg: "#DCEEF3",
     text: "#25485C",
   },
@@ -31,7 +27,6 @@ const features = [
     title: "From One Mom to Millions",
     description:
       "What began as helping friends and family soon grew into FitMom Club—a thriving community dedicated to empowering women around the world.",
-    image: community,
     bg: "#E3F0DD",
     text: "#35523A",
   },
@@ -40,7 +35,6 @@ const features = [
     title: "A Community That Cares",
     description:
       "Today, FitMom Club combines personalized fitness, nutrition, and mental wellness support to help every woman build a healthier, happier life.",
-    image: wellness,
     bg: "#FDE8E1",
     text: "#7B4635",
   },
@@ -88,8 +82,8 @@ export default function FeatureShowcase() {
           From One Mom's Journey to a <br/>Community of Strong Women
         </h1>
       
-      <HashLink
-        to="/#cta"
+      <button
+        onClick={handleConsultation}
         className=" flex lg:w-[20%] w-[30%] mt-6 mx-auto items-center justify-center gap-2 rounded-full px-4 py-[15px] text-sm font-bold transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_15px_40px_rgba(0,212,255,0.35)] active:scale-[0.98]"
         style={{
           background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
@@ -99,7 +93,7 @@ export default function FeatureShowcase() {
         }}
       >
         Join Now
-      </HashLink>
+      </button>
       </div>
 
       {/* Card */}
@@ -113,16 +107,10 @@ export default function FeatureShowcase() {
             {features.map((f, i) => (
               <img
                 key={f.title}
-                src={f.image}
+                src={challenge}
                 alt={f.title}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{
-                  opacity: i === active ? 1 : 0,
-                  transform: i === active ? "scale(1)" : "scale(1.06)",
-                  transition:
-                    "opacity 0.9s ease-in-out, transform 1.2s cubic-bezier(0.25,0.1,0.25,1)",
-                  zIndex: i === active ? 1 : 0,
-                }}
+               
               />
             ))}
           </div>
@@ -207,16 +195,9 @@ export default function FeatureShowcase() {
             {features.map((f, i) => (
               <img
                 key={f.title}
-                src={f.image}
+                src={challenge}
                 alt={f.title}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{
-                  opacity: i === active ? 1 : 0,
-                  transform: i === active ? "scale(1)" : "scale(1.08)",
-                  transition:
-                    "opacity 1s ease-in-out, transform 1.4s cubic-bezier(0.25, 0.1, 0.25, 1)",
-                  zIndex: i === active ? 1 : 0,
-                }}
               />
             ))}
           </div>
