@@ -31,12 +31,14 @@ import BlogPost from './blogPost';
 import Miracle from './programs/miracle';
 import FMC from './programs/fmc';
 import NotFound from './notFound';
+import PopupForm from '../components/Helper/PopupForm';
 export default function LandingPage() {
   return (
     <>
     <Router>
       <ScrollToTop/>
       <Navbar/>
+      <PopupForm/>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/about-us' element={<Aboutus/>}/>
