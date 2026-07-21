@@ -294,7 +294,7 @@ export default function PopupForm({
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="cpf-title"
@@ -308,57 +308,57 @@ export default function PopupForm({
       {/* Card */}
       <div
         ref={dialogRef}
-        className="relative w-full max-w-sm rounded-2xl bg-[#FEFDFB] shadow-[0_30px_60px_-15px_rgba(11,59,54,0.35)] animate-cpf-scale overflow-hidden"
+        className="relative flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-[#FEFDFB] shadow-[0_30px_60px_-15px_rgba(11,59,54,0.35)] animate-cpf-scale"
       >
         {/* top accent bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-[#0E7C74] via-[#3FA79A] to-[#E8A33D]" />
+        <div className="h-1 w-full shrink-0 bg-gradient-to-r from-[#0E7C74] via-[#3FA79A] to-[#E8A33D]" />
 
         <button
           onClick={closePopup}
           aria-label="Close popup"
-          className="absolute right-3 top-4 rounded-full p-1.5 text-[#5B6B68] hover:bg-[#F1F8F6] hover:text-[#0B3B36] transition-colors"
+          className="absolute right-2.5 top-3 rounded-full p-1.5 text-[#5B6B68] hover:bg-[#F1F8F6] hover:text-[#0B3B36] transition-colors"
         >
           <IconX className="h-4 w-4" />
         </button>
 
-        <div className="px-5 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-5">
+        <div className="overflow-y-auto px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3.5">
           {status === "success" ? (
-            <div className="flex flex-col items-center py-4 text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#0E7C74]/10 text-[#0E7C74]">
-                <IconCheck className="h-6 w-6" />
+            <div className="flex flex-col items-center py-3 text-center">
+              <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#0E7C74]/10 text-[#0E7C74]">
+                <IconCheck className="h-5 w-5" />
               </div>
-              <h3 className="font-[var(--cpf-display)] text-lg text-[#0B3B36]">
+              <h3 className="font-[var(--cpf-display)] text-base text-[#0B3B36]">
                 Thank you — you're all set
               </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6B68]">
+              <p className="mt-1 text-[12.5px] leading-snug text-[#5B6B68]">
                 Our health consultant will reach out to you shortly. Please keep an
                 eye on your phone and inbox.
               </p>
               <button
                 onClick={closePopup}
-                className="mt-5 rounded-full bg-[#0B3B36] px-6 py-2 text-sm font-medium text-white hover:bg-[#0E7C74] transition-colors"
+                className="mt-4 rounded-full bg-[#0B3B36] px-6 py-1.5 text-sm font-medium text-white hover:bg-[#0E7C74] transition-colors"
               >
                 Done
               </button>
             </div>
           ) : (
             <>
-              <div className="mb-3.5 flex items-start gap-3 pr-5">
+              <div className="mb-2 flex items-start gap-3 pr-5">
                 <div>
                   <h2
                     id="cpf-title"
-                    className="font-[var(--cpf-display)] text-lg leading-snug text-[#0B3B36] sm:text-xl"
+                    className="font-[var(--cpf-display)] text-base leading-snug text-[#0B3B36] sm:text-lg"
                   >
                     {title}
                   </h2>
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-[#5B6B68]">
+                  <p className="mt-0.5 text-[12px] leading-snug text-[#5B6B68]">
                     {subtitle}
                   </p>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} noValidate className="space-y-2.5">
-                <div className="grid grid-cols-[1fr_auto] gap-2.5">
+              <form onSubmit={handleSubmit} noValidate className="space-y-1.5">
+                <div className="grid grid-cols-[1fr_auto] gap-2">
                   <Field label="Full name" required>
                     <input
                       type="text"
@@ -381,8 +381,8 @@ export default function PopupForm({
                     />
                   </Field>
                 </div>
-
-                <Field label="Email" required>
+<div className="grid grid-cols-[2fr_1fr] gap-2">
+   <Field label="Email" required>
                   <input
                     type="email"
                     value={form.email}
@@ -391,6 +391,16 @@ export default function PopupForm({
                     className={inputClass(touched && !/^\S+@\S+\.\S+$/.test(form.email))}
                   />
                 </Field>
+                  <Field label="City" required>
+                  <input
+                    type="text"
+                    value={form.city}
+                    onChange={setField("city")}
+                    placeholder="Enter your city"
+                    className={inputClass(false)}
+                  />
+                </Field>
+</div>
 
                 <Field label="Phone number" required>
                   <div className="flex gap-2">
@@ -431,7 +441,7 @@ export default function PopupForm({
                       value={form.customCode}
                       onChange={setField("customCode")}
                       placeholder="Enter your country code"
-                      className={inputClass(touched && !form.customCode.trim()) + " mt-2"}
+                      className={inputClass(touched && !form.customCode.trim()) + " mt-1.5"}
                     />
                   )}
                 </Field>
@@ -457,7 +467,7 @@ export default function PopupForm({
                   </div>
                 </Field>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2">
                   <Field label="Height" required>
                     <div className="flex gap-1">
                       <input
@@ -495,16 +505,6 @@ export default function PopupForm({
                   </Field>
                 </div>
 
-                <Field label="City">
-                  <input
-                    type="text"
-                    value={form.city}
-                    onChange={setField("city")}
-                    placeholder="Enter your city"
-                    className={inputClass(false)}
-                  />
-                </Field>
-
                 <Field label="What is your primary goal?" required>
                   <div className="relative">
                     <select
@@ -539,7 +539,7 @@ export default function PopupForm({
                 <button
                   type="submit"
                   disabled={status === "submitting"}
-                  className="mt-0.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#0B3B36] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C74] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="mt-0.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#0B3B36] py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C74] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {status === "submitting" ? (
                     <>
@@ -575,7 +575,7 @@ export default function PopupForm({
 function Field({ label, required, children }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[12.5px] font-medium text-[#33413E]">
+      <span className="mb-0.5 block text-[12px] font-medium text-[#33413E]">
         {label} {required && <span className="text-[#C4453B]">*</span>}
       </span>
       {children}
@@ -592,7 +592,7 @@ function UnitToggle({ options, value, onChange }) {
           key={opt}
           onClick={() => onChange(opt)}
           className={[
-            "px-1.5 py-2 transition-colors",
+            "px-1.5 py-1.5 transition-colors",
             value === opt
               ? "bg-[#0E7C74] text-white"
               : "text-[#5B6B68] hover:bg-[#F1F8F6]",
@@ -607,7 +607,7 @@ function UnitToggle({ options, value, onChange }) {
 
 function inputClass(invalid) {
   return [
-    "w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#1A2624] placeholder:text-[#9AA8A5]",
+    "w-full rounded-lg border bg-white px-3 py-1.5 text-sm text-[#1A2624] placeholder:text-[#9AA8A5]",
     "outline-none transition-colors focus:border-[#0E7C74] focus:ring-2 focus:ring-[#0E7C74]/20",
     invalid ? "border-[#E29892]" : "border-[#DCE6E3]",
   ].join(" ");
@@ -615,7 +615,7 @@ function inputClass(invalid) {
 
 function selectClass(invalid) {
   return [
-    "w-full appearance-none rounded-lg border bg-white px-3 py-2 text-sm text-[#1A2624]",
+    "w-full appearance-none rounded-lg border bg-white px-3 py-1.5 text-sm text-[#1A2624]",
     "outline-none transition-colors focus:border-[#0E7C74] focus:ring-2 focus:ring-[#0E7C74]/20",
     invalid ? "border-[#E29892]" : "border-[#DCE6E3]",
   ].join(" ");
