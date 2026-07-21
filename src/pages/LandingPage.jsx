@@ -38,7 +38,7 @@ export default function LandingPage() {
     <Router>
       <ScrollToTop/>
       <Navbar/>
-      <PopupForm/>
+      <PopupForm scriptURL="https://script.google.com/macros/s/AKfycbwyFQzwNGKRkxEP3NAZgZJuvz53ehI50gvciFiK9zmld7UrmO1KQlmY7KrpVIwDFyw/exec"/>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/about-us' element={<Aboutus/>}/>

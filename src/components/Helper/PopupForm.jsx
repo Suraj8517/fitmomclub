@@ -38,6 +38,12 @@
  *
  * 5. Requires Tailwind CSS to be configured in the host project.
  *    Only extra dependency is react-router-dom (icons are inline SVG).
+ *
+ * 6. UTM params (utm_source/medium/campaign/term/content) and the page
+ *    URL are captured once from window.location on mount and sent to
+ *    the Apps Script alongside every submission, together with a
+ *    `city` field and a server-received `date` timestamp — matching
+ *    the columns the vanilla-JS version writes to the same Google Sheet.
  * ------------------------------------------------------------------
  */
 
@@ -92,6 +98,12 @@ const EMPTY_FORM = {
   customCode: "",
   phone: "",
   gender: "",
+  age: "",
+  height: "",
+  heightUnit: "cm",
+  weight: "",
+  weightUnit: "kg",
+  city: "",
   goal: "",
 };
 
@@ -119,14 +131,6 @@ function IconChevron(props) {
   );
 }
 
-function IconPulse(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M3 12h4l2-7 4 14 2-7h6" />
-    </svg>
-  );
-}
-
 export default function PopupForm({
   scriptURL = "",
   title = "Get a plan built around you",
@@ -147,6 +151,20 @@ export default function PopupForm({
   const isFirstRoute = useRef(true);
   const location = useLocation();
   const routeKey = location.pathname + location.search;
+
+  // ---- Capture UTM params + landing page URL once, on first mount ----
+  const trackingRef = useRef(null);
+  if (trackingRef.current === null) {
+    const params = new URLSearchParams(window.location.search);
+    trackingRef.current = {
+      utm_source: params.get("utm_source") || "",
+      utm_medium: params.get("utm_medium") || "",
+      utm_campaign: params.get("utm_campaign") || "",
+      utm_term: params.get("utm_term") || "",
+      utm_content: params.get("utm_content") || "",
+      page_url: window.location.href,
+    };
+  }
 
   const openPopup = useCallback(() => setIsOpen(true), []);
 
@@ -219,12 +237,18 @@ export default function PopupForm({
   const isValid = () => {
     const codeOk =
       form.countryCode === "other" ? form.customCode.trim().length > 0 : !!form.countryCode;
+    const ageNum = Number(form.age);
+    const heightNum = Number(form.height);
+    const weightNum = Number(form.weight);
     return (
       form.name.trim().length > 0 &&
       /^\S+@\S+\.\S+$/.test(form.email) &&
       codeOk &&
       /^[0-9]{7,12}$/.test(form.phone) &&
       !!form.gender &&
+      ageNum > 0 && ageNum <= 120 &&
+      heightNum > 0 &&
+      weightNum > 0 &&
       !!form.goal
     );
   };
@@ -240,14 +264,24 @@ export default function PopupForm({
     try {
       if (scriptURL) {
         const body = new FormData();
-        body.append("your-name", form.name);
-        body.append("your-email", form.email);
-        body.append("your-number", `${code}${form.phone}`);
-        body.append("your-gender", form.gender);
+        body.append("name", form.name);
+        body.append("email", form.email);
+        body.append("phone", `${code}${form.phone}`);
+        body.append("gender", form.gender);
+        body.append("age", form.age);
+        body.append("height", `${form.height}${form.heightUnit}`);
+        body.append("weight", `${form.weight}${form.weightUnit}`);
+        body.append("city", form.city);
         body.append("goal", form.goal);
+        body.append("date", new Date().toISOString());
+        body.append("utm_source", trackingRef.current.utm_source);
+        body.append("utm_medium", trackingRef.current.utm_medium);
+        body.append("utm_campaign", trackingRef.current.utm_campaign);
+        body.append("utm_term", trackingRef.current.utm_term);
+        body.append("utm_content", trackingRef.current.utm_content);
+        body.append("page_url", trackingRef.current.page_url);
 
-        // Apps Script web apps don't return readable CORS responses,
-        // so we fire-and-confirm rather than parse the response.
+ 
         await fetch(scriptURL, { method: "POST", mode: "no-cors", body });
       }
       setStatus("success");
@@ -267,14 +301,14 @@ export default function PopupForm({
     >
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-[#0B3B36]/60 backdrop-blur-sm animate-cpf-fade"
+        className="absolute inset-0 bg-[#0B3B36]/40 backdrop-blur-sm animate-cpf-fade"
         onClick={closePopup}
       />
 
       {/* Card */}
       <div
         ref={dialogRef}
-        className="relative w-full max-w-md rounded-2xl bg-[#FEFDFB] shadow-[0_30px_60px_-15px_rgba(11,59,54,0.35)] animate-cpf-scale overflow-hidden"
+        className="relative w-full max-w-sm rounded-2xl bg-[#FEFDFB] shadow-[0_30px_60px_-15px_rgba(11,59,54,0.35)] animate-cpf-scale overflow-hidden"
       >
         {/* top accent bar */}
         <div className="h-1.5 w-full bg-gradient-to-r from-[#0E7C74] via-[#3FA79A] to-[#E8A33D]" />
@@ -282,61 +316,71 @@ export default function PopupForm({
         <button
           onClick={closePopup}
           aria-label="Close popup"
-          className="absolute right-3 top-5 rounded-full p-1.5 text-[#5B6B68] hover:bg-[#F1F8F6] hover:text-[#0B3B36] transition-colors"
+          className="absolute right-3 top-4 rounded-full p-1.5 text-[#5B6B68] hover:bg-[#F1F8F6] hover:text-[#0B3B36] transition-colors"
         >
-          <IconX className="h-5 w-5" />
+          <IconX className="h-4 w-4" />
         </button>
 
-        <div className="max-h-[85vh] overflow-y-auto px-6 pb-6 pt-6 sm:px-8 sm:pb-8">
+        <div className="px-5 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-5">
           {status === "success" ? (
-            <div className="flex flex-col items-center py-6 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#0E7C74]/10 text-[#0E7C74]">
-                <IconCheck className="h-7 w-7" />
+            <div className="flex flex-col items-center py-4 text-center">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#0E7C74]/10 text-[#0E7C74]">
+                <IconCheck className="h-6 w-6" />
               </div>
-              <h3 className="font-[var(--cpf-display)] text-xl text-[#0B3B36]">
+              <h3 className="font-[var(--cpf-display)] text-lg text-[#0B3B36]">
                 Thank you — you're all set
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#5B6B68]">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[#5B6B68]">
                 Our health consultant will reach out to you shortly. Please keep an
                 eye on your phone and inbox.
               </p>
               <button
                 onClick={closePopup}
-                className="mt-6 rounded-full bg-[#0B3B36] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#0E7C74] transition-colors"
+                className="mt-5 rounded-full bg-[#0B3B36] px-6 py-2 text-sm font-medium text-white hover:bg-[#0E7C74] transition-colors"
               >
                 Done
               </button>
             </div>
           ) : (
             <>
-              <div className="mb-5 flex items-start gap-3">
-                <div className="relative mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0E7C74]/10 text-[#0E7C74]">
-                  <span className="absolute inset-0 animate-cpf-pulse rounded-full bg-[#0E7C74]/20" />
-                  <IconPulse className="relative h-5 w-5" />
-                </div>
+              <div className="mb-3.5 flex items-start gap-3 pr-5">
                 <div>
                   <h2
                     id="cpf-title"
-                    className="font-[var(--cpf-display)] text-xl leading-snug text-[#0B3B36] sm:text-2xl"
+                    className="font-[var(--cpf-display)] text-lg leading-snug text-[#0B3B36] sm:text-xl"
                   >
                     {title}
                   </h2>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#5B6B68]">
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-[#5B6B68]">
                     {subtitle}
                   </p>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                <Field label="Full name" required>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={setField("name")}
-                    placeholder="Enter your full name"
-                    className={inputClass(touched && !form.name.trim())}
-                  />
-                </Field>
+              <form onSubmit={handleSubmit} noValidate className="space-y-2.5">
+                <div className="grid grid-cols-[1fr_auto] gap-2.5">
+                  <Field label="Full name" required>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={setField("name")}
+                      placeholder="Enter your full name"
+                      className={inputClass(touched && !form.name.trim())}
+                    />
+                  </Field>
+
+                  <Field label="Age" required>
+                    <input
+                      type="number"
+                      min={1}
+                      max={120}
+                      value={form.age}
+                      onChange={setField("age")}
+                      placeholder="Age"
+                      className={inputClass(touched && !(Number(form.age) > 0 && Number(form.age) <= 120)) + " w-20"}
+                    />
+                  </Field>
+                </div>
 
                 <Field label="Email" required>
                   <input
@@ -393,7 +437,7 @@ export default function PopupForm({
                 </Field>
 
                 <Field label="Gender" required>
-                  <div className="flex gap-5 pt-1">
+                  <div className="flex gap-5 pt-0.5">
                     {["Male", "Female"].map((g) => (
                       <label
                         key={g}
@@ -411,6 +455,54 @@ export default function PopupForm({
                       </label>
                     ))}
                   </div>
+                </Field>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Field label="Height" required>
+                    <div className="flex gap-1">
+                      <input
+                        type="number"
+                        min={1}
+                        value={form.height}
+                        onChange={setField("height")}
+                        placeholder={form.heightUnit === "cm" ? "cm" : "in"}
+                        className={inputClass(touched && !(Number(form.height) > 0)) + " min-w-0"}
+                      />
+                      <UnitToggle
+                        options={["cm", "in"]}
+                        value={form.heightUnit}
+                        onChange={(v) => setForm((f) => ({ ...f, heightUnit: v }))}
+                      />
+                    </div>
+                  </Field>
+
+                  <Field label="Weight" required>
+                    <div className="flex gap-1">
+                      <input
+                        type="number"
+                        min={1}
+                        value={form.weight}
+                        onChange={setField("weight")}
+                        placeholder={form.weightUnit === "kg" ? "kg" : "lb"}
+                        className={inputClass(touched && !(Number(form.weight) > 0)) + " min-w-0"}
+                      />
+                      <UnitToggle
+                        options={["kg", "lb"]}
+                        value={form.weightUnit}
+                        onChange={(v) => setForm((f) => ({ ...f, weightUnit: v }))}
+                      />
+                    </div>
+                  </Field>
+                </div>
+
+                <Field label="City">
+                  <input
+                    type="text"
+                    value={form.city}
+                    onChange={setField("city")}
+                    placeholder="Enter your city"
+                    className={inputClass(false)}
+                  />
                 </Field>
 
                 <Field label="What is your primary goal?" required>
@@ -434,12 +526,12 @@ export default function PopupForm({
                 </Field>
 
                 {touched && !isValid() && (
-                  <p className="text-sm font-medium text-[#C4453B]">
+                  <p className="text-xs font-medium text-[#C4453B]">
                     Please fill all required fields correctly.
                   </p>
                 )}
                 {status === "error" && (
-                  <p className="text-sm font-medium text-[#C4453B]">
+                  <p className="text-xs font-medium text-[#C4453B]">
                     Something went wrong. Please try again.
                   </p>
                 )}
@@ -447,7 +539,7 @@ export default function PopupForm({
                 <button
                   type="submit"
                   disabled={status === "submitting"}
-                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-[#0B3B36] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C74] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="mt-0.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#0B3B36] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0E7C74] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {status === "submitting" ? (
                     <>
@@ -483,7 +575,7 @@ export default function PopupForm({
 function Field({ label, required, children }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[13px] font-medium text-[#33413E]">
+      <span className="mb-1 block text-[12.5px] font-medium text-[#33413E]">
         {label} {required && <span className="text-[#C4453B]">*</span>}
       </span>
       {children}
@@ -491,9 +583,31 @@ function Field({ label, required, children }) {
   );
 }
 
+function UnitToggle({ options, value, onChange }) {
+  return (
+    <div className="flex shrink-0 overflow-hidden rounded-lg border border-[#DCE6E3] bg-white text-[11px] font-medium">
+      {options.map((opt) => (
+        <button
+          type="button"
+          key={opt}
+          onClick={() => onChange(opt)}
+          className={[
+            "px-1.5 py-2 transition-colors",
+            value === opt
+              ? "bg-[#0E7C74] text-white"
+              : "text-[#5B6B68] hover:bg-[#F1F8F6]",
+          ].join(" ")}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function inputClass(invalid) {
   return [
-    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#1A2624] placeholder:text-[#9AA8A5]",
+    "w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#1A2624] placeholder:text-[#9AA8A5]",
     "outline-none transition-colors focus:border-[#0E7C74] focus:ring-2 focus:ring-[#0E7C74]/20",
     invalid ? "border-[#E29892]" : "border-[#DCE6E3]",
   ].join(" ");
@@ -501,7 +615,7 @@ function inputClass(invalid) {
 
 function selectClass(invalid) {
   return [
-    "w-full appearance-none rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#1A2624]",
+    "w-full appearance-none rounded-lg border bg-white px-3 py-2 text-sm text-[#1A2624]",
     "outline-none transition-colors focus:border-[#0E7C74] focus:ring-2 focus:ring-[#0E7C74]/20",
     invalid ? "border-[#E29892]" : "border-[#DCE6E3]",
   ].join(" ");

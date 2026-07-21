@@ -102,7 +102,7 @@ const translateX = -progress * 40;
         ref={sectionRef}
         className="relative w-full 2xl:min-h-[240vh] min-h-[300vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
       >
-        <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-34 pb-6">
+        <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-14 pb-2">
           <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl mb-5">
             Your Fitness Journey, <br />
             Anywhere, Anytime
