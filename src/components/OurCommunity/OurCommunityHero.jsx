@@ -81,126 +81,125 @@ function OurCommunityDesktop({ imageUrl, content, content2 }) {
   // SCROLL_DISTANCE_VH: total height (vh) of the scrollable section. This is
   // the "master" speed dial — also set on the <section> below via minHeight.
   // Bigger = more scrolling needed = slower. Smaller = faster.
-  const SCROLL_DISTANCE_VH = 380;
+  const SCROLL_DISTANCE_VH = 200;
   // ────────────────────────────────────────────────────────────
+useEffect(() => {
+  const section = sectionRef.current;
+  if (!section) return;
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (a, b, t) => a + (b - a) * clamp(t, 0, 1);
+  const easeInOutCubic = (t) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-    const lerp = (a, b, t) => a + (b - a) * clamp(t, 0, 1);
-    // Smooth acceleration/deceleration instead of a linear ramp
-    const easeInOutCubic = (t) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let targetScroll = 0;
+  let smoothScroll = 0;
+  let rafId = null;
+  let maxScroll = 1; // actual max reachable value of `scrolled`, recomputed on scroll/resize
 
-    let targetScroll = 0;
-    let smoothScroll = 0;
-    let rafId = null;
+  const onScroll = () => {
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight;
+    // Real scrollable distance for this section (px), never negative
+    const scrollableRange = Math.max(section.offsetHeight - vh, 1);
+    maxScroll = scrollableRange * SCROLL_SPEED;
+    targetScroll = -rect.top * SCROLL_SPEED;
+  };
 
-    const onScroll = () => {
-      const rect = section.getBoundingClientRect();
-      targetScroll = -rect.top * SCROLL_SPEED;
-    };
+  const render = () => {
+    smoothScroll += (targetScroll - smoothScroll) * DAMPING;
+    if (Math.abs(targetScroll - smoothScroll) < 0.05) {
+      smoothScroll = targetScroll;
+    }
 
-    const render = () => {
-      // Damping factor: lower = smoother/laggier, higher = snappier
-      smoothScroll += (targetScroll - smoothScroll) * DAMPING;
+    const scrolled = smoothScroll;
 
-      // Snap once close enough so it doesn't drift forever
-      if (Math.abs(targetScroll - smoothScroll) < 0.05) {
-        smoothScroll = targetScroll;
-      }
+    const frame = imgFrameRef.current;
+    const text1 = text1Ref.current;
+    const text2 = text2Ref.current;
 
-      const scrolled = smoothScroll;
+    if (frame) {
+      // Thresholds as FRACTIONS of the actual reachable scroll range,
+      // so text2 always fully reveals by the end of the section —
+      // no need to make the section taller.
+      const P1 = maxScroll * 0.28; // text1 fades out / frame starts shrinking
+      const P2 = maxScroll * 0.5;  // frame fully shrunk, hold (gap between texts)
+      const P3 = maxScroll * 0.95; // text2 fully fades in near the end
 
-      const frame = imgFrameRef.current;
-      const text1 = text1Ref.current;
-      const text2 = text2Ref.current;
+      if (scrolled < 0) {
+        Object.assign(frame.style, {
+          top: "0%", left: "0%",
+          width: "100%", height: "100%",
+          borderRadius: "0px",
+        });
+        if (text1) { text1.style.opacity = "1"; text1.style.transform = "translateY(0px)"; }
+        if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
 
-      if (frame) {
-        const vh = window.innerHeight;
-        const P1 = vh * 0.5;  // text1 fades out / frame starts shrinking
-        const P2 = vh * 1.0;  // frame fully shrunk, hold (gap between texts)
-        const P3 = vh * 1.7;  // text2 fades in
-
-        if (scrolled < 0) {
-          // Starting state: fullscreen image, text1 visible
-          Object.assign(frame.style, {
-            top: "0%", left: "0%",
-            width: "100%", height: "100%",
-            borderRadius: "0px",
-          });
-          if (text1) { text1.style.opacity = "1"; text1.style.transform = "translateY(0px)"; }
-          if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
-
-        } else if (scrolled < P1) {
-          // Shrinking image 100% -> 95%, text1 fading out
-          const t = easeInOutCubic(scrolled / P1);
-          const m = lerp(0, MARGIN_PCT, t);
-          Object.assign(frame.style, {
-            top: `${m}%`, left: `${m}%`,
-            width: `calc(100% - ${m * 2}%)`,
-            height: `calc(100% - ${m * 2}%)`,
-            borderRadius: `${lerp(0, 14, t)}px`,
-          });
-          if (text1) {
-            text1.style.opacity = String(lerp(1, 0, t));
-            text1.style.transform = `translateY(${lerp(0, -20, t)}px)`;
-          }
-          if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
-
-        } else if (scrolled < P2) {
-          // Hold at shrunk state, both texts hidden (transition gap)
-          Object.assign(frame.style, {
-            top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
-            width: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            height: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            borderRadius: "14px",
-          });
-          if (text1) { text1.style.opacity = "0"; }
-          if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
-
-        } else if (scrolled < P3) {
-          // text2 fading in
-          const t = easeInOutCubic((scrolled - P2) / (P3 - P2));
-          Object.assign(frame.style, {
-            top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
-            width: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            height: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            borderRadius: "14px",
-          });
-          if (text1) { text1.style.opacity = "0"; }
-          if (text2) {
-            text2.style.opacity = String(lerp(0, 1, t));
-            text2.style.transform = `translateY(${lerp(28, 0, t)}px)`;
-          }
-
-        } else {
-          // Fully scrolled: text2 fully visible
-          Object.assign(frame.style, {
-            top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
-            width: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            height: `calc(100% - ${MARGIN_PCT * 2}%)`,
-            borderRadius: "14px",
-          });
-          if (text1) { text1.style.opacity = "0"; }
-          if (text2) { text2.style.opacity = "1"; text2.style.transform = "translateY(0)"; }
+      } else if (scrolled < P1) {
+        const t = easeInOutCubic(scrolled / P1);
+        const m = lerp(0, MARGIN_PCT, t);
+        Object.assign(frame.style, {
+          top: `${m}%`, left: `${m}%`,
+          width: `calc(100% - ${m * 2}%)`,
+          height: `calc(100% - ${m * 2}%)`,
+          borderRadius: `${lerp(0, 14, t)}px`,
+        });
+        if (text1) {
+          text1.style.opacity = String(lerp(1, 0, t));
+          text1.style.transform = `translateY(${lerp(0, -20, t)}px)`;
         }
+        if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
+
+      } else if (scrolled < P2) {
+        Object.assign(frame.style, {
+          top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
+          width: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          height: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          borderRadius: "14px",
+        });
+        if (text1) { text1.style.opacity = "0"; }
+        if (text2) { text2.style.opacity = "0"; text2.style.transform = "translateY(28px)"; }
+
+      } else if (scrolled < P3) {
+        const t = easeInOutCubic((scrolled - P2) / (P3 - P2));
+        Object.assign(frame.style, {
+          top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
+          width: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          height: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          borderRadius: "14px",
+        });
+        if (text1) { text1.style.opacity = "0"; }
+        if (text2) {
+          text2.style.opacity = String(lerp(0, 1, t));
+          text2.style.transform = `translateY(${lerp(28, 0, t)}px)`;
+        }
+
+      } else {
+        Object.assign(frame.style, {
+          top: `${MARGIN_PCT}%`, left: `${MARGIN_PCT}%`,
+          width: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          height: `calc(100% - ${MARGIN_PCT * 2}%)`,
+          borderRadius: "14px",
+        });
+        if (text1) { text1.style.opacity = "0"; }
+        if (text2) { text2.style.opacity = "1"; text2.style.transform = "translateY(0)"; }
       }
+    }
 
-      rafId = requestAnimationFrame(render);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
     rafId = requestAnimationFrame(render);
+  };
 
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [MARGIN_PCT, DAMPING, SCROLL_SPEED]);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+  rafId = requestAnimationFrame(render);
+
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onScroll);
+    if (rafId) cancelAnimationFrame(rafId);
+  };
+}, [MARGIN_PCT, DAMPING, SCROLL_SPEED]);
 
   return (
     <section
@@ -210,9 +209,6 @@ function OurCommunityDesktop({ imageUrl, content, content2 }) {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
 
-        {/* Image frame — starts fullscreen, shrinks to 95%.
-            Text blocks now live INSIDE this frame so overflow-hidden clips
-            them and their position/size tracks the frame as it shrinks. */}
         <div
           ref={imgFrameRef}
           className="absolute overflow-hidden"

@@ -497,25 +497,17 @@ export default function AppInterfaceSection() {
               }}
             />
 
-            {/* ── MOBILE UI SCREEN — pure CSS, no image asset. Sits behind
-                 the floating cards (rendered before them in DOM, no
-                 z-index, so cards naturally paint on top) and stays fully
-                 invisible while the logo is on screen; once the logo band
-                 has faded out it fades in so the cards have a "home" to
-                 rest on as they lock into their final grid. Sized to
-                 GRID_W × GRID_H so the card grid fits flush inside its
-                 padding. ── */}
             <div className="hidden sm:block">
               <div
                 ref={mobileUIRef}
                 aria-hidden="true"
-                className="pointer-events-none select-none absolute overflow-hidden"
+                className="pointer-events-none select-none absolute overflow-hidden border-12 border-gray-800 "
                 style={{
                   left: 0,
                   top: 0,
                   transform: "translate(-50%, -50%)",
                   height: `680px`,
-                  width: `calc(min(${80}px, 88vh) * ${5})`,
+                  width: `calc(min(${78}px, 88vh) * ${5})`,
                   opacity: 0,
                   borderRadius: 40,
                   background: "linear-gradient(160deg, #0B0B0D 0%, #17171B 55%, #0A0A0C 100%)",
@@ -556,6 +548,7 @@ export default function AppInterfaceSection() {
                     filter: "blur(30px)",
                   }}
                 />
+
 
                 {/* Faint dot-grid texture */}
                 <div
