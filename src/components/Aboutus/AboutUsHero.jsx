@@ -99,10 +99,11 @@ export default function AboutUsHero() {
         <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-24 py-10 sm:py-16 flex flex-col min-h-[580px] sm:min-h-[780px]">
           <div className="self-end max-w-xl text-left mb-auto pt-42 sm:pt-28 lg:pt-44 ">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-normal text-neutral-900 leading-tight mb-3 sm:mb-4" style={{ letterSpacing: "-0.5px" }}>
-              Empowering Wellness <br />for Every Stage of Your Journey
+              Who We Are
             </h1>
             <p className="text-lg sm:text-xl md:text-lg text-neutral-600 leading-relaxed max-w-xl ml-auto">
-At FitMom Club, we combine fitness, nutrition, and expert guidance to help women build strength, confidence, and lifelong wellness at every stage of their journey.            </p>
+Created by women, for women, FitMom Club provides personalized fitness, nutrition, and wellness guidance, with expertise in prenatal and postnatal care.
+</p>
           </div>
         </div>
       </section>

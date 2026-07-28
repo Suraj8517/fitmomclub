@@ -12,7 +12,6 @@ export default function
 () {
   return (
     <div>
-        <AboutUsHero/>
         <HowItWorksSection/>
         <AboutUsSecondSection/>
         <AboutUsPurpose/>

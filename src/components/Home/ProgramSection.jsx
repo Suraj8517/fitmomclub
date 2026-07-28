@@ -78,7 +78,7 @@ const C = {
   black: "#1d1d1f",
   blackHover: "#000000",
   bg: "#ffffff",
-  pageBg: "#f5f5f7",
+  pageBg: "#F6F5F1",
   border: "#e8e8ed",
   text: "#1d1d1f",
   textMid: "#6e6e73",

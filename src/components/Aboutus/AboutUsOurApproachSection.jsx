@@ -47,7 +47,7 @@ function StatCard({ label, value, description }) {
 
 export default function OurApproachSection() {
   return (
-    <section className="w-full bg-white px-6 py-16 md:px-[72px] md:py-[72px] font-poppins">
+    <section className="w-full px-6 py-16 md:px-[72px] md:py-[72px] font-poppins">
       {/* Header */}
       <div className="mb-14">
         <h2 className="text-[28px] md:text-[44px] font-light text-[#1a1a1a] leading-tight tracking-tight max-w-[560px] mb-4 font-poppins">

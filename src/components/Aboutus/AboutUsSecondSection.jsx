@@ -2,15 +2,16 @@ import React from 'react'
 import demo from "../../assets/aboutus/demo.webp"
 import demo2 from "../../assets/aboutus/demo1.jpg"
 import demo3 from "../../assets/aboutus/demo2.webp"
-
+import HowItWorks from './AboutUsHowitWorksNew'
+import bg from '../../assets/aboutus/bg.png'
 
 export default function AboutUsSecondSection() {
   return (
     <div>
+      <HowItWorks/>
         <section className="w-full px-2 md:px-12 lg:px-20 pb-12">
-    
 
-        <div className="max-w-7xl mx-auto px-8 md:pt-50 ">
+        <div className="max-w-7xl mx-auto px-8 md:pt-4">
           {/* ── Row 1: Text left, two stacked images right ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center mb-12 md:mb-24">
             {/* Left — text */}

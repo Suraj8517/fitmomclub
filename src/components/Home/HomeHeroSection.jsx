@@ -155,7 +155,7 @@ export default function HomeHeroSection() {
             <img
               src={BG_IMAGE}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover object-top"
+              className="absolute inset-0 w-full h-full object-cover object-top-right"
               loading="eager"
             />
           </div>

@@ -41,7 +41,7 @@ function FeatureItem({ title, description }) {
 
 export default function WhyFitMomSection() {
   return (
-    <section className="w-full min-h-screen bg-white flex flex-col md:flex-row items-center gap-12 md:gap-16 px-6 py-16 md:px-[72px] md:py-[64px] font-poppins">
+    <section className="w-full min-h-screen flex flex-col md:flex-row items-center gap-12 md:gap-16 px-6 py-16 md:px-[72px] md:py-[64px] font-poppins">
       {/* Left: Image */}
       <div className="w-full md:w-[44%] flex-shrink-0 rounded-2xl overflow-hidden sm:h-[90vh]">
         <img

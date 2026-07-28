@@ -45,14 +45,14 @@ export default function HowItWorksSection() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
       {/* Content */}
-      <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-6 pb-10 md:px-14 md:pb-16 lg:px-20 lg:pb-50 w-full max-w-3xl">
+      <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-6 pb-10 md:px-14 md:pb-16 lg:px-20 lg:pb-30 w-full max-w-3xl">
 
-        <h1 className="text-white text-2xl md:text-4xl lg:text-7xl font-normal leading-tight tracking-tight mb-3 sm:mb-6 drop-shadow-md">
-          Who We Are
+        <h1 className="text-teal-200 text-2xl md:text-4xl lg:text-5xl font-normal leading-tight tracking-tight mb-3 sm:mb-6 drop-shadow-md">
+          Empowering Wellness <br />for Every Stage of Your Journey
         </h1>
 
         <p className="text-white text-sm sm:text-2xl leading-relaxed mb-5 sm:mb-6 max-w-prose">
-Created by women, for women, FitMom Club provides personalized fitness, nutrition, and wellness guidance, with expertise in prenatal and postnatal care.
+At FitMom Club, we combine fitness, nutrition, and expert guidance to help women build strength, confidence, and lifelong wellness at every stage of their journey. 
 </p>
        
 

@@ -50,7 +50,7 @@ function Card({ card }) {
 
 export default function PopulationHealthSection() {
   return (
-    <section className="w-full bg-white lg:px-16 lg:py-34 px-6 py-12 font-poppins">
+    <section className="w-full lg:px-16 lg:py-34 px-6 py-12 font-poppins">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-10">
         <h2 className="text-[28px] md:text-[46px] font-normal text-[#111111] leading-tight tracking-tight max-w-[760px]">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/home/fitmom.png"
 const NAV_LINKS = [
   { label: "Home",links:"/" },
   { label: "About Us",links:"about-us" },
@@ -49,7 +50,8 @@ const ROUTE_THEME_MAP = {
   "/about-us": "dark",
   "/community": "dark",
  "/terms-and-conditions":"dark",
- "/community":"light"
+ "/community":"light",
+
 };
 
 function getThemeForPath(pathname) {
@@ -64,7 +66,7 @@ function MenuLink({ to, children }) {
     >
       {children}
       <svg
-        className="w-3 h-3 opacity-0 -translate-x-0.5 transition-all duration-150 group-hover:opacity-40 group-hover:translate-x-0"
+        className="w-3 h-3 opacity-0 ml-auto -translate-x-0.5 transition-all duration-150 group-hover:opacity-40 group-hover:translate-x-0"
         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -160,15 +162,8 @@ export default function Navbar() {
                 "flex items-center gap-2.5 shrink-0",
                 pathname === "/terms-and-conditions" ? "invisible" : "",
               ].join(" ")}
-            >
-              <span
-                className={[
-                  "font-semibold text-lg sm:text-2xl tracking-tight transition-colors duration-300",
-                  useLightStyling ? "text-white" : "text-gray-800",
-                ].join(" ")}
-              >
-                FitMom Club
-              </span>
+            ><img className="w-12 h-12" src={logo}/>
+              
             </Link>
 
             {/* Right side */}
@@ -251,7 +246,7 @@ export default function Navbar() {
                   onClick={() => { setDownloadOpen((v) => !v); setMenuOpen(false); }}
                   className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white text-base font-medium px-5 py-4.5 rounded-full transition-colors duration-200 shadow-sm"
                 >
-                  Download
+                  Get the App
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${downloadOpen ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}

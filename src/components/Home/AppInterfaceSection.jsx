@@ -34,9 +34,19 @@ const TOP_PAD = Math.floor(
 const DESIGN_W = 390;
 
 // ── Phone frame — simple static sizing, no measurement/canvas work ─────────
-const PHONE_FRAME_MAX_H = 680;
+const PHONE_FRAME_MAX_H = 1040;
 const PHONE_FADE_START  = 0.82;
 const PHONE_FADE_END    = 0.98;
+
+// ── Mobile UI screen — pure CSS, no image asset. Sized to match the card
+// grid exactly (GRID_W × GRID_H) so all cards land inside its bezel with
+// the same padding as the design grid. Fades in once the logo band has
+// fully faded out, so the floating cards have a "home" to rest on as they
+// lock into place.
+const MOBILE_UI_MAX_H      = 980; // was GRID_H (680) — increase this to make the mockup bigger
+const MOBILE_UI_ASPECT     = GRID_W / GRID_H;
+const MOBILE_UI_FADE_START = 0.58; // logo band opacity reaches 0 at p ≈ 0.56 (see bandOpacity below)
+const MOBILE_UI_FADE_END   = 0.82; // finishes just as the phone frame bezel starts fading in
 
 // ── Utility: linear interpolate ──────────────────────────────────────────────
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -147,6 +157,7 @@ export default function AppInterfaceSection() {
   const bandRef       = useRef(null);
   const cardRefs      = useRef({});
   const phoneFrameRef = useRef(null);
+  const mobileUIRef   = useRef(null);
 
   // ── Dynamic text / visual nodes for the dark cards ─────────────────────────
   const weightNodeRef     = useRef(null); // "Weight" card kg value
@@ -330,6 +341,15 @@ export default function AppInterfaceSection() {
         phoneFrameRef.current.style.opacity = fadeT;
       }
 
+      // ── Mobile UI screen fade — only once the logo band is fully hidden ──
+      if (mobileUIRef.current) {
+        const uiFadeT = Math.min(
+          Math.max((p - MOBILE_UI_FADE_START) / (MOBILE_UI_FADE_END - MOBILE_UI_FADE_START), 0),
+          1
+        );
+        mobileUIRef.current.style.opacity = uiFadeT;
+      }
+
       // ── Core stat text values ───────────────────────────────────────────────
       const weightKg   = lerp(70, 68, p).toFixed(1);
       const sleepHours = Math.round(lerp(6, 8, p));
@@ -470,12 +490,104 @@ export default function AppInterfaceSection() {
               }}
               className="pointer-events-none select-none absolute z-0"
               style={{
-                height: `min(${PHONE_FRAME_MAX_H}px, 82vh)`,
+                height: `min(${PHONE_FRAME_MAX_H}px, 90vh)`,
                 width: "auto",
                 opacity: 0,
                 transition: "opacity 0.15s linear",
               }}
             />
+
+            {/* ── MOBILE UI SCREEN — pure CSS, no image asset. Sits behind
+                 the floating cards (rendered before them in DOM, no
+                 z-index, so cards naturally paint on top) and stays fully
+                 invisible while the logo is on screen; once the logo band
+                 has faded out it fades in so the cards have a "home" to
+                 rest on as they lock into their final grid. Sized to
+                 GRID_W × GRID_H so the card grid fits flush inside its
+                 padding. ── */}
+            <div className="hidden sm:block">
+              <div
+                ref={mobileUIRef}
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute overflow-hidden"
+                style={{
+                  left: 0,
+                  top: 0,
+                  transform: "translate(-50%, -50%)",
+                  height: `680px`,
+                  width: `calc(min(${80}px, 88vh) * ${5})`,
+                  opacity: 0,
+                  borderRadius: 40,
+                  background: "linear-gradient(160deg, #0B0B0D 0%, #17171B 55%, #0A0A0C 100%)",
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+                }}
+              >
+                {/* Soft glowing color blobs, echoing the cards' accent palette */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    top: "-10%",
+                    left: "-20%",
+                    width: "70%",
+                    height: "30%",
+                    background: "radial-gradient(circle, rgba(45,212,191,0.35) 0%, rgba(45,212,191,0) 70%)",
+                    filter: "blur(30px)",
+                  }}
+                />
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    top: "35%",
+                    right: "-25%",
+                    width: "65%",
+                    height: "28%",
+                    background: "radial-gradient(circle, rgba(244,114,182,0.30) 0%, rgba(244,114,182,0) 70%)",
+                    filter: "blur(34px)",
+                  }}
+                />
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    bottom: "-12%",
+                    left: "10%",
+                    width: "60%",
+                    height: "26%",
+                    background: "radial-gradient(circle, rgba(56,189,248,0.28) 0%, rgba(56,189,248,0) 70%)",
+                    filter: "blur(30px)",
+                  }}
+                />
+
+                {/* Faint dot-grid texture */}
+                <div
+                  className="absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage: "radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)",
+                    backgroundSize: "14px 14px",
+                  }}
+                />
+
+                {/* Mock status bar */}
+                <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 pt-4 text-white/80">
+                  <span className="text-[12px] font-medium tracking-wide">9:41</span>
+                  <div className="flex items-center gap-1">
+                    <svg viewBox="0 0 18 12" className="w-3.5 h-2.5" fill="currentColor">
+                      <rect x="0" y="7" width="3" height="5" rx="0.5" />
+                      <rect x="5" y="4" width="3" height="8" rx="0.5" />
+                      <rect x="10" y="1" width="3" height="11" rx="0.5" />
+                      <rect x="15" y="1" width="3" height="11" rx="0.5" opacity="0.35" />
+                    </svg>
+                    <svg viewBox="0 0 25 12" className="w-5 h-2.5" fill="none" stroke="currentColor" strokeWidth="1">
+                      <rect x="0.5" y="0.5" width="20" height="11" rx="2.5" />
+                      <rect x="2" y="2" width="15" height="8" rx="1.2" fill="currentColor" stroke="none" />
+                      <rect x="21.5" y="4" width="1.5" height="4" rx="0.7" fill="currentColor" stroke="none" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Home indicator */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full bg-white/25" />
+              </div>
+            </div>
 
             {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}
             <CardGPU name="yoga">

@@ -70,7 +70,7 @@ export default function FeatureShowcase() {
 
   return (
     <section
-      className="bg-white px-5 py-10 lg:py-52 sm:px-10 md:px-16 lg:px-20 xl:px-24 2xl:px-32"
+      className=" px-5 py-10 lg:py-22 sm:px-10 md:px-16 lg:px-20 xl:px-24 2xl:px-32"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Header */}

@@ -168,7 +168,7 @@ function AboutUsPurposeDesktop({ imageUrl, content }) {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-white"
+      className="relative w-full"
       style={{ minHeight: "280vh" }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden ">

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function HomeHeroSecondSection() {
   return (
     <section
-      className="relative w-full bg-[#F6F5F1] z-10 py-24 sm:py-32 lg:pb-40 lg:pt-50 mt-[-60vh] sm:mt-[-70vh]" 
+      className="relative w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-10 lg:pt-20 mt-[-60vh] sm:mt-[-70vh]" 
     >
       <div className="max-w-3xl mx-auto px-6 sm:px-12 lg:px-8 text-center">
         <h2 className="text-4xl sm:text-5xl lg:text-5xl font-normal text-neutral-900 leading-tight tracking-tight mb-8">
@@ -18,7 +18,7 @@ export default function HomeHeroSecondSection() {
 
         <Link
           to="/fmc"
-          className="inline-flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors px-8 py-3.5 text-sm font-medium text-white shadow-sm"
+          className="inline-flex items-center justify-center rounded-full bg-teal-500 hover:bg-teal-600 active:bg-teal-700 transition-colors px-8 py-3.5 text-sm font-medium text-white shadow-sm"
         >
           Learn more
         </Link>
