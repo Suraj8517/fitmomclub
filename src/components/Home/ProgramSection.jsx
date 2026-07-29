@@ -120,7 +120,12 @@ function PlanCard({ plan, animIndex }) {
       {/* Tag badge */}
       <span
         className="absolute bg-teal-600 top-5 left-5 text-[12px] sm:text-[13px] md:text-sm font-semibold px-3 py-1 rounded-full"
-        style={{  color: "#fff", letterSpacing: "0.01em" }}
+         style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          letterSpacing: "0.02em",
+          textDecoration: "none",
+          boxShadow: "0 6px 16px rgba(0,0,0,0.18)"
+        }}
       >
         {tag}
       </span>
@@ -128,14 +133,19 @@ function PlanCard({ plan, animIndex }) {
       {/* Icon badge */}
       <div
         className=" bg-teal-600 absolute top-[-32px] left-[43%] w-16 h-16 rounded-full flex items-center justify-center border-[5px] border-white"
-        style={{ boxShadow: "0 6px 16px rgba(0,0,0,0.18)" }}
+     style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          letterSpacing: "0.02em",
+          textDecoration: "none",
+          boxShadow: "0 6px 16px rgba(0,0,0,0.18)"
+        }}
       >
-        <Icon size={24} color="#fff" strokeWidth={1.75} />
+        <Icon size={24} color="#062019" strokeWidth={1.75} />
       </div>
 
       <div className="overflow-hidden flex flex-col flex-1">
         {/* Card top */}
-        <div className="pt-14 pb-5 px-9 border-b" style={{ borderColor: C.border }}>
+        <div className="pt-14 pb-5 px-9 border-b" style={{ borderColor: C.border }} >
           <p className="text-2xl sm:text-[26px] md:text-3xl lg:text-[27px] xl:text-3xl font-semibold leading-[1.15] tracking-tight" style={{ color: C.text }}>
             {name}
           </p>

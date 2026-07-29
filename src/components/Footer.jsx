@@ -69,7 +69,7 @@ export default function Footer() {
 
           {/* Center: headline (in place of logo) */}
           <div className="order-1 flex justify-center md:order-2">
-            <h2 className="text-center font-bold leading-[1.1] tracking-tight text-[clamp(1.5rem,3.2vw,2.2rem)]">
+            <h2 className="text-center font-bold leading-[1.1] tracking-tight text-[clamp(1.2rem,3vw,1.6rem)]">
               #1 Fitness &amp; Wellness
               <br />
               <span className="text-teal-700">Community for Moms</span>
@@ -106,7 +106,7 @@ export default function Footer() {
         {/* tagline + tags + legal links */}
         <div className="mt-6 flex flex-col items-center text-center">
           <p className="text-sm italic text-[#3A5B56]" style={{ fontFamily: "'Lora', Georgia, serif" }}>
-            Built by moms, for moms — every step of the way.
+            Built by mom, for moms.
           </p>
           <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs uppercase tracking-wide text-teal-800/70">
             {tags.map((tag, i) => (

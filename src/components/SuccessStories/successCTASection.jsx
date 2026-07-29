@@ -1,9 +1,9 @@
 export default function ShareYourStorySection() {
   return (
     <section
-      className="relative overflow-hidden px-5 py-20 sm:px-10 md:px-16 md:py-22 lg:px-20 xl:px-24 2xl:px-32"
+      className="relative overflow-hidden px-5 py-20 sm:px-10 md:px-16 md:py-22 lg:px-20 xl:px-24 2xl:px-32 bg-[linear-gradient(180deg,#EBEAEA_0%,#F6F4F0_100%)]"
       style={{
-        backgroundColor: "#ebeaea",
+        
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Poppins", sans-serif',
       }}

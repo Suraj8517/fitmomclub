@@ -61,14 +61,24 @@ export default function CTASection() {
           <button
            onClick={handleConsultation}
             className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors duration-200 shadow-md"
-          >
+           style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          color: "#062019",
+          letterSpacing: "0.02em",
+          textDecoration: "none",
+        }}>
             Consult With Our Experts
           </button>
 
           <Link
             to="blogs"
             className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-white/90 hover:bg-white text-[#2C2C2C] text-sm font-medium transition-colors duration-200 shadow-md"
-          >
+           style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          color: "#062019",
+          letterSpacing: "0.02em",
+          textDecoration: "none",
+        }}>
             Explore Our Latest Blog Posts
           </Link>
         </div>

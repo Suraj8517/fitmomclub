@@ -19,7 +19,12 @@ export default function HomeHeroSecondSection() {
         <Link
           to="/fmc"
           className="inline-flex items-center justify-center rounded-full bg-teal-500 hover:bg-teal-600 active:bg-teal-700 transition-colors px-8 py-3.5 text-sm font-medium text-white shadow-sm"
-        >
+         style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          color: "#062019",
+          letterSpacing: "0.02em",
+          textDecoration: "none",
+        }}>
           Learn more
         </Link>
       </div>

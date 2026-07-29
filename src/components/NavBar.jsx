@@ -242,10 +242,14 @@ export default function Navbar() {
 {/* Download button — desktop/tablet only; mobile users get the
                   same links inside the hamburger menu above */}
               <div className="hidden sm:block relative" ref={downloadRef}>
-                <button
+                <button 
                   onClick={() => { setDownloadOpen((v) => !v); setMenuOpen(false); }}
-                  className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white text-base font-medium px-5 py-4.5 rounded-full transition-colors duration-200 shadow-sm"
-                >
+                  className="flex items-center gap-2 text-base font-medium px-5 py-4.5 rounded-full transition-colors duration-200 shadow-sm"
+                 style={{
+          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+          color: "#062019",
+          
+        }}>
                   Get the App
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${downloadOpen ? "rotate-180" : ""}`}

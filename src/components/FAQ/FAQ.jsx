@@ -130,7 +130,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="w-full pt-28 px-4 sm:px-8" id="faq">
+    <section className="w-full pt-28 px-4 sm:px-8 bg-[#f6f4f0]" id="faq">
       <div className="mx-auto max-w-2xl">
         <div className="text-center">
           <h2
