@@ -9,6 +9,10 @@ import {
   Target,
   Apple,
 } from "lucide-react";
+import Nutrition from "../Helper/StorySection/Nutrition";
+import Fitness from "../Helper/StorySection/Fitness";
+import Coach from "../Helper/StorySection/Coach";
+import RunningMap from "../Helper/StorySection/Expert";
 const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
 const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
 const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
@@ -66,7 +70,7 @@ const stories = [
     image: trainer,
     description:
       "Train with certified women's health and fitness specialists who provide safe, effective guidance tailored to every phase of motherhood.",
-    overlay: "pregnancy",
+    overlay: "expert",
   },
   {
     id: 5,
@@ -121,116 +125,21 @@ const stories = [
 function FloatingOverlay({ type }) {
   switch (type) {
     case "nutrition":
-      return (
-        <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
-          <div className="rounded-3xl p-7 shadow-2xl" style={{ width: 320, background: "rgba(28,28,30,0.96)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Today's Goal</p>
-                <p className="text-3xl font-bold text-white mt-1">1000 <span className="text-base font-normal" style={{ color: "rgba(255,255,255,0.4)" }}>/ 2042 cal</span></p>
-              </div>
-              <div className="flex items-center gap-2 rounded-full px-4 py-2 text-sm" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.3)", color: "#14B8A6" }}>
-                🔥 4 Streak
-              </div>
-            </div>
-            <div className="mt-4 h-2 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }}>
-              <div className="h-full w-[49%] rounded-full" style={{ background: "#14B8A6" }} />
-            </div>
-            <div className="flex gap-4 mt-5">
-              {[["47g","Protein","#EF4444",63],["67g","Carbs","#3B82F6",90],["60g","Fat","#F97316",81]].map(([val,label,color,pct]) => (
-                <div key={label} className="flex-1">
-                  <p className="text-base font-semibold" style={{ color }}>{val}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</p>
-                  <div className="mt-2 h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }}>
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 space-y-2">
-              {[["🥗","Lunch","480 kcal"],["🍎","Snack","120 kcal"]].map(([emoji,name,cal]) => (
-                <div key={name} className="flex items-center justify-between rounded-xl px-3 py-2" style={{ background:"rgba(255,255,255,0.05)" }}>
-                  <span className="text-base">{emoji}</span>
-                  <p className="flex-1 ml-2 text-sm text-white">{name}</p>
-                  <p className="text-xs" style={{ color:"rgba(255,255,255,0.4)" }}>{cal}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
+     return(<Nutrition/>);
 
     case "fitness":
       return (
-        <div className="absolute hidden lg:block z-30" style={{ right: "7%", top: "50%", transform: "translateY(-50%)" }}>
-          <div className="rounded-3xl p-7 shadow-2xl text-center" style={{ width: 260, background: "rgba(28,28,30,0.96)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-            <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Heart Rate</p>
-            <div className="relative flex items-center justify-center mx-auto" style={{ width: 150, height: 150 }}>
-              <svg width="150" height="150" style={{ position:"absolute", transform:"rotate(-90deg)" }}>
-                <circle cx="75" cy="75" r="62" fill="none" stroke="rgba(239,68,68,0.15)" strokeWidth="10"/>
-                <circle cx="75" cy="75" r="62" fill="none" stroke="#EF4444" strokeWidth="10" strokeDasharray="389.6" strokeDashoffset="116" strokeLinecap="round"/>
-              </svg>
-              <div>
-                <p className="text-4xl font-extrabold text-white">142</p>
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>BPM</p>
-              </div>
-            </div>
-            <div className="flex justify-center gap-6 mt-5">
-              <div>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Resting</p>
-                <p className="text-lg font-semibold text-white">62</p>
-              </div>
-              <div style={{ width:1, background:"rgba(255,255,255,0.1)" }}/>
-              <div>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Peak</p>
-                <p className="text-lg font-semibold" style={{ color:"#EF4444" }}>168</p>
-              </div>
-            </div>
-            <div className="mt-5">
-              <div className="flex justify-between text-xs mb-1.5" style={{ color:"rgba(255,255,255,0.35)" }}>
-                <span>Zone 1</span><span>Zone 5</span>
-              </div>
-              <div className="flex gap-1 h-2.5 rounded-full overflow-hidden">
-                {[["#3B82F6",20],["#22C55E",20],["#EAB308",20],["#F97316",20],["#EF4444",20]].map(([c,w],i) => (
-                  <div key={i} style={{ flex:1, background:c, opacity: i===3?1:0.45 }}/>
-                ))}
-              </div>
-              <p className="text-xs mt-1.5 text-left" style={{ color:"#F97316" }}>Cardio Zone</p>
-            </div>
-          </div>
-        </div>
+        <Fitness/>
       );
 
     case "coach":
       return (
-        <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
-          <div className="rounded-3xl p-7 shadow-2xl" style={{ width: 300, background: "rgba(28,28,30,0.96)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-            <div className="flex justify-between items-center">
-              <p className="text-base font-semibold text-white">Weekly Activity</p>
-              <p className="text-sm" style={{ color: "#14B8A6" }}>5/7 days</p>
-            </div>
-            <div className="flex gap-2 mt-4">
-              {[["M",40,true],["T",75,true],["W",55,true],["T",90,true],["F",60,true],["S",0,false],["S",0,false]].map(([d,h,done],i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                  <div className="w-full rounded-lg relative overflow-hidden" style={{ height:64, background:"rgba(255,255,255,0.08)", border: done ? "none" : "1.5px dashed rgba(255,255,255,0.15)" }}>
-                    {h > 0 && <div className="absolute bottom-0 left-0 right-0 rounded-lg" style={{ height:`${h}%`, background: i===3?"#14B8A6":"rgba(20,184,166,0.5)" }}/>}
-                  </div>
-                  <p className="text-xs" style={{ color:"rgba(255,255,255,0.35)" }}>{d}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-3 mt-4">
-              {[["400","kcal avg"],["32m","avg session"],["5","streak days"]].map(([v,l]) => (
-                <div key={l} className="flex-1 rounded-xl p-3 text-center" style={{ background:"rgba(255,255,255,0.06)" }}>
-                  <p className="text-base font-bold text-white">{v}</p>
-                  <p className="text-[11px] mt-0.5" style={{ color:"rgba(255,255,255,0.4)" }}>{l}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <Coach/>
       );
-
+case "expert":
+  return(
+<RunningMap/>
+  );
     case "goals":
       return (
         <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
