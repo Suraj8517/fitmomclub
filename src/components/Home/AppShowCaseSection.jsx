@@ -49,7 +49,7 @@ const translateX = -progress * 40;
   return (
     <>
       {/* ── MOBILE VERSION (< lg) ── */}
-      <section className="lg:hidden bg-[#F6F5F1] px-6 py-16">
+      <section className="lg:hidden bg-[#F6F5F1] px-6 py-2">
 
         {/* Header text 
         <div className="text-center mb-10">

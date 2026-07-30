@@ -221,7 +221,7 @@ export default function HeroReveal() {
             <h1
               className="m-0 flex flex-wrap justify-center gap-x-4 uppercase leading-[0.8] tracking-tighter"
               style={{
-                fontSize: "clamp(1.8rem, 5.2vw, 62.5px)",
+                fontSize: "clamp(2.8rem, 5.8vw, 62.5px)",
                 fontWeight: 700,
                 fontFamily: '"Sora", sans-serif',
                 color: "#0B3D3B",
@@ -244,7 +244,7 @@ export default function HeroReveal() {
                 <p
                   key={line}
                   className="m-0 flex flex-wrap justify-center gap-x-4 uppercase leading-[1]"
-                  style={{ fontSize: "clamp(1.1rem, 62.5px, 62.5px)",fontWeight: 700,
+                  style={{ fontSize: "clamp(1.1rem, 35.5px, 62.5px)",fontWeight: 700,
                 fontFamily: '"Sora", sans-serif', color: "#3C6E68", }}
                 >
                   {line.split(" ").map((word, wi) => (
@@ -266,19 +266,19 @@ export default function HeroReveal() {
             ref={img1Ref}
             src="https://picsum.photos/seed/gummy1/220/220"
             alt=""
-            className="pointer-events-none absolute right-[16%] top-0 z-20 h-[16vw] w-[16vw] max-h-48 max-w-48 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
+            className="pointer-events-none absolute right-[16%] top-0 z-20 sm:h-[16vw] sm:w-[16vw] max-h-48 max-w-48 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img2Ref}
             src="https://picsum.photos/seed/gummy2/220/220"
             alt=""
-            className="pointer-events-none absolute left-[6%] top-[30%] z-20 h-[15vw] w-[15vw] max-h-52 max-w-52 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
+            className="pointer-events-none absolute left-[6%] top-[30%] z-20 sm:h-[15vw] sm:w-[15vw] max-h-52 max-w-52 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img3Ref}
             src="https://picsum.photos/seed/gummy3/220/220"
             alt=""
-            className="pointer-events-none absolute bottom-[6%] right-[10%] z-20 h-[14vw] w-[14vw] max-h-44 max-w-44 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
+            className="pointer-events-none absolute bottom-[6%] right-[10%] z-20 sm:h-[14vw] sm:w-[14vw] max-h-44 max-w-44 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
 
           <div

@@ -97,23 +97,16 @@ function useIsMobile(breakpoint = 640) {
 /* ------------------------------------------------------------------ */
 const INK = '#0A2E27';        // deep jade-black, used for body copy on light bg
 const CREAM_TEXT = '#FBF3E7'; // warm off-white, used for headline on dark bg
-const EMBER_A = '#FFA46B';
-const EMBER_B = '#FF6A3D';
-const EMBER_C = '#7A2A12';
+const EMBER_A = '#BFF4EB';
+const EMBER_B = '#4DB8A5';
+const EMBER_C = '#136F63';
 
 const FIRST_SECTION_BG =
   'radial-gradient(circle at 50% 18%, #1E9E78 0%, #0C6E52 42%, #06301F 100%)';
 const SECOND_SECTION_BG =
   'radial-gradient(circle at 50% 50%, #dbfce6 0%, #dbfce6 10%, #F6F5F1 62%)';
 
-/* ------------------------------------------------------------------ */
-/*  FloatingIcon — fitness-themed icon with parallax + ambient bobbing  */
-/*  + scroll-linked rotation. The OUTER wrapper (forwarded ref) is the  */
-/*  node the scroll loop mutates directly (translate3d + rotate) each   */
-/*  frame. The ambient float/drift lives entirely in CSS (fsl-float) on */
-/*  an INNER node, so the two motions never fight over the same style   */
-/*  property or force a style recalculation on the outer node.          */
-/* ------------------------------------------------------------------ */
+
 const FloatingIcon = forwardRef(function FloatingIcon(
   { icon: Icon, style, size = 96, blur = 0, duration = 6, rotate = -8 },
   ref
@@ -164,11 +157,11 @@ const FloatingIcon = forwardRef(function FloatingIcon(
 
 /* Desktop layout — full cast, spread wide. */
 const ICONS_DESKTOP = [
-  { Icon: Flame, size: 130, blur: 3, duration: 7, top: '6%', left: '1%', rotate: -14, depth: 0.55, spin: 90 },
+  { Icon: Flame, size: 130, blur: 3, duration: 7, top: '36%', left: '1%', rotate: -14, depth: 1.55, spin: 90 },
   { Icon: Zap, size: 56, blur: 0, duration: 5, top: '46%', left: '28%', rotate: 8, depth: 1.3, spin: -160 },
   { Icon: Dumbbell, size: 96, blur: 1.5, duration: 6.5, top: '30%', left: '71%', rotate: -10, depth: 0.9, spin: 130 },
   { Icon: Trophy, size: 150, blur: 4, duration: 8, top: '20%', left: '92%', rotate: 12, depth: 0.45, spin: -70 },
-  { Icon: HeartPulse, size: 160, blur: 4, duration: 7.5, top: '68%', left: '13%', rotate: -18, depth: 0.4, spin: 110 },
+  { Icon: HeartPulse, size: 160, blur: 4, duration: 7.5, top: '68%', left: '13%', rotate: -18, depth: 0.8, spin: 110 },
   { Icon: Timer, size: 130, blur: 3, duration: 6, top: '65%', left: '84%', rotate: 16, depth: 0.65, spin: -140 },
 ];
 
@@ -176,7 +169,7 @@ const ICONS_DESKTOP = [
    float duration all match), just smaller and pulled in from the edges
    so nothing clips off a narrow viewport. Same design, tuned scale. */
 const ICONS_MOBILE = [
-  { Icon: Flame, size: 66, blur: 2, duration: 7, top: '5%', left: '4%', rotate: -14, depth: 0.55, spin: 90 },
+  { Icon: Flame, size: 66, blur: 2, duration: 7, top: '25%', left: '4%', rotate: -14, depth: 0.95, spin: 90 },
   { Icon: Zap, size: 34, blur: 0, duration: 5, top: '44%', left: '20%', rotate: 8, depth: 1.3, spin: -160 },
   { Icon: Dumbbell, size: 52, blur: 1, duration: 6.5, top: '28%', left: '68%', rotate: -10, depth: 0.9, spin: 130 },
   { Icon: Trophy, size: 76, blur: 2.5, duration: 8, top: '17%', left: '78%', rotate: 12, depth: 0.45, spin: -70 },
@@ -184,27 +177,21 @@ const ICONS_MOBILE = [
   { Icon: Timer, size: 66, blur: 2, duration: 6, top: '66%', left: '74%', rotate: 16, depth: 0.65, spin: -140 },
 ];
 
-/* Headline: a declaration rather than a slogan. Kept short per line so   */
-/* the 3D flip reads clearly at any viewport width.                      */
 const LINES = ['Your Fitness','Journey,', 'Anywhere', 'Anytime'];
 
-/* ------------------------------------------------------------------ */
-/*  RevealParagraph — words fade + rise into view; inline photos stay   */
-/*  hidden until every word has been revealed, then reveal in turn.     */
-/*  Every span/photo starts in its OWN hidden state via inline style    */
-/*  (matching progress===0) and is registered into a ref array so the   */
-/*  scroll loop can update opacity/transform directly, with no re-      */
-/*  render of the paragraph itself as scrolling continues.              */
-/* ------------------------------------------------------------------ */
 const TOKENS = [
   { t: 'Personalised' }, { t: 'workouts,' },
   { img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=200&h=200&fit=crop&crop=faces', alt: 'progress tracking' },{ t: 'progress,' },{ t: 'tracking,' },
   { img: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=200&h=200&fit=crop', alt: 'Mom and baby' },
-  { t: 'and' }, { t: 'expert' }, { t: 'support' }, { t: 'all' }, { t: 'in' }, { t: 'one' }, { t: 'app' },{ img: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=200&h=200&fit=crop', alt: 'Mom and baby' },
+  { t: 'and' }, { t: 'expert' }, { t: 'support' }, { t: 'all' }, { t: 'in' }, { t: 'one' }, { t: 'app' }
 ];
 
 const TOTAL_WORDS = TOKENS.filter((tok) => tok.t).length;
 const TOTAL_IMAGES = TOKENS.filter((tok) => tok.img).length;
+
+/* Max inline width an image token expands to, in em, once fully revealed. */
+const IMAGE_MAX_WIDTH_EM = 2.6;
+const IMAGE_MAX_MARGIN_EM = 0.05;
 
 function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
   let wordIdx = -1;
@@ -214,7 +201,7 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
     <p
       className="max-w-4xl text-center leading-tight px-2"
       style={{
-        fontSize: isMobile ? 'clamp(1.15rem, 5.4vw, 1.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
+        fontSize: isMobile ? 'clamp(1.35rem, 8.4vw, 3.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         fontWeight: 800,
       }}
@@ -227,15 +214,19 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
             <span
               key={i}
               ref={(el) => (imageWrapRefs.current[capturedIdx] = el)}
-              className="fsl-reveal-img-wrap inline-block h-[0.95em] -translate-y-1 align-middle overflow-hidden"
+              className="fsl-reveal-img-wrap inline-block h-[1.2em] -translate-y-1 align-middle overflow-hidden"
               style={{ width: '0px', marginLeft: '0px', marginRight: '0px' }}
             >
               <img
                 ref={(el) => (imageRefs.current[capturedIdx] = el)}
                 src={tok.img}
                 alt={tok.alt}
-                className="fsl-reveal-img h-[0.95em] w-[2.6em] rounded-2xl object-cover"
-                style={{ opacity: 0, transform: 'scale(0.8)' }}
+                className="fsl-reveal-img h-[1.2em] w-[2.6em] rounded-2xl object-cover"
+                style={{
+                  opacity: 0,
+                  transform: 'scale(0.8)',
+                  clipPath: 'inset(0 100% 0 0)',
+                }}
               />
             </span>
           );
@@ -271,7 +262,9 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
 /*    0.28 → 0.38   headline + icons crossfade into the paragraph's     */
 /*                  backdrop, in the exact same screen position         */
 /*    0.36 → 0.86   words reveal one at a time, paced by scroll         */
-/*    0.88 → 0.98   inline photos reveal one at a time                  */
+/*    0.88 → 0.98   inline photos reveal one at a time, each with its   */
+/*                  own dedicated sub-window inside that range so the   */
+/*                  reveal is sequential and strictly scroll-driven     */
 /*  Because it's a single sticky viewport (not two stacked sections),   */
 /*  there's no hand-off gap — the paragraph backdrop appears exactly    */
 /*  when the headline dissolves, and the words then reveal gradually    */
@@ -279,8 +272,9 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
 /*                                                                       */
 /*  Every value below is written straight to a DOM node's style via     */
 /*  refs — nothing here calls setState, so scrolling never triggers a   */
-/*  React re-render. Only transform/opacity are touched (compositor-    */
-/*  only), which is what keeps this smooth even on mid-range phones.    */
+/*  React re-render. Only transform/opacity/clip-path are touched       */
+/*  (compositor-only properties), which is what keeps this smooth even  */
+/*  on mid-range phones.                                                 */
 /* ------------------------------------------------------------------ */
 const TEXT_ZOOM_END = 0.30;  // headline has fully "arrived" by this point
 const FADE_START = 0.28;     // headline + icons start dissolving here
@@ -331,11 +325,7 @@ function ScrollStory() {
     // into the headline's fade window
     const wordPhase = clamp((progress - WORDS_START) / (WORDS_END - WORDS_START), 0, 1);
     const wordRevealCount = Math.round(wordPhase * TOTAL_WORDS);
-
-    // once every word is visible, further scroll reveals the inline photos
-    const imagePhase = clamp((progress - IMAGES_START) / (IMAGES_END - IMAGES_START), 0, 1);
-    const imageRevealCount =
-      wordRevealCount >= TOTAL_WORDS ? Math.round(imagePhase * TOTAL_IMAGES) : 0;
+    const wordsComplete = wordRevealCount >= TOTAL_WORDS;
 
     // combine: content fades a bit as it scales up, then fully dissolves
     // during the crossfade into the paragraph
@@ -368,19 +358,42 @@ function ScrollStory() {
       el.style.transform = revealed ? 'translateY(0)' : 'translateY(0.35em)';
     });
 
-    imageWrapRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const revealed = i < imageRevealCount;
-      el.style.width = revealed ? '2.6em' : '0px';
-      el.style.marginLeft = revealed ? '0.25em' : '0px';
-      el.style.marginRight = revealed ? '0.25em' : '0px';
-    });
-    imageRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const revealed = i < imageRevealCount;
-      el.style.opacity = revealed ? '1' : '0';
-      el.style.transform = revealed ? 'scale(1)' : 'scale(0.8)';
-    });
+    // --- inline photos: each image gets its own dedicated slice of the
+    // IMAGES_START..IMAGES_END scroll range, so image N only begins
+    // expanding once image N-1 has fully finished (strictly sequential),
+    // and every frame of the expansion is a pure function of scroll
+    // progress (no CSS transitions, no time-based easing). Width itself
+    // is still adjusted on the wrapper so surrounding words reflow to
+    // make room, but that's a direct per-frame style write driven by
+    // scroll — not an animated/transitioned property — while the visual
+    // reveal of the image itself rides on clip-path + transform + opacity,
+    // which are compositor-only and don't trigger layout.
+    if (TOTAL_IMAGES > 0) {
+      const perImageSpan = (IMAGES_END - IMAGES_START) / TOTAL_IMAGES;
+
+      for (let i = 0; i < TOTAL_IMAGES; i += 1) {
+        const winStart = IMAGES_START + i * perImageSpan;
+        const winEnd = winStart + perImageSpan;
+        const raw = wordsComplete
+          ? clamp((progress - winStart) / (winEnd - winStart), 0, 1)
+          : 0;
+        const eased = smoothstep(raw);
+
+        const wrapEl = imageWrapRefs.current[i];
+        if (wrapEl) {
+          wrapEl.style.width = `${eased * IMAGE_MAX_WIDTH_EM}em`;
+          wrapEl.style.marginLeft = `${eased * IMAGE_MAX_MARGIN_EM}em`;
+          wrapEl.style.marginRight = `${eased * IMAGE_MAX_MARGIN_EM}em`;
+        }
+
+        const imgEl = imageRefs.current[i];
+        if (imgEl) {
+          imgEl.style.opacity = eased;
+          imgEl.style.transform = `scale(${0.8 + 0.2 * eased})`;
+          imgEl.style.clipPath = `inset(0 ${(1 - eased) * 100}% 0 0)`;
+        }
+      }
+    }
   };
 
   const sectionRef = useScrollProgress(handleProgress);
@@ -481,12 +494,17 @@ export default function FitnessScrollLanding() {
         }
         .fsl-float { animation: fslFloatDrift var(--dur, 6s) ease-in-out infinite; will-change: transform; }
         .fsl-reveal-word { display: inline-block; transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1); will-change: opacity, transform, filter; }
-        .fsl-reveal-img-wrap { transition: width 0.45s cubic-bezier(0.22,1,0.36,1), margin 0.45s cubic-bezier(0.22,1,0.36,1); }
-        .fsl-reveal-img { transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1); }
+
+        /* No CSS transitions on the image reveal — every frame's width,
+           clip-path, transform, and opacity are written directly from the
+           scroll handler above, so the reveal tracks scroll position 1:1
+           with zero added lag or overshoot. */
+        .fsl-reveal-img-wrap { will-change: width; }
+        .fsl-reveal-img { will-change: opacity, transform, clip-path; }
 
         @media (prefers-reduced-motion: reduce) {
           .fsl-float { animation: none !important; }
-          .fsl-reveal-word, .fsl-reveal-img-wrap, .fsl-reveal-img { transition: none !important; }
+          .fsl-reveal-word { transition: none !important; }
         }
       `}</style>
 
