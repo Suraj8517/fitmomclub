@@ -15,9 +15,13 @@ function smoothstep(t) {
 
 /* ------------------------------------------------------------------ */
 /*  useScrollProgress — tracks 0→1 progress as a tall section scrolls  */
-/*  through the viewport, writing straight to refs (no setState), so   */
-/*  scrolling never triggers a React re-render — only compositor-only  */
-/*  transform/opacity/clip-path properties get touched per frame.      */
+/*  through the viewport. IMPORTANT: this no longer calls setState.    */
+/*  Instead it invokes a callback directly with the raw progress value */
+/*  so the caller can mutate DOM nodes via refs, completely skipping   */
+/*  React's render/reconciliation cycle on every scroll frame. That's  */
+/*  the single biggest lever for silky, non-janky scroll animation —   */
+/*  we're only ever touching `transform`/`opacity` (compositor-only    */
+/*  properties), never triggering layout or a component re-render.     */
 /* ------------------------------------------------------------------ */
 function useScrollProgress(onProgress) {
   const ref = useRef(null);
@@ -66,10 +70,7 @@ function useScrollProgress(onProgress) {
 
 /* ------------------------------------------------------------------ */
 /*  useIsMobile — one resize-driven boolean, NOT part of the scroll    */
-/*  hot path. Cheap, infrequent, safe to drive a re-render. This is    */
-/*  also the switch between the two experiences: below the breakpoint  */
-/*  we mount a completely different, much shorter scroll story rather  */
-/*  than a scaled-down version of the desktop one.                     */
+/*  hot path. Cheap, infrequent, safe to drive a re-render.            */
 /* ------------------------------------------------------------------ */
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = useState(
@@ -87,13 +88,24 @@ function useIsMobile(breakpoint = 640) {
 
 /* ------------------------------------------------------------------ */
 /*  Color system                                                        */
+/*  Cool jade/emerald grounds the brand (strength, vitality); warm       */
+/*  ember accents the icons and signature moments (energy, heat of a     */
+/*  workout). The two paired sections deliberately swap temperature —    */
+/*  a dark, spotlit jade stage for the headline, a soft warm-cream        */
+/*  page for the reading moment — so the hand-off itself feels like      */
+/*  the story shifting register from "declaration" to "conversation".    */
 /* ------------------------------------------------------------------ */
-const INK = '#0A2E27';
+const INK = '#0A2E27';        // deep jade-black, used for body copy on light bg
+const CREAM_TEXT = '#FBF3E7'; // warm off-white, used for headline on dark bg
 const EMBER_A = '#BFF4EB';
 const EMBER_B = '#4DB8A5';
 const EMBER_C = '#136F63';
+
+const FIRST_SECTION_BG =
+  'radial-gradient(circle at 50% 18%, #1E9E78 0%, #0C6E52 42%, #06301F 100%)';
 const SECOND_SECTION_BG =
   'radial-gradient(circle at 50% 50%, #dbfce6 0%, #dbfce6 10%, #F6F5F1 62%)';
+
 
 const FloatingIcon = forwardRef(function FloatingIcon(
   { icon: Icon, style, size = 96, blur = 0, duration = 6, rotate = -8 },
@@ -153,20 +165,23 @@ const ICONS_DESKTOP = [
   { Icon: Timer, size: 130, blur: 3, duration: 6, top: '65%', left: '84%', rotate: 16, depth: 0.65, spin: -140 },
 ];
 
-/* Mobile layout — a leaner cast (4, not 6) since a shorter scroll
-   window means less time for the eye to take in a crowded stage. */
+/* Mobile layout — same cast, same choreography (parallax depth / spin /
+   float duration all match), just smaller and pulled in from the edges
+   so nothing clips off a narrow viewport. Same design, tuned scale. */
 const ICONS_MOBILE = [
-  { Icon: Flame, size: 62, blur: 2, duration: 7, top: '24%', left: '6%', rotate: -14, depth: 0.6, spin: 70 },
-  { Icon: Dumbbell, size: 50, blur: 1, duration: 6.5, top: '30%', left: '70%', rotate: -10, depth: 0.55, spin: 100 },
-  { Icon: Trophy, size: 72, blur: 2, duration: 8, top: '18%', left: '78%', rotate: 12, depth: 0.3, spin: -60 },
-  { Icon: HeartPulse, size: 78, blur: 2, duration: 7.5, top: '68%', left: '10%', rotate: -18, depth: 0.28, spin: 90 },
+  { Icon: Flame, size: 66, blur: 2, duration: 7, top: '25%', left: '4%', rotate: -14, depth: 0.95, spin: 90 },
+  { Icon: Zap, size: 34, blur: 0, duration: 5, top: '44%', left: '20%', rotate: 8, depth: 1.3, spin: -160 },
+  { Icon: Dumbbell, size: 52, blur: 1, duration: 6.5, top: '28%', left: '68%', rotate: -10, depth: 0.9, spin: 130 },
+  { Icon: Trophy, size: 76, blur: 2.5, duration: 8, top: '17%', left: '78%', rotate: 12, depth: 0.45, spin: -70 },
+  { Icon: HeartPulse, size: 82, blur: 2.5, duration: 7.5, top: '70%', left: '10%', rotate: -18, depth: 0.4, spin: 110 },
+  { Icon: Timer, size: 66, blur: 2, duration: 6, top: '66%', left: '74%', rotate: 16, depth: 0.65, spin: -140 },
 ];
 
-const LINES = ['Your Fitness', 'Journey,', 'Anywhere', 'Anytime'];
+const LINES = ['Your Fitness','Journey,', 'Anywhere', 'Anytime'];
 
 const TOKENS = [
   { t: 'Personalised' }, { t: 'workouts,' },
-  { img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=200&h=200&fit=crop&crop=faces', alt: 'progress tracking' }, { t: 'progress,' }, { t: 'tracking,' },
+  { img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=200&h=200&fit=crop&crop=faces', alt: 'progress tracking' },{ t: 'progress,' },{ t: 'tracking,' },
   { img: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=200&h=200&fit=crop', alt: 'Mom and baby' },
   { t: 'and' }, { t: 'expert' }, { t: 'support' }, { t: 'all' }, { t: 'in' }, { t: 'one' }, { t: 'app' }
 ];
@@ -174,6 +189,7 @@ const TOKENS = [
 const TOTAL_WORDS = TOKENS.filter((tok) => tok.t).length;
 const TOTAL_IMAGES = TOKENS.filter((tok) => tok.img).length;
 
+/* Max inline width an image token expands to, in em, once fully revealed. */
 const IMAGE_MAX_WIDTH_EM = 2.6;
 const IMAGE_MAX_MARGIN_EM = 0.05;
 
@@ -185,7 +201,7 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
     <p
       className="max-w-4xl text-center leading-tight px-2"
       style={{
-        fontSize: isMobile ? 'clamp(1.35rem, 8.4vw, 3.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
+        fontSize: isMobile ? 'clamp(1.35rem, 6.4vw, 2.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         fontWeight: 800,
       }}
@@ -239,51 +255,83 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
   );
 }
 
-/* ==================================================================== */
-/*  DESKTOP EXPERIENCE — unchanged. One continuous 600vh sticky story:  */
-/*    0.00 → 0.30   headline flips/grows toward viewer                  */
-/*    0.28 → 0.38   headline + icons crossfade into the paragraph       */
+/* ------------------------------------------------------------------ */
+/*  ScrollStory — ONE continuous sticky section that drives everything  */
+/*  off a single scroll progress value:                                 */
+/*    0.00 → 0.30   headline grows/zooms toward viewer                  */
+/*    0.28 → 0.38   headline + icons crossfade into the paragraph's     */
+/*                  backdrop, in the exact same screen position         */
 /*    0.36 → 0.86   words reveal one at a time, paced by scroll         */
-/*    0.88 → 0.98   inline photos reveal sequentially                   */
-/* ==================================================================== */
-const D_TEXT_ZOOM_END = 0.30;
-const D_FADE_START = 0.28;
-const D_FADE_END = 0.38;
-const D_WORDS_START = 0.36;
-const D_WORDS_END = 0.86;
-const D_IMAGES_START = 0.88;
-const D_IMAGES_END = 0.98;
+/*    0.88 → 0.98   inline photos reveal one at a time, each with its   */
+/*                  own dedicated sub-window inside that range so the   */
+/*                  reveal is sequential and strictly scroll-driven     */
+/*  Because it's a single sticky viewport (not two stacked sections),   */
+/*  there's no hand-off gap — the paragraph backdrop appears exactly    */
+/*  when the headline dissolves, and the words then reveal gradually    */
+/*  as you keep scrolling, instead of popping in all at once.           */
+/*                                                                       */
+/*  Every value below is written straight to a DOM node's style via     */
+/*  refs — nothing here calls setState, so scrolling never triggers a   */
+/*  React re-render. Only transform/opacity/clip-path are touched       */
+/*  (compositor-only properties), which is what keeps this smooth even  */
+/*  on mid-range phones.                                                 */
+/* ------------------------------------------------------------------ */
+const TEXT_ZOOM_END = 0.30;  // headline has fully "arrived" by this point
+const FADE_START = 0.28;     // headline + icons start dissolving here
+const FADE_END = 0.38;       // ...and the paragraph's backdrop is fully in by here
+const WORDS_START = 0.36;    // words then reveal gradually, paced by scroll
+const WORDS_END = 0.86;
+const IMAGES_START = 0.88;   // photo reveal begins after all words are done
+const IMAGES_END = 0.98;
 
-function DesktopScrollStory() {
-  const headlineGroupRef = useRef(null);
-  const headlineLayerRef = useRef(null);
-  const paragraphBackdropRef = useRef(null);
+function ScrollStory() {
+  const isMobile = useIsMobile();
+
+  const headlineGroupRef = useRef(null);   // scale + rotateX target
+  const headlineLayerRef = useRef(null);   // opacity target (headline + icons layer)
+  const paragraphBackdropRef = useRef(null); // opacity target (paragraph layer)
   const iconRefs = useRef([]);
   const wordRefs = useRef([]);
   const imageWrapRefs = useRef([]);
   const imageRefs = useRef([]);
 
-  const icons = ICONS_DESKTOP;
+  const icons = isMobile ? ICONS_MOBILE : ICONS_DESKTOP;
 
   const handleProgress = (progress) => {
-    const textT = clamp(progress / D_TEXT_ZOOM_END, 0, 1);
+    // headline: starts flat/fully visible, then flips forward in 3D space as
+    // you scroll — rotated around its TOP edge so the BOTTOM edge swings
+    // toward the viewer and grows larger via perspective foreshortening,
+    // while the top edge stays anchored in place (no scaling, no drifting).
+    const textT = clamp(progress / TEXT_ZOOM_END, 0, 1);
     const textEase = smoothstep(textT);
-    const FLIP_MAX_DEG = 72;
+    const FLIP_MAX_DEG = isMobile ? 60 : 72; // slightly gentler on narrow/close viewports
     const flipDeg = textEase * FLIP_MAX_DEG;
-    const textScale = 1 + textEase * 0.8;
+    const textScale = 1 + textEase * (isMobile ? 1.1 : .8);
 
+    // fade tied to the flip itself — content starts dissolving a little
+    // right from the very first pixel of scroll, not just once it finishes
     const zoomFadeOpacity = 1 - textEase * 1;
-    const iconTravel = progress * 650;
 
-    const fadeT = clamp((progress - D_FADE_START) / (D_FADE_END - D_FADE_START), 0, 1);
+    // icons: ambient float (CSS) + scroll parallax (upward) + scroll rotation
+    const iconTravel = progress * (isMobile ? 380 : 650);
+
+    // headline/icon dissolve — a short, snappy crossfade into the paragraph's
+    // backdrop so the handoff feels instant rather than dragged out
+    const fadeT = clamp((progress - FADE_START) / (FADE_END - FADE_START), 0, 1);
     const fadeEased = smoothstep(fadeT);
 
-    const wordPhase = clamp((progress - D_WORDS_START) / (D_WORDS_END - D_WORDS_START), 0, 1);
+    // words then reveal one by one over a much longer, dedicated scroll range,
+    // so the reveal is genuinely paced by scrolling instead of compressed
+    // into the headline's fade window
+    const wordPhase = clamp((progress - WORDS_START) / (WORDS_END - WORDS_START), 0, 1);
     const wordRevealCount = Math.round(wordPhase * TOTAL_WORDS);
     const wordsComplete = wordRevealCount >= TOTAL_WORDS;
 
+    // combine: content fades a bit as it scales up, then fully dissolves
+    // during the crossfade into the paragraph
     const contentOpacity = clamp(zoomFadeOpacity * (1 - fadeEased), 0, 1);
 
+    // --- write everything directly to the DOM, no React re-render ---
     if (headlineGroupRef.current) {
       headlineGroupRef.current.style.transform = `scale(${textScale}) rotateX(${flipDeg}deg)`;
     }
@@ -310,12 +358,25 @@ function DesktopScrollStory() {
       el.style.transform = revealed ? 'translateY(0)' : 'translateY(0.35em)';
     });
 
+    // --- inline photos: each image gets its own dedicated slice of the
+    // IMAGES_START..IMAGES_END scroll range, so image N only begins
+    // expanding once image N-1 has fully finished (strictly sequential),
+    // and every frame of the expansion is a pure function of scroll
+    // progress (no CSS transitions, no time-based easing). Width itself
+    // is still adjusted on the wrapper so surrounding words reflow to
+    // make room, but that's a direct per-frame style write driven by
+    // scroll — not an animated/transitioned property — while the visual
+    // reveal of the image itself rides on clip-path + transform + opacity,
+    // which are compositor-only and don't trigger layout.
     if (TOTAL_IMAGES > 0) {
-      const perImageSpan = (D_IMAGES_END - D_IMAGES_START) / TOTAL_IMAGES;
+      const perImageSpan = (IMAGES_END - IMAGES_START) / TOTAL_IMAGES;
+
       for (let i = 0; i < TOTAL_IMAGES; i += 1) {
-        const winStart = D_IMAGES_START + i * perImageSpan;
+        const winStart = IMAGES_START + i * perImageSpan;
         const winEnd = winStart + perImageSpan;
-        const raw = wordsComplete ? clamp((progress - winStart) / (winEnd - winStart), 0, 1) : 0;
+        const raw = wordsComplete
+          ? clamp((progress - winStart) / (winEnd - winStart), 0, 1)
+          : 0;
         const eased = smoothstep(raw);
 
         const wrapEl = imageWrapRefs.current[i];
@@ -324,6 +385,7 @@ function DesktopScrollStory() {
           wrapEl.style.marginLeft = `${eased * IMAGE_MAX_MARGIN_EM}em`;
           wrapEl.style.marginRight = `${eased * IMAGE_MAX_MARGIN_EM}em`;
         }
+
         const imgEl = imageRefs.current[i];
         if (imgEl) {
           imgEl.style.opacity = eased;
@@ -338,15 +400,24 @@ function DesktopScrollStory() {
 
   return (
     <section ref={sectionRef} className="relative" style={{ height: '600vh' }}>
-      <div className="fsl-sticky sticky top-0 w-full overflow-hidden">
+      <div className="fsl-sticky sticky top-0 w-full overflow-hidden" >
+        {/* paragraph layer — fades in via the gradient overlay opacity AND
+            per-word opacity, exactly as the headline layer above it fades out */}
         <div
           ref={paragraphBackdropRef}
           className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-4 sm:px-6"
           style={{ background: SECOND_SECTION_BG, opacity: 0, willChange: 'opacity' }}
         >
-          <RevealParagraph wordRefs={wordRefs} imageWrapRefs={imageWrapRefs} imageRefs={imageRefs} isMobile={false} />
+          <RevealParagraph
+            wordRefs={wordRefs}
+            imageWrapRefs={imageWrapRefs}
+            imageRefs={imageRefs}
+            isMobile={isMobile}
+          />
         </div>
 
+        {/* headline + icons layer — dissolves away to reveal the paragraph
+            layer beneath it, in the same screen position */}
         <div ref={headlineLayerRef} className="absolute inset-0 z-20" style={{ opacity: 1, willChange: 'opacity' }}>
           {icons.map((cfg, i) => (
             <FloatingIcon
@@ -361,7 +432,10 @@ function DesktopScrollStory() {
             />
           ))}
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden px-3" style={{ perspective: '1400px' }}>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden px-3"
+            style={{ perspective: isMobile ? '900px' : '1400px' }}
+          >
             <div
               ref={headlineGroupRef}
               className="origin-top will-change-transform"
@@ -377,163 +451,13 @@ function DesktopScrollStory() {
                   key={i}
                   className="whitespace-nowrap uppercase leading-[0.92] tracking-tight text-center"
                   style={{
-                    fontSize: 'clamp(3.5rem, 11vw, 6rem)',
-                    color: '#111111',
+                    fontSize: isMobile
+                      ? 'clamp(1.9rem, 12vw, 4rem)'
+                      : 'clamp(3.5rem, 11vw, 6rem)',
+                    color: "#111111",
                     fontWeight: 800,
                     letterSpacing: '0.01em',
-                  }}
-                >
-                  {line}
-                </h1>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ==================================================================== */
-/*  MOBILE EXPERIENCE — a different, much shorter story, not a scaled  */
-/*  copy of the desktop one. Two changes account for nearly all of the  */
-/*  saved scroll distance:                                              */
-/*                                                                       */
-/*  1. Section height drops from 600vh to 190vh (~3x less scrolling).   */
-/*  2. The headline no longer plays a slow 3D "flip toward camera" —    */
-/*     that move needs a long runway to read as deliberate, and on a   */
-/*     short section it would just look like a snap. Instead the        */
-/*     headline does a quick, confident scale + fade dissolve, which    */
-/*     reads cleanly even compressed into ~15% of a short section.      */
-/*                                                                       */
-/*  Everything else keeps the same mechanism as desktop (word-by-word   */
-/*  reveal, sequential inline photo reveal, ambient icon float) so the  */
-/*  brand identity carries over — it's just paced for a thumb, not a    */
-/*  trackpad.                                                            */
-/* ==================================================================== */
-const M_FADE_START = 0.10;
-const M_FADE_END = 0.26;
-const M_WORDS_START = 0.24;
-const M_WORDS_END = 0.80;
-const M_IMAGES_START = 0.82;
-const M_IMAGES_END = 1.0;
-
-function MobileScrollStory() {
-  const headlineGroupRef = useRef(null);
-  const headlineLayerRef = useRef(null);
-  const paragraphBackdropRef = useRef(null);
-  const iconRefs = useRef([]);
-  const wordRefs = useRef([]);
-  const imageWrapRefs = useRef([]);
-  const imageRefs = useRef([]);
-
-  const icons = ICONS_MOBILE;
-
-  const handleProgress = (progress) => {
-    // quick confident scale-up + fade, no 3D flip — reads well over a
-    // short scroll distance instead of needing a long runway
-    const introT = clamp(progress / M_FADE_START, 0, 1);
-    const introEase = smoothstep(introT);
-    const textScale = 1 + introEase * 0.18;
-
-    const fadeT = clamp((progress - M_FADE_START) / (M_FADE_END - M_FADE_START), 0, 1);
-    const fadeEased = smoothstep(fadeT);
-    const contentOpacity = clamp(1 - fadeEased, 0, 1);
-
-    const iconTravel = progress * 220;
-
-    const wordPhase = clamp((progress - M_WORDS_START) / (M_WORDS_END - M_WORDS_START), 0, 1);
-    const wordRevealCount = Math.round(wordPhase * TOTAL_WORDS);
-    const wordsComplete = wordRevealCount >= TOTAL_WORDS;
-
-    if (headlineGroupRef.current) {
-      headlineGroupRef.current.style.transform = `scale(${textScale})`;
-    }
-    if (headlineLayerRef.current) {
-      headlineLayerRef.current.style.opacity = contentOpacity;
-    }
-    if (paragraphBackdropRef.current) {
-      paragraphBackdropRef.current.style.opacity = fadeEased;
-    }
-
-    iconRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const cfg = icons[i];
-      const y = iconTravel * cfg.depth * -1;
-      const spin = progress * cfg.spin;
-      el.style.transform = `translate3d(0, ${y}px, 0) rotate(${spin}deg)`;
-    });
-
-    wordRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const revealed = i < wordRevealCount;
-      el.style.opacity = revealed ? '1' : '0';
-      el.style.filter = revealed ? 'blur(0px)' : 'blur(6px)';
-      el.style.transform = revealed ? 'translateY(0)' : 'translateY(0.35em)';
-    });
-
-    if (TOTAL_IMAGES > 0) {
-      const perImageSpan = (M_IMAGES_END - M_IMAGES_START) / TOTAL_IMAGES;
-      for (let i = 0; i < TOTAL_IMAGES; i += 1) {
-        const winStart = M_IMAGES_START + i * perImageSpan;
-        const winEnd = winStart + perImageSpan;
-        const raw = wordsComplete ? clamp((progress - winStart) / (winEnd - winStart), 0, 1) : 0;
-        const eased = smoothstep(raw);
-
-        const wrapEl = imageWrapRefs.current[i];
-        if (wrapEl) {
-          wrapEl.style.width = `${eased * IMAGE_MAX_WIDTH_EM}em`;
-          wrapEl.style.marginLeft = `${eased * IMAGE_MAX_MARGIN_EM}em`;
-          wrapEl.style.marginRight = `${eased * IMAGE_MAX_MARGIN_EM}em`;
-        }
-        const imgEl = imageRefs.current[i];
-        if (imgEl) {
-          imgEl.style.opacity = eased;
-          imgEl.style.transform = `scale(${0.8 + 0.2 * eased})`;
-          imgEl.style.clipPath = `inset(0 ${(1 - eased) * 100}% 0 0)`;
-        }
-      }
-    }
-  };
-
-  const sectionRef = useScrollProgress(handleProgress);
-
-  return (
-    <section ref={sectionRef} className="relative" style={{ height: '190vh' }}>
-      <div className="fsl-sticky sticky top-0 w-full overflow-hidden">
-        <div
-          ref={paragraphBackdropRef}
-          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-4"
-          style={{ background: SECOND_SECTION_BG, opacity: 0, willChange: 'opacity' }}
-        >
-          <RevealParagraph wordRefs={wordRefs} imageWrapRefs={imageWrapRefs} imageRefs={imageRefs} isMobile={true} />
-        </div>
-
-        <div ref={headlineLayerRef} className="absolute inset-0 z-20" style={{ opacity: 1, willChange: 'opacity' }}>
-          {icons.map((cfg, i) => (
-            <FloatingIcon
-              key={i}
-              ref={(el) => (iconRefs.current[i] = el)}
-              icon={cfg.Icon}
-              size={cfg.size}
-              blur={cfg.blur}
-              duration={cfg.duration}
-              rotate={cfg.rotate}
-              style={{ top: cfg.top, left: cfg.left }}
-            />
-          ))}
-
-          <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden px-3">
-            <div ref={headlineGroupRef} className="will-change-transform" style={{ transform: 'scale(1)' }}>
-              {LINES.map((line, i) => (
-                <h1
-                  key={i}
-                  className="whitespace-nowrap uppercase leading-[0.92] tracking-tight text-center"
-                  style={{
-                    fontSize: 'clamp(1.9rem, 12vw, 4rem)',
-                    color: '#111111',
-                    fontWeight: 800,
-                    letterSpacing: '0.01em',
+                    
                   }}
                 >
                   {line}
@@ -548,20 +472,16 @@ function MobileScrollStory() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Root component — mounts one experience or the other. They're kept  */
-/*  as fully separate components (not one component with mobile-vs-    */
-/*  desktop branches inside its progress handler) so each can be tuned */
-/*  and read independently, and so the mobile one never carries the    */
-/*  desktop timing constants it doesn't need.                          */
+/*  Root component                                                     */
 /* ------------------------------------------------------------------ */
 export default function FitnessScrollLanding() {
-  const isMobile = useIsMobile();
-
   return (
     <div className="w-full" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
 
+        /* Use the small/dynamic viewport height on mobile so the sticky
+           stage isn't mis-sized by the address bar showing/hiding. */
         .fsl-sticky { height: 100vh; }
         @supports (height: 100svh) {
           .fsl-sticky { height: 100svh; }
@@ -575,6 +495,10 @@ export default function FitnessScrollLanding() {
         .fsl-float { animation: fslFloatDrift var(--dur, 6s) ease-in-out infinite; will-change: transform; }
         .fsl-reveal-word { display: inline-block; transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1); will-change: opacity, transform, filter; }
 
+        /* No CSS transitions on the image reveal — every frame's width,
+           clip-path, transform, and opacity are written directly from the
+           scroll handler above, so the reveal tracks scroll position 1:1
+           with zero added lag or overshoot. */
         .fsl-reveal-img-wrap { will-change: width; }
         .fsl-reveal-img { will-change: opacity, transform, clip-path; }
 
@@ -584,7 +508,7 @@ export default function FitnessScrollLanding() {
         }
       `}</style>
 
-      {isMobile ? <MobileScrollStory /> : <DesktopScrollStory />}
+      <ScrollStory />
     </div>
   );
 }

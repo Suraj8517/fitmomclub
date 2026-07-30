@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const ROTATE_ANCHORS = [-100, -78, -46, -16, 0];
 const SCALE_ANCHORS = [0.05, 0.3, 0.6, 0.88, 1];
@@ -25,7 +25,7 @@ function easeOutBack(t) {
   const c3 = c1 + 1;
   return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
 }
-const HEADLINE = ["healthy", "habits", "for", "all", "moms"];
+const HEADLINE = ["healthy", "habits", "for","all", "moms"];
 const LINES = [
   "science-backed weight",
   "loss wellness & nutrition ",
@@ -52,26 +52,7 @@ function getBlockWindow(index) {
   return { start, end: start + BLOCK_WINDOW };
 }
 
-/* One resize-driven boolean, not part of the scroll hot path — cheap,
-   infrequent, safe to drive a re-render. This is the switch between a
-   roomy desktop stage and a tightened-up mobile one. */
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.innerWidth < breakpoint
-  );
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    const onChange = () => setIsMobile(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [breakpoint]);
-  return isMobile;
-}
-
 export default function HeroReveal() {
-  const isMobile = useIsMobile();
-
   const containerRef = useRef(null);
   const eyebrowRef = useRef(null);
   const headlineRefs = useRef([]);
@@ -106,17 +87,18 @@ export default function HeroReveal() {
       );
       const rotate = interpolate(ROTATE_ANCHORS, local);
       const scale = interpolate(SCALE_ANCHORS, local);
+      const reveal = clamp(local * 1.6, 0, 1);
       el.style.transform = `perspective(1000px) rotateX(${rotate}deg) scaleY(${scale}) translateZ(${20 * local}px)`;
     }
 
-    // on mobile the floating images travel a shorter distance (in vh)
-    // since the whole track is shorter — otherwise they'd still be
-    // mid-exit by the time the section runs out of scroll to give them.
     function applyImage(el, progress, enterStart, enterEnd, exitVh, rotateDeg) {
       if (!el) return;
       const enterT = clamp((progress - enterStart) / (enterEnd - enterStart), 0, 1);
       const eased = easeOutBack(enterT);
       const enterOffset = (1 - eased) * 90;
+      // once settled, the image keeps traveling upward for the rest of the
+      // scroll (in viewport-height units, not its own size) so it fully
+      // clears the top of the screen instead of just drifting in place.
       const exitT = clamp((progress - enterEnd) / (1 - enterEnd), 0, 1);
       const exitEased = exitT * exitT * (3 - 2 * exitT);
       const exitDrift = exitEased * exitVh;
@@ -159,11 +141,9 @@ export default function HeroReveal() {
         });
       });
 
-      // shorter exit travel on mobile (~half) to match the shorter track
-      const exitScale = isMobile ? 0.55 : 1;
-      applyImage(img1Ref.current, p, 0.24, 0.42, 95 * exitScale, -7);
-      applyImage(img2Ref.current, p, 0.34, 0.52, 120 * exitScale, 5);
-      applyImage(img3Ref.current, p, 0.44, 0.62, 155 * exitScale, -4);
+      applyImage(img1Ref.current, p, 0.24, 0.42, 95, -7);
+      applyImage(img2Ref.current, p, 0.34, 0.52, 120, 5);
+      applyImage(img3Ref.current, p, 0.44, 0.62, 155, -4);
 
       // last stretch of scroll: hero content dissolves while the overlay
       // rises and fades in over it, so the handoff to the next section
@@ -181,6 +161,10 @@ export default function HeroReveal() {
         overlayRef.current.style.opacity = String(clamp(fadeEased * 1.6, 0, 1));
       }
 
+      // the wordmark only starts appearing once the overlay is well into
+      // view, then fades + rises + unblurs into place — a slower, softer
+      // reveal than the word-by-word text above, plus a soft downward
+      // fade mask on the glyphs themselves.
       if (overlayTextRef.current) {
         const textT = clamp((fadeEased - 0.35) / 0.65, 0, 1);
         const textEased = textT * textT * (3 - 2 * textT);
@@ -214,41 +198,33 @@ export default function HeroReveal() {
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(frameRef.current);
     };
-  }, [isMobile]);
+  }, []);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
-      <div
-        ref={containerRef}
-        className="relative"
-        style={{
-          // the mobile track is little more than half the desktop one —
-          // same choreography, condensed into less physical scrolling.
-          height: isMobile ? "150vh" : "240vh",
-          background:
-            "linear-gradient( to bottom,transparent 0%,#E3F2EF 15%,#E3F2EF 35%,#E3F2EF 60%,#f6f5f1 100%)"
-        }}
-      >
-        <div className="sticky top-0 h-screen overflow-hidden [perspective:1000px] [perspective-origin:center_top]">
+      <div ref={containerRef} className="relative h-[240vh] " style={{background: "linear-gradient( to bottom,transparent 0%,#E3F2EF 15%,#E3F2EF 35%,#E3F2EF 60%,#f6f5f1 100%)"
+}}>
+        <div className="sticky top-0 h-screen overflow-hidden  [perspective:1000px] [perspective-origin:center_top]">
           <div
             className="pointer-events-none absolute inset-0 opacity-25 mix-blend-multiply"
             style={{
               backgroundSize: "cover",
-              backgroundPosition: "center"
+              backgroundPosition: "center",
             }}
           />
 
           <div
             ref={contentRef}
-            className="relative z-10 flex h-full flex-col items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 text-center will-change-transform"
+            className="relative z-10 flex h-full flex-col items-center justify-center gap-2 px-6 text-center will-change-transform"
           >
+
             <h1
-              className="m-0 flex flex-wrap justify-center gap-x-2 sm:gap-x-4 uppercase leading-[0.85] sm:leading-[0.8] tracking-tighter"
+              className="m-0 flex flex-wrap justify-center gap-x-4 uppercase leading-[0.8] tracking-tighter"
               style={{
-                fontSize: isMobile ? "clamp(2rem, 10.5vw, 2.6rem)" : "clamp(2.8rem, 5.8vw, 62.5px)",
+                fontSize: "clamp(2.8rem, 5.8vw, 62.5px)",
                 fontWeight: 700,
                 fontFamily: '"Sora", sans-serif',
-                color: "#0B3D3B"
+                color: "#0B3D3B",
               }}
             >
               {HEADLINE.map((word, i) => (
@@ -263,17 +239,13 @@ export default function HeroReveal() {
               ))}
             </h1>
 
-            <div className="mt-1.5 sm:mt-2 flex flex-col gap-1 sm:gap-2">
+            <div className="mt-2 flex flex-col gap-2">
               {LINES.map((line, li) => (
                 <p
                   key={line}
-                  className="m-0 flex flex-wrap justify-center gap-x-2 sm:gap-x-4 uppercase leading-[1.05] sm:leading-[1]"
-                  style={{
-                    fontSize: isMobile ? "clamp(0.95rem, 4.6vw, 1.3rem)" : "clamp(1.1rem, 35.5px, 62.5px)",
-                    fontWeight: 700,
-                    fontFamily: '"Sora", sans-serif',
-                    color: "#3C6E68"
-                  }}
+                  className="m-0 flex flex-wrap justify-center gap-x-4 uppercase leading-[1]"
+                  style={{ fontSize: "clamp(1.1rem, 35.5px, 62.5px)",fontWeight: 700,
+                fontFamily: '"Sora", sans-serif', color: "#3C6E68", }}
                 >
                   {line.split(" ").map((word, wi) => (
                     <span
@@ -290,43 +262,23 @@ export default function HeroReveal() {
             </div>
           </div>
 
-          {/* Floating images: on mobile these shrink substantially and pull
-              in tight to the corners so they frame the text instead of
-              crowding it — the previous fixed max-h/max-w (12–13rem) was
-              sized for a tablet, not a phone, and would have overlapped
-              the headline. Desktop sizing/position is untouched. */}
           <img
             ref={img1Ref}
             src="https://picsum.photos/seed/gummy1/220/220"
             alt=""
-            className="pointer-events-none absolute z-20 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
-            style={
-              isMobile
-                ? { top: 0, right: "6%", height: "20vw", width: "20vw", maxHeight: 96, maxWidth: 96 }
-                : { top: 0, right: "16%" }
-            }
+            className="pointer-events-none absolute right-[16%] top-0 z-20 sm:h-[16vw] sm:w-[16vw] max-h-48 max-w-48 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img2Ref}
             src="https://picsum.photos/seed/gummy2/220/220"
             alt=""
-            className="pointer-events-none absolute z-20 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)] sm:h-[15vw] sm:w-[15vw] sm:max-h-52 sm:max-w-52"
-            style={
-              isMobile
-                ? { top: "26%", left: "3%", height: "18vw", width: "18vw", maxHeight: 84, maxWidth: 84 }
-                : { top: "30%", left: "6%" }
-            }
+            className="pointer-events-none absolute left-[6%] top-[30%] z-20 sm:h-[15vw] sm:w-[15vw] max-h-52 max-w-52 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img3Ref}
             src="https://picsum.photos/seed/gummy3/220/220"
             alt=""
-            className="pointer-events-none absolute z-20 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)] sm:h-[14vw] sm:w-[14vw] sm:max-h-44 sm:max-w-44"
-            style={
-              isMobile
-                ? { bottom: "4%", right: "5%", height: "17vw", width: "17vw", maxHeight: 78, maxWidth: 78 }
-                : { bottom: "6%", right: "10%" }
-            }
+            className="pointer-events-none absolute bottom-[6%] right-[10%] z-20 sm:h-[14vw] sm:w-[14vw] max-h-44 max-w-44 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
 
           <div
@@ -334,16 +286,18 @@ export default function HeroReveal() {
             className="pointer-events-none absolute inset-0 z-30 opacity-0"
             style={{
               transform: "translateY(100%)",
-              background:
-                "linear-gradient( to bottom,transparent 0%,#E3F2EF 15%,#E3F2EF 35%,#E3F2EF 60%,#f6f5f1 100%)"
-            }}
+              background: "linear-gradient( to bottom,transparent 0%,#E3F2EF 15%,#E3F2EF 35%,#E3F2EF 60%,#f6f5f1 100%)"
+              }}
           />
 
-          <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center" />
+          <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
+           
+          </div>
         </div>
       </div>
 
-      <div className="flex h-[10vh] items-center justify-center text-[#0B3D3B]" />
+      <div className="flex h-[10vh] items-center justify-center text-[#0B3D3B]">
+      </div>
     </div>
   );
 }
