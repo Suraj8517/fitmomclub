@@ -51,7 +51,7 @@ const translateX = -progress * 40;
       {/* ── MOBILE VERSION (< lg) ── */}
       <section className="lg:hidden bg-[#F6F5F1] px-6 py-16">
 
-        {/* Header text */}
+        {/* Header text 
         <div className="text-center mb-10">
           <h1 className="text-3xl sm:text-4xl font-normal text-[#2C2C2C] leading-[1.2] tracking-tight mb-4">
             Your Fitness Journey, <br />
@@ -73,7 +73,7 @@ const translateX = -progress * 40;
             </svg>
           </Link>
         </div>
-
+*/}
         {/* Phone images — stacked, centered, no parallax */}
         <div className="flex flex-col items-center gap-6 mb-10">
           <img
@@ -100,8 +100,8 @@ const translateX = -progress * 40;
       {/* ── DESKTOP VERSION (lg+) — original design unchanged ── */}
       <section
         ref={sectionRef}
-        className="relative w-full 2xl:min-h-[240vh] min-h-[260vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
-      >
+        className="relative w-full 2xl:min-h-[220vh] min-h-[200vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
+      >{/*
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-14 pb-2">
           <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl mb-5">
             Your Fitness Journey, <br />
@@ -121,7 +121,7 @@ const translateX = -progress * 40;
             </svg>
           </a>
         </div>
-
+*/}
         <div className="relative w-full 2xl:max-w-8xl mx-auto px-18 2xl:px-40 min-h-screen flex flex-col lg:flex-row items-center justify-between">
           <div className="flex-shrink-0 w-full 2xl:w-[42%] lg:w-[52%] pt-22 lg:pt-0 z-30">
             <h2 className="text-4xl lg:text-5xl 2xl:text-[4rem] xl:text-[3rem] font-normal text-[#1C1B1F] leading-[1.15] tracking-tight mb-6">

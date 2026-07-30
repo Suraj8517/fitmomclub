@@ -147,7 +147,7 @@ export default function WeightGoalCalculator() {
   const dirBg = result.direction === "lose" ? "bg-teal-50 border-teal-200" : result.direction === "gain" ? "bg-amber-50 border-amber-200" : "bg-stone-100 border-stone-200";
 
   return (
-    <div className="min-h-screen w-full bg-stone-50 flex items-center justify-center p-6">
+    <div className="min-h-screen w-full bg-[#f6f4f0] flex items-center justify-center p-6">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap');
         .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }

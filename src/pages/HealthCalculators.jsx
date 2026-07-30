@@ -86,7 +86,7 @@ const ACCENT_STYLES = {
 
 export default function HealthCalculators() {
   return (
-    <section className="min-h-screen bg-stone-50 font-body pt-26 pb-16 px-6">
+    <section className="min-h-screen bg-[#f6f4f0] font-body pt-26 pb-16 px-6">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap');
         .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }

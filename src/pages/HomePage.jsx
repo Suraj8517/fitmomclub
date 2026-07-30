@@ -8,6 +8,8 @@ import AppShowCaseSection from '../components/Home/AppShowCaseSection'
 import OurExpertSection from '../components/Home/OurExpertsSection'
 import CTASection from '../components/Home/CTASection'
 import CommunityStatsSection from '../components/Home/StatSection'
+import TextReveal from '../components/Home/TextReveal'
+import FitnessScrollLanding from '../components/Home/FitnessScrollHero'
 
 export default function HomePage() {
   return (
@@ -16,6 +18,8 @@ export default function HomePage() {
     <HomeHeroSecondSection/>
     <AppInterfaceSection/>
     <ProgramSection/>
+    <TextReveal/>
+        <FitnessScrollLanding/>
     <AppShowCaseSection/>
     <StorySection/>
     <CommunityStatsSection/>

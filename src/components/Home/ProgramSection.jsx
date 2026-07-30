@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Clock, Heart,
@@ -86,6 +86,39 @@ const C = {
   footerGrad: "linear-gradient(to bottom, transparent 0%, #ffffff 45%)",
 };
 
+/** Hook: fires once the ref'd element actually scrolls into the viewport (not just visible on load) */
+function useInView() {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0,
+        // Only shrink the BOTTOM edge of the viewport (top stays at 0).
+        // A -35% bottom margin means the section only counts as
+        // "entered" once its top edge has scrolled up to roughly the
+        // 65%-of-screen-height mark — i.e. it's substantially into
+        // view, not just a sliver poking up from the bottom.
+        rootMargin: "0px 0px -35% 0px",
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, inView];
+}
 
 function PlanCard({ plan, animIndex }) {
   const { icon: Icon, name, subtitle, tag, duration, features } = plan;
@@ -280,6 +313,9 @@ export default function ProgramSection() {
   const [startIndex, setStartIndex] = useState(0);
   const [animKey, setAnimKey] = useState(0);
 
+  // Scroll-triggered entrance for the whole section
+  const [sectionRef, isVisible] = useInView();
+
   const VISIBLE_DESKTOP = 3;
   const VISIBLE_MOBILE = 1;
 
@@ -309,23 +345,44 @@ export default function ProgramSection() {
   };
 
   return (
-    <section className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-24" style={{ backgroundColor: C.pageBg, }}>
+    <section
+      ref={sectionRef}
+      className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-24"
+      style={{ backgroundColor: C.pageBg }}
+    >
       <div className="mx-auto max-w-7xl">
 
         {/* Section header */}
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pb-14">
           <h1
             className="text-[2.75rem] sm:text-5xl lg:text-6xl xl:text-7xl font-semibold text-[#1d1d1f] leading-[1.07] tracking-tight max-w-5xl 2xl:max-w-6xl mb-6"
-            style={{ letterSpacing: "-0.02em" }}
+            style={{
+              letterSpacing: "-0.02em",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(28px)",
+              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0s",
+            }}
           >
             FitMom Club Plans
           </h1>
-          <p className="text-lg sm:text-xl lg:text-2xl text-[#6e6e73] leading-relaxed mb-8 max-w-3xl">
+          <p
+            className="text-lg sm:text-xl lg:text-2xl text-[#6e6e73] leading-relaxed mb-8 max-w-3xl"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(24px)",
+              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0.12s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0.12s",
+            }}
+          >
             Customized. Effective. Nurturing.<br className="hidden sm:block" /> Expert-backed solutions to fit your lifestyle.
           </p>
           <a
             href="#"
-            className="inline-flex items-center gap-2 text-[#1d1d1f] text-lg sm:text-xl font-medium hover:underline underline-offset-4 transition-all"
+            className="inline-flex items-center gap-2 text-[#1d1d1f] text-lg sm:text-xl font-medium hover:underline underline-offset-4"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(20px)",
+              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0.24s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0.24s",
+            }}
           >
             See how it works
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -336,12 +393,20 @@ export default function ProgramSection() {
 
         {/* ── MOBILE: 1 card at a time ── */}
         <div className="lg:hidden">
-          <div key={`mobile-${animKey}`} className="pt-8">
-            <PlanCard plan={plans[startIndex]} animIndex={0} />
-          </div>
+          {isVisible && (
+            <div key={`mobile-${animKey}`} className="pt-8">
+              <PlanCard plan={plans[startIndex]} animIndex={0} />
+            </div>
+          )}
 
           {/* Mobile nav */}
-          <div className="mt-8 flex items-center justify-between px-1">
+          <div
+            className="mt-8 flex items-center justify-between px-1"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transition: "opacity 0.6s ease 0.3s",
+            }}
+          >
             <NavBtn onClick={() => prev(1)} disabled={!canPrevMobile} aria-label="Previous">
               <ChevronLeft size={18} />
             </NavBtn>
@@ -379,14 +444,22 @@ export default function ProgramSection() {
 
         {/* ── DESKTOP: 3 cards with carousel ── */}
         <div className="hidden lg:block">
-          <div key={`desktop-${animKey}`} className="grid grid-cols-3 gap-7 pt-8">
-            {plans.slice(startIndex, startIndex + VISIBLE_DESKTOP).map((plan, i) => (
-              <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
-            ))}
-          </div>
+          {isVisible && (
+            <div key={`desktop-${animKey}`} className="grid grid-cols-3 gap-7 pt-8">
+              {plans.slice(startIndex, startIndex + VISIBLE_DESKTOP).map((plan, i) => (
+                <PlanCard key={startIndex + i} plan={plan} animIndex={i} />
+              ))}
+            </div>
+          )}
 
           {/* Desktop nav */}
-          <div className="mt-8 flex items-center justify-end gap-3">
+          <div
+            className="mt-8 flex items-center justify-end gap-3"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transition: "opacity 0.6s ease 0.3s",
+            }}
+          >
             <div className="flex items-center gap-2 mr-3">
               {plans.map((_, i) => {
                 const active = i >= startIndex && i < startIndex + VISIBLE_DESKTOP;
