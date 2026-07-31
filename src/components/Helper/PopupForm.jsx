@@ -281,7 +281,7 @@ export default function PopupForm({
         body.append("utm_content", trackingRef.current.utm_content);
         body.append("page_url", trackingRef.current.page_url);
 
- 
+
         await fetch(scriptURL, { method: "POST", mode: "no-cors", body });
       }
       setStatus("success");
@@ -301,7 +301,7 @@ export default function PopupForm({
     >
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-[#0B3B36]/40 backdrop-blur-sm animate-cpf-fade"
+        className="absolute inset-0 bg-[#0B3B36]/90 backdrop-blur-md animate-cpf-fade"
         onClick={closePopup}
       />
 

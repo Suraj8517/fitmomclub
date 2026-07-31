@@ -244,7 +244,7 @@ export default function HeroReveal() {
                 <p
                   key={line}
                   className="m-0 flex flex-wrap justify-center gap-x-4 uppercase leading-[1]"
-                  style={{ fontSize: "clamp(1.1rem, 62.5px, 62.5px)",fontWeight: 700,
+                  style={{ fontSize: "clamp(1.1rem, 36.5px, 62.5px)",fontWeight: 700,
                 fontFamily: '"Sora", sans-serif', color: "#3C6E68", }}
                 >
                   {line.split(" ").map((word, wi) => (

@@ -201,7 +201,7 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
     <p
       className="max-w-4xl text-center leading-tight px-2"
       style={{
-        fontSize: isMobile ? 'clamp(1.35rem, 6.4vw, 2.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
+        fontSize: isMobile ? 'clamp(2.3rem, 6.4vw, 2.9rem)' : 'clamp(1.75rem, 3.4vw, 2.75rem)',
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         fontWeight: 800,
       }}
@@ -255,27 +255,7 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  ScrollStory — ONE continuous sticky section that drives everything  */
-/*  off a single scroll progress value:                                 */
-/*    0.00 → 0.30   headline grows/zooms toward viewer                  */
-/*    0.28 → 0.38   headline + icons crossfade into the paragraph's     */
-/*                  backdrop, in the exact same screen position         */
-/*    0.36 → 0.86   words reveal one at a time, paced by scroll         */
-/*    0.88 → 0.98   inline photos reveal one at a time, each with its   */
-/*                  own dedicated sub-window inside that range so the   */
-/*                  reveal is sequential and strictly scroll-driven     */
-/*  Because it's a single sticky viewport (not two stacked sections),   */
-/*  there's no hand-off gap — the paragraph backdrop appears exactly    */
-/*  when the headline dissolves, and the words then reveal gradually    */
-/*  as you keep scrolling, instead of popping in all at once.           */
-/*                                                                       */
-/*  Every value below is written straight to a DOM node's style via     */
-/*  refs — nothing here calls setState, so scrolling never triggers a   */
-/*  React re-render. Only transform/opacity/clip-path are touched       */
-/*  (compositor-only properties), which is what keeps this smooth even  */
-/*  on mid-range phones.                                                 */
-/* ------------------------------------------------------------------ */
+
 const TEXT_ZOOM_END = 0.30;  // headline has fully "arrived" by this point
 const FADE_START = 0.28;     // headline + icons start dissolving here
 const FADE_END = 0.38;       // ...and the paragraph's backdrop is fully in by here
@@ -298,10 +278,7 @@ function ScrollStory() {
   const icons = isMobile ? ICONS_MOBILE : ICONS_DESKTOP;
 
   const handleProgress = (progress) => {
-    // headline: starts flat/fully visible, then flips forward in 3D space as
-    // you scroll — rotated around its TOP edge so the BOTTOM edge swings
-    // toward the viewer and grows larger via perspective foreshortening,
-    // while the top edge stays anchored in place (no scaling, no drifting).
+ 
     const textT = clamp(progress / TEXT_ZOOM_END, 0, 1);
     const textEase = smoothstep(textT);
     const FLIP_MAX_DEG = isMobile ? 60 : 72; // slightly gentler on narrow/close viewports
@@ -358,16 +335,6 @@ function ScrollStory() {
       el.style.transform = revealed ? 'translateY(0)' : 'translateY(0.35em)';
     });
 
-    // --- inline photos: each image gets its own dedicated slice of the
-    // IMAGES_START..IMAGES_END scroll range, so image N only begins
-    // expanding once image N-1 has fully finished (strictly sequential),
-    // and every frame of the expansion is a pure function of scroll
-    // progress (no CSS transitions, no time-based easing). Width itself
-    // is still adjusted on the wrapper so surrounding words reflow to
-    // make room, but that's a direct per-frame style write driven by
-    // scroll — not an animated/transitioned property — while the visual
-    // reveal of the image itself rides on clip-path + transform + opacity,
-    // which are compositor-only and don't trigger layout.
     if (TOTAL_IMAGES > 0) {
       const perImageSpan = (IMAGES_END - IMAGES_START) / TOTAL_IMAGES;
 

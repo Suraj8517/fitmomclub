@@ -86,6 +86,11 @@ const C = {
   footerGrad: "linear-gradient(to bottom, transparent 0%, #ffffff 45%)",
 };
 
+// How long the container's own entrance animation runs, so the button
+// knows exactly when to start its animation afterward.
+const CONTAINER_DURATION = 0.55;
+const CONTAINER_GAP = 0.08; // small breathing room between the two
+
 /** Hook: fires once the ref'd element actually scrolls into the viewport (not just visible on load) */
 function useInView() {
   const ref = useRef(null);
@@ -95,8 +100,20 @@ function useInView() {
     const el = ref.current;
     if (!el) return;
 
+    // The observer's very first callback fires immediately upon
+    // observe() and just reports whatever the state already is at
+    // that moment — if the section happens to already be in view at
+    // page load, that alone would satisfy isIntersecting and fire the
+    // reveal instantly. Skip that first callback so the reveal only
+    // ever fires from an actual scroll-driven entrance afterward.
+    let skippedInitial = false;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!skippedInitial) {
+          skippedInitial = true;
+          return;
+        }
         if (entry.isIntersecting) {
           setInView(true);
           observer.disconnect();
@@ -129,6 +146,11 @@ function PlanCard({ plan, animIndex }) {
   const visible = expanded ? features : features.slice(0, PREVIEW_COUNT);
   const hasMore = features.length > PREVIEW_COUNT;
 
+  // Container starts at animIndex * 0.1s and takes CONTAINER_DURATION
+  // to finish. The button's own entrance waits until that's done.
+  const containerDelay = animIndex * 0.1;
+  const buttonDelay = containerDelay + CONTAINER_DURATION + CONTAINER_GAP;
+
   return (
     <div
       className="relative flex flex-col rounded-[28px]"
@@ -136,7 +158,7 @@ function PlanCard({ plan, animIndex }) {
         backgroundColor: C.bg,
         border: `1px solid ${C.border}`,
         minHeight: 540,
-        animation: `slideInRight 0.55s cubic-bezier(0.22,1,0.36,1) ${animIndex * 0.1}s both`,
+        animation: `slideInRight ${CONTAINER_DURATION}s cubic-bezier(0.22,1,0.36,1) ${containerDelay}s both`,
         transition: "box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease",
       }}
       onMouseEnter={e => {
@@ -226,10 +248,15 @@ function PlanCard({ plan, animIndex }) {
           )}
         </div>
 
-        {/* Footer CTA */}
+        {/* Footer CTA — its entrance only starts once the container's
+            own slide-in animation has finished. */}
         <div
           className="absolute bottom-0 left-0 right-0 px-6 pb-5 pt-4 rounded-b-[28px]"
-          style={{ background: C.footerGrad }}
+          style={{
+            background: C.footerGrad,
+            opacity: 0,
+            animation: `ctaFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) ${buttonDelay}s both`,
+          }}
         >
           <button
           onClick={handleConsultation}
@@ -270,6 +297,10 @@ function PlanCard({ plan, animIndex }) {
         }
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ctaFadeUp {
+          from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
