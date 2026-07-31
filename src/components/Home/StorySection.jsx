@@ -13,6 +13,8 @@ import Nutrition from "../Helper/StorySection/Nutrition";
 import Fitness from "../Helper/StorySection/Fitness";
 import Coach from "../Helper/StorySection/Coach";
 import RunningMap from "../Helper/StorySection/Expert";
+import Goals from "../Helper/StorySection/Goals";
+import Nutrition2 from "../Helper/StorySection/Nutrition2";
 const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
 const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
 const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
@@ -142,63 +144,12 @@ case "expert":
   );
     case "goals":
       return (
-        <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
-          <div className="rounded-3xl p-7 shadow-2xl" style={{ width: 300, background: "rgba(28,28,30,0.96)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-base font-semibold text-white">My Goals</p>
-              <div className="rounded-full px-3 py-1.5 text-xs" style={{ background:"rgba(20,184,166,0.15)", border:"1px solid rgba(20,184,166,0.3)", color:"#14B8A6" }}>Oct 25</div>
-            </div>
-            {[
-              [true,"Morning walk 30 min","100%"],
-              [true,"2000 kcal intake","82%"],
-              [true,"Drink 5L water","100%"],
-              [false,"Evening yoga session","0%"],
-            ].map(([done,text,pct]) => (
-              <div key={text} className="flex items-center gap-3 py-3" style={{ borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
-                <div className="rounded-full flex items-center justify-center text-xs flex-shrink-0" style={{ width:22, height:22, background:done?"rgba(20,184,166,0.2)":"rgba(255,255,255,0.08)", border:done?"none":"1.5px solid rgba(255,255,255,0.2)", color:done?"#14B8A6":"transparent" }}>
-                  {done?"✓":""}
-                </div>
-                <p className="flex-1 text-sm" style={{ color:"rgba(255,255,255,0.7)" }}>{text}</p>
-                <p className="text-sm font-bold" style={{ color:done?"#14B8A6":"rgba(255,255,255,0.3)" }}>{pct}</p>
-              </div>
-            ))}
-            <div className="flex justify-between items-center mt-4 rounded-xl p-3" style={{ background:"rgba(20,184,166,0.08)" }}>
-              <p className="text-sm" style={{ color:"rgba(255,255,255,0.5)" }}>Today's score</p>
-              <p className="text-2xl font-extrabold" style={{ color:"#14B8A6" }}>75%</p>
-            </div>
-          </div>
-        </div>
+        <Goals/>
       );
 
     case "nutrition2":
       return (
-        <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
-          <div className="rounded-3xl p-7 shadow-2xl" style={{ width: 310, background: "rgba(28,28,30,0.96)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(16px)" }}>
-            <p className="text-base font-semibold text-white mb-1">Custom Meal Plan</p>
-            <p className="text-xs mb-4" style={{ color:"rgba(255,255,255,0.35)" }}>Week 3 · Recovery Phase</p>
-            <div className="space-y-3">
-              {[
-                ["🌅","Breakfast","Oats + banana + seeds","380 kcal","#F97316"],
-                ["☀️","Lunch","Grilled tofu + quinoa bowl","520 kcal","#3B82F6"],
-                ["🌙","Dinner","Lentil soup + whole roti","460 kcal","#8B5CF6"],
-                ["🍎","Snack","Greek yogurt + nuts","210 kcal","#22C55E"],
-              ].map(([emoji,meal,desc,cal,color]) => (
-                <div key={meal} className="flex items-start gap-3 rounded-xl px-3 py-2.5" style={{ background:"rgba(255,255,255,0.05)" }}>
-                  <span className="text-xl mt-0.5">{emoji}</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">{meal}</p>
-                    <p className="text-xs mt-0.5" style={{ color:"rgba(255,255,255,0.4)" }}>{desc}</p>
-                  </div>
-                  <p className="text-xs font-semibold mt-0.5" style={{ color }}>{cal}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between items-center mt-4 rounded-xl p-3" style={{ background:"rgba(46,125,50,0.1)" }}>
-              <p className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Total daily</p>
-              <p className="text-base font-extrabold" style={{ color:"#2E7D32" }}>1570 kcal</p>
-            </div>
-          </div>
-        </div>
+       <Nutrition2/>
       );
 
     default:

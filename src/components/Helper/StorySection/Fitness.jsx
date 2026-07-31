@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Heart } from 'lucide-react'
 
-function useCountUp(target, duration = 1200, delay = 0) {
+function useCountUp(target, duration = 1200, delay = 0, enabled = true) {
   const [value, setValue] = useState(0)
   useEffect(() => {
+    if (!enabled) return
     let raf
     let start
     const timeout = setTimeout(() => {
@@ -20,29 +21,57 @@ function useCountUp(target, duration = 1200, delay = 0) {
       clearTimeout(timeout)
       cancelAnimationFrame(raf)
     }
-  }, [target, duration, delay])
+  }, [target, duration, delay, enabled])
   return value
 }
 
+// Fires once when the element is (almost) fully inside the viewport,
+// then stops observing — animations should play once on reveal, not on
+// every scroll pass.
+function useInFullView(ref, threshold = 0.98) {
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= threshold) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 0.9, threshold, 1] }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref, threshold])
+  return inView
+}
+
 export default function Fitness() {
+  const containerRef = useRef(null)
+  const inView = useInFullView(containerRef)
+
   const [mounted, setMounted] = useState(false)
   const [beat, setBeat] = useState(false)
   const [liveBpm, setLiveBpm] = useState(142)
   const [barsIn, setBarsIn] = useState(false)
   const baseBpm = 142
 
-  const bpm = useCountUp(baseBpm, 1300, 150)
-  const resting = useCountUp(62, 1000, 500)
-  const peak = useCountUp(168, 1000, 650)
+  const bpm = useCountUp(baseBpm, 1300, 150, inView)
+  const resting = useCountUp(62, 1000, 500, inView)
+  const peak = useCountUp(168, 1000, 650, inView)
 
   useEffect(() => {
+    if (!inView) return
     setMounted(true)
     const t = setTimeout(() => setBarsIn(true), 500)
     return () => clearTimeout(t)
-  }, [])
+  }, [inView])
 
   // Heartbeat pulse synced to bpm (real double-thump timing)
   useEffect(() => {
+    if (!inView) return
     const interval = 60000 / baseBpm
     const id = setInterval(() => {
       setBeat(true)
@@ -50,7 +79,7 @@ export default function Fitness() {
       setTimeout(() => setBeat(false), 180)
     }, interval)
     return () => clearInterval(id)
-  }, [])
+  }, [inView])
 
   const zones = [
     ["#3B82F6", "Zone 1"],
@@ -66,7 +95,7 @@ export default function Fitness() {
   const startOffset = circumference
 
   return (
-    <div className="absolute hidden lg:block z-30" style={{ right: "7%", top: "50%", transform: "translateY(-50%)" }}>
+    <div ref={containerRef} className="absolute hidden lg:block z-30" style={{ right: "7%", top: "50%", transform: "translateY(-50%)" }}>
       <style>{`
         @keyframes fitnessCardIn {
           0% { opacity: 0; transform: translateY(24px) scale(0.94); }

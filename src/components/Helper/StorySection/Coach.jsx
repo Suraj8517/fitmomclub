@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
-function useCountUp(target, duration = 900, delay = 0) {
+function useCountUp(target, duration = 900, delay = 0, enabled = true) {
   const [value, setValue] = useState(0)
   useEffect(() => {
+    if (!enabled) return
     let raf
     let start
     const timeout = setTimeout(() => {
@@ -19,16 +20,42 @@ function useCountUp(target, duration = 900, delay = 0) {
       clearTimeout(timeout)
       cancelAnimationFrame(raf)
     }
-  }, [target, duration, delay])
+  }, [target, duration, delay, enabled])
   return value
 }
 
-function useIntCountUp(target, duration = 900, delay = 0) {
-  const p = useCountUp(target, duration, delay)
+function useIntCountUp(target, duration = 900, delay = 0, enabled = true) {
+  const p = useCountUp(target, duration, delay, enabled)
   return Math.round(target * p)
 }
 
+// Fires once when the element is (almost) fully inside the viewport,
+// then stops observing — animations should play once on reveal, not on
+// every scroll pass.
+function useInFullView(ref, threshold = 0.98) {
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= threshold) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 0.9, threshold, 1] }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [ref, threshold])
+  return inView
+}
+
 export default function Coach() {
+  const containerRef = useRef(null)
+  const inView = useInFullView(containerRef)
+
   const [mounted, setMounted] = useState(false)
   const [barsIn, setBarsIn] = useState(false)
   const [hovered, setHovered] = useState(null)
@@ -45,19 +72,20 @@ export default function Coach() {
   const doneCount = days.filter((d) => d[2]).length
   const activeIdx = 3
 
-  const daysProgress = useIntCountUp(doneCount, 700, 300)
-  const kcal = useIntCountUp(400, 900, 850)
-  const session = useIntCountUp(32, 900, 950)
-  const streak = useIntCountUp(5, 700, 1050)
+  const daysProgress = useIntCountUp(doneCount, 700, 300, inView)
+  const kcal = useIntCountUp(400, 900, 850, inView)
+  const session = useIntCountUp(32, 900, 950, inView)
+  const streak = useIntCountUp(5, 700, 1050, inView)
 
   useEffect(() => {
+    if (!inView) return
     setMounted(true)
     const t = setTimeout(() => setBarsIn(true), 350)
     return () => clearTimeout(t)
-  }, [])
+  }, [inView])
 
   return (
-    <div className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
+    <div ref={containerRef} className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
       <style>{`
         @keyframes coachCardIn {
           0% { opacity: 0; transform: translateY(24px) scale(0.94); }
