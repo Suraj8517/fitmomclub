@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import hero from "../../assets/home/hero.jpg";
 
 const BG_IMAGE = hero;
-const SCROLL_LENGTH_VH = 300;
 const SMOOTHING = 7;
+// Small fixed gap between Phase B's headline and the pills/CTA block that
+// follows it. The block's own height is measured live (see phaseBHeightRef)
+// so this stays tight and correct at every screen size instead of relying
+// on one hardcoded number tuned for desktop.
+const PILLS_GAP = 28;
 
 const pills = [
   {
@@ -11,7 +15,7 @@ const pills = [
     bg: "bg-emerald-50",
     text: "text-emerald-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-emerald-600">
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600">
         <path
           d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"
           stroke="currentColor"
@@ -27,7 +31,7 @@ const pills = [
     bg: "bg-violet-50",
     text: "text-violet-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-violet-600">
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-600">
         <path
           d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9Z"
           stroke="currentColor"
@@ -42,7 +46,7 @@ const pills = [
     bg: "bg-sky-50",
     text: "text-sky-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-sky-600">
+      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600">
         <path
           d="M5 3v4M3 5h4M19 13v4M17 15h4M11 4l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"
           stroke="currentColor"
@@ -58,14 +62,50 @@ export default function HomeHeroSection() {
   const wrapperRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [vh, setVh] = useState(800);
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [scrollLengthVh, setScrollLengthVh] = useState(300);
 
   const targetRef = useRef(0);
   const renderedRef = useRef(0);
   const rafRef = useRef(null);
   const lastTimeRef = useRef(null);
 
+  // Live-measured height of the Phase B headline, so the pills/CTA block
+  // that follows it sits at a tight, correct offset on every screen size
+  // (mobile's smaller type means a shorter block, so it stays compact
+  // automatically instead of relying on a desktop-tuned magic number).
+  const phaseBHeightRef = useRef(220);
+  const phaseBObserverRef = useRef(null);
+  const phaseBMeasureRef = (node) => {
+    if (phaseBObserverRef.current) {
+      phaseBObserverRef.current.disconnect();
+      phaseBObserverRef.current = null;
+    }
+    if (node) {
+      const ro = new ResizeObserver((entries) => {
+        const h = entries[0]?.contentRect?.height;
+        if (h > 0) phaseBHeightRef.current = h;
+      });
+      ro.observe(node);
+      phaseBObserverRef.current = ro;
+    }
+  };
+
   useEffect(() => {
-    setVh(window.innerHeight);
+    const applyViewportState = () => {
+      setVh(window.innerHeight);
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+      // Shorter scroll runway on mobile — the sequence needs less
+      // distance to feel deliberate on a smaller, narrower screen.
+      setScrollLengthVh(mobile ? 220 : 300);
+    };
+
+    applyViewportState();
+    // Small delay so the entrance animations play right after first paint
+    // rather than racing the browser's initial layout/paint.
+    const mountTimer = requestAnimationFrame(() => setMounted(true));
 
     const updateTarget = () => {
       const el = wrapperRef.current;
@@ -91,7 +131,7 @@ export default function HomeHeroSection() {
     };
 
     const onResize = () => {
-      setVh(window.innerHeight);
+      applyViewportState();
       updateTarget();
     };
 
@@ -101,9 +141,11 @@ export default function HomeHeroSection() {
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
+      cancelAnimationFrame(mountTimer);
       window.removeEventListener("scroll", updateTarget);
       window.removeEventListener("resize", onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (phaseBObserverRef.current) phaseBObserverRef.current.disconnect();
     };
   }, []);
 
@@ -127,17 +169,60 @@ export default function HomeHeroSection() {
   const phaseBVisible = progress > 0.18;
 
   // ─── Pills + CTA — anchored just below Phase B, scroll together ────────────
-  // Offset by ~content height so they follow naturally below the text
-  // Phase B text is roughly 300px tall, pills block ~180px → total ~480px gap
-  const pillsTranslateY = easedRemap(progress, 0.20, 1.0, vh + 240, -vh * 0.6 + 240);
+  // Offset by the live-measured Phase B height + a small fixed gap, so this
+  // tracks correctly whether the headline above it is one line or two.
+  const pillsOffset = phaseBHeightRef.current + PILLS_GAP;
+  const pillsTranslateY = easedRemap(progress, 0.20, 1.0, vh + pillsOffset, -vh * 0.6 + pillsOffset);
   const pillsVisible = progress > 0.18;
 
   return (
     <section
       ref={wrapperRef}
-      style={{ height: `${SCROLL_LENGTH_VH}vh` }}
+      style={{ height: `${scrollLengthVh}vh` }}
       className="relative"
     >
+      <style>{`
+        @keyframes heroFadeUp {
+          from { opacity: 0; transform: translateY(36px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroKenBurns {
+          0%, 100% { transform: scale(1.06); }
+          50%      { transform: scale(1.14); }
+        }
+        @keyframes heroScrollCue {
+          0%, 100% { opacity: 0.45; transform: translateY(0); }
+          50%      { opacity: 1; transform: translateY(5px); }
+        }
+        .hero-fade-up {
+          opacity: 0;
+          animation: heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .hero-kenburns {
+          animation: heroKenBurns 16s ease-in-out infinite;
+        }
+        .hero-scroll-chevron {
+          animation: heroScrollCue 1.6s ease-in-out infinite;
+        }
+        .hero-pill,
+        .hero-cta {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hero-pill:hover,
+        .hero-cta:hover {
+          transform: translateY(-2px) scale(1.03);
+        }
+        .hero-pill:active,
+        .hero-cta:active {
+          transform: scale(0.97);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-fade-up { opacity: 1; animation: none; transform: none; }
+          .hero-kenburns { animation: none; }
+          .hero-scroll-chevron { animation: none; }
+        }
+      `}</style>
+
       <div className="sticky top-0 h-screen w-full overflow-hidden">
 
         {/* ── Background ── */}
@@ -155,7 +240,7 @@ export default function HomeHeroSection() {
             <img
               src={BG_IMAGE}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover object-top-right"
+              className="hero-kenburns absolute inset-0 w-full h-full object-cover object-top-right"
               loading="eager"
             />
           </div>
@@ -163,26 +248,28 @@ export default function HomeHeroSection() {
         </div>
 
         {/* ── Content ── */}
-        <div className="relative z-10 h-full w-full px-6 sm:px-12 lg:px-16">
+        <div className="relative z-10 h-full w-full px-5 sm:px-12 lg:px-16">
           <div className="relative h-full w-full max-w-5xl">
 
-            {/* Phase A: opening headline — fixed near bottom, exits up */}
+            {/* Phase A: opening headline — fixed near bottom, exits up on scroll,
+                fades/rises up once on page load */}
             <div
               className="absolute left-0 will-change-[opacity,transform]"
               style={{
                 bottom: "18%",
-                opacity: phaseAOpacity,
-                transform: `translateY(${phaseATranslateY}px)`,
+                opacity: mounted ? phaseAOpacity : 0,
+                transform: `translateY(${mounted ? phaseATranslateY : 24}px)`,
                 pointerEvents: phaseAOpacity > 0.05 ? "auto" : "none",
               }}
             >
-              <h1 className="max-w-2xl text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="hero-fade-up max-w-2xl text-3xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl">
                 Join the #1 Fitness &amp; Wellness
                 Community for Moms
               </h1>
             </div>
 
-            {/* Phase B: second headline — scrolls up through screen naturally */}
+            {/* Phase B: second headline — scrolls up through screen naturally,
+                pops in with a fade-up each time it re-enters view */}
             {phaseBVisible && (
               <div
                 className="absolute left-0 will-change-transform"
@@ -192,14 +279,18 @@ export default function HomeHeroSection() {
                   pointerEvents: "auto",
                 }}
               >
-                <p className="max-w-3xl text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-5xl 2xl:text-6xl">
+                <p
+                  ref={phaseBMeasureRef}
+                  className="hero-fade-up max-w-3xl text-2xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-6xl"
+                >
                   Personalised Strength, Wellness,
                   and Support — by Mom and for Mom
                 </p>
               </div>
             )}
 
-            {/* Pills + CTA — scrolls up right below Phase B */}
+            {/* Pills + CTA — scrolls up right below Phase B, each pill/button
+                pops in with a short stagger */}
             {pillsVisible && (
               <div
                 className="absolute left-0 will-change-transform"
@@ -210,11 +301,12 @@ export default function HomeHeroSection() {
                 }}
               >
                 {/* Pills */}
-                <div className="flex flex-wrap gap-3 mb-6">
-                  {pills.map((pill) => (
+                <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  {pills.map((pill, i) => (
                     <span
                       key={pill.label}
-                      className={`inline-flex items-center gap-2 rounded-full ${pill.bg} px-6 py-4 text-sm font-medium ${pill.text} shadow-sm`}
+                      className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rounded-full ${pill.bg} px-4 py-2.5 sm:px-6 sm:py-4 text-xs sm:text-sm font-medium ${pill.text} shadow-sm`}
+                      style={{ animationDelay: `${0.1 + i * 0.08}s` }}
                     >
                       {pill.icon}
                       {pill.label}
@@ -223,25 +315,32 @@ export default function HomeHeroSection() {
                 </div>
 
                 {/* Download CTA */}
-                <p className="mb-3 text-sm font-medium text-white/80">Download the app</p>
-                <div className="flex flex-wrap gap-3">
+                <p
+                  className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-sm font-medium text-white/80"
+                  style={{ animationDelay: "0.3s" }}
+                >
+                  Download the app
+                </p>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   <a
                     href="#"
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    style={{ animationDelay: "0.38s" }}
                   >
                     <PlayStoreIcon />
                     Google Play
                   </a>
                   <a
                     href="#"
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    style={{ animationDelay: "0.46s" }}
                   >
                     <AppleIcon />
                     App Store
                   </a>
                 </div>
               </div>
-              
+
             )}
 
           </div>
@@ -249,11 +348,22 @@ export default function HomeHeroSection() {
 
         {/* Scroll cue */}
         <div
-          className="absolute bottom-8 left-6 z-10 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-white sm:left-12 lg:left-16"
+          className="absolute bottom-6 left-5 z-10 flex flex-col items-start gap-1.5 text-xs font-medium uppercase tracking-widest text-white sm:bottom-8 sm:left-12 lg:left-16"
           style={{ opacity: scrollCueOpacity }}
         >
-          <span>Scroll</span>
-          <span className="h-px w-8 bg-white/60" />
+          <div className="flex flex-col items-center gap-2">
+    <svg
+            className="hero-scroll-chevron h-3 w-3 text-white/80"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>          </div>
+        
         </div>
 
       </div>
@@ -285,7 +395,7 @@ function easedRemap(value, inMin, inMax, outMin, outMax) {
 function PlayStoreIcon() {
   return (
     <svg
-      className="w-5 h-5 flex-shrink-0"
+      className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -298,7 +408,7 @@ function PlayStoreIcon() {
 function AppleIcon() {
   return (
     <svg
-      className="w-5 h-5 flex-shrink-0"
+      className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
       viewBox="0 0 24 24"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"

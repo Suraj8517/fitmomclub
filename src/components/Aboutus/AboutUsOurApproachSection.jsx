@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const stats = [
   {
@@ -21,9 +21,35 @@ const stats = [
   },
 ];
 
-function StatCard({ label, value, description }) {
+/** Fires whenever the ref'd element enters/exits the viewport,
+ *  so the reveal animation replays each time it scrolls back into view. */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.15, rootMargin: "0px 0px -10% 0px", ...options }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, inView];
+}
+
+function StatCard({ label, value, description, inView, delay }) {
   return (
-    <div className="flex-1 min-w-0 flex flex-col gap-4">
+    <div
+      className="approach-reveal-up flex-1 min-w-0 flex flex-col gap-4"
+      data-inview={inView}
+      style={{ animationDelay: delay }}
+    >
       {/* Label + divider */}
       <div>
         <p className="text-[14px] text-[#333333] font-normal mb-3 font-poppins">
@@ -46,10 +72,37 @@ function StatCard({ label, value, description }) {
 }
 
 export default function OurApproachSection() {
+  const [headerRef, headerInView] = useInView();
+  const [cardsRef, cardsInView] = useInView({ threshold: 0.1 });
+
   return (
     <section className="w-full px-6 py-16 md:px-[72px] md:py-[72px] font-poppins">
+      <style>{`
+        @keyframes approachRiseUp {
+          from { opacity: 0; transform: translate3d(0, 28px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .approach-reveal-up {
+          opacity: 0;
+        }
+        .approach-reveal-up[data-inview="true"] {
+          animation: approachRiseUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .approach-reveal-up {
+            opacity: 1 !important;
+            animation: none !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="mb-14">
+      <div
+        ref={headerRef}
+        data-inview={headerInView}
+        className="approach-reveal-up mb-14"
+      >
         <h2 className="text-[28px] md:text-[44px] font-light text-[#1a1a1a] leading-tight tracking-tight max-w-[560px] mb-4 font-poppins">
           Our Approach
         </h2>
@@ -59,9 +112,14 @@ export default function OurApproachSection() {
       </div>
 
       {/* Cards row */}
-      <div className="flex flex-col md:flex-row gap-10 md:gap-12 w-full">
+      <div ref={cardsRef} className="flex flex-col md:flex-row gap-10 md:gap-12 w-full">
         {stats.map((stat, i) => (
-          <StatCard key={i} {...stat} />
+          <StatCard
+            key={i}
+            {...stat}
+            inView={cardsInView}
+            delay={cardsInView ? `${i * 0.15}s` : "0s"}
+          />
         ))}
       </div>
     </section>

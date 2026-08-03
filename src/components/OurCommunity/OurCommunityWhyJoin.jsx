@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, FreeMode, Mousewheel } from "swiper/modules";
 import "swiper/css";
@@ -121,8 +121,64 @@ const cards = [
   },
 ];
 
-// ─── Section ──────────────────────────────────────────────────────────────────
+// ─── Reveal-on-scroll hook ──────────────────────────────────────────────────
+/** Fires once the ref'd element enters the viewport and stays true afterward.
+ *  Includes a fallback timer so content can never get stuck permanently hidden. */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
 
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.05, rootMargin: "0px 0px -5% 0px", ...options }
+    );
+
+    observer.observe(el);
+
+    // Safety net: reveal anyway after a short delay if the observer
+    // never fires for any reason (degenerate bounding box, etc.)
+    const fallback = setTimeout(() => setInView(true), 1500);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
+  }, []);
+
+  return [ref, inView];
+}
+
+// Wraps a card's content so the entrance animation lives on a plain div
+// instead of the .swiper-slide element itself (Swiper writes its own
+// inline transforms to slides for layout — animating the slide directly
+// fights with that and the animation never visibly plays).
+function RevealCard({ inView, delay, children }) {
+  return (
+    <div
+      className="wjc-card-inner"
+      style={{
+        opacity: inView ? undefined : 0,
+        animation: inView
+          ? `wjcCardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both`
+          : "none",
+        animationDelay: inView ? delay : "0s",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function WhyJoinCommunity() {
   const prevRef = useRef(null);
@@ -131,6 +187,10 @@ export default function WhyJoinCommunity() {
 
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+
+  const [headerRef, headerInView] = useInView();
+  const [desktopRef, desktopInView] = useInView();
+  const [mobileRef, mobileInView] = useInView();
 
   const setPrevRef = useCallback((node) => {
     prevRef.current = node;
@@ -191,10 +251,43 @@ export default function WhyJoinCommunity() {
           background: #1c8c77;
           opacity: 1;
         }
+
+        /* ── Reveal animations ── */
+        @keyframes wjcRiseUp {
+          from { opacity: 0; transform: translate3d(0, 26px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @keyframes wjcCardIn {
+          from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.94); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+        }
+
+        .wjc-header {
+          opacity: 0;
+        }
+        .wjc-header[data-inview="true"] {
+          animation: wjcRiseUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .wjc-card-inner {
+          height: 100%;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .wjc-header, .wjc-card-inner {
+            opacity: 1 !important;
+            animation: none !important;
+            transform: none !important;
+          }
+        }
       `}</style>
 
       {/* ── Header ── */}
-      <div className="max-w-[75%] px-2 xl:px-4 2xl:px-16 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:mb-20 mb-12 mx-auto">
+      <div
+        ref={headerRef}
+        data-inview={headerInView}
+        className="wjc-header max-w-[75%] px-2 xl:px-4 2xl:px-16 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:mb-20 mb-12 mx-auto"
+      >
         <div>
             
           <h2 className=" text-teal-700 leading-none font-[poppins] font-semibold text-[clamp(2.2rem,4.5vw,3.5rem)]">
@@ -205,7 +298,7 @@ export default function WhyJoinCommunity() {
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block" ref={desktopRef}>
         <div className="cs-clip">
           <div className="2xl:pl-76 pl-36">
             <Swiper
@@ -239,7 +332,9 @@ export default function WhyJoinCommunity() {
             >
               {cards.map((card, i) => (
                 <SwiperSlide key={i} style={{ width: 300 }}>
-                  <TestimonialCard card={card} width={"300px"} height={"500px"}/>
+                  <RevealCard inView={desktopInView} delay={`${Math.min(i, 9) * 0.07}s`}>
+                    <TestimonialCard card={card} width={"300px"} height={"500px"}/>
+                  </RevealCard>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -281,7 +376,10 @@ export default function WhyJoinCommunity() {
       </div>
 
       {/* ── MOBILE ── */}
-      <div className="lg:hidden px-4 sm:px-6 overflow-x-hidden ">
+      <div
+        className="lg:hidden px-4 sm:px-6 overflow-x-hidden "
+        ref={mobileRef}
+      >
         <Swiper
           modules={[Pagination, FreeMode, Mousewheel]}
           className="customers-swiper customers-swiper-mobile"
@@ -301,7 +399,9 @@ export default function WhyJoinCommunity() {
         >
           {cards.map((card, i) => (
             <SwiperSlide key={i}>
-              <TestimonialCard card={card} />
+              <RevealCard inView={mobileInView} delay={`${Math.min(i, 9) * 0.07}s`}>
+                <TestimonialCard card={card} />
+              </RevealCard>
             </SwiperSlide>
           ))}
         </Swiper>

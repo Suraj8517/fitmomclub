@@ -68,14 +68,40 @@ export default function TransformationSection() {
     return () => clearInterval(interval);
   }, []); // runs once, never restarts
 
+  // --- scroll-triggered reveal (runs once, independent of the image-swap interval) ---
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(node);
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="bg-[#ebeaea]">
+    <section ref={sectionRef} className="bg-[#ebeaea]">
     <div
       className="px-5 md:py-10 py-8 sm:px-10 md:px-16 lg:px-20 xl:px-24 2xl:px-32"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Header */}
-      <div className="text-center my-2 max-w-2xl mx-auto">
+      <div
+        className={`text-center my-2 max-w-2xl mx-auto transition-all duration-700 ease-out ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        }`}
+      >
         <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 mb-2">
           Real results, real moms
         </p>
@@ -91,11 +117,17 @@ export default function TransformationSection() {
           const item = allImages[imgIndex];
           const isFading = fadingCard === cardIndex;
           return (
-            <div key={cardIndex} className="relative rounded-2xl overflow-hidden group aspect-[4/3]">
+            <div
+              key={cardIndex}
+              className={`relative rounded-2xl overflow-hidden group aspect-[4/3] transition-all duration-700 ease-out ${
+                isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-[0.96]"
+              }`}
+              style={{ transitionDelay: isVisible ? `${cardIndex * 100}ms` : "0ms" }}
+            >
               <img
                 src={item.image}
                 alt={`${item.name} transformation`}
-                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover object-top transition-transform duration-500"
                 style={{
                   opacity: isFading ? 0 : 1,
                   transition: "opacity 0.4s ease, transform 0.5s ease",

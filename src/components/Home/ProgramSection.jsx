@@ -86,12 +86,32 @@ const C = {
   footerGrad: "linear-gradient(to bottom, transparent 0%, #ffffff 45%)",
 };
 
-// How long the container's own entrance animation runs, so the button
-// knows exactly when to start its animation afterward.
-const CONTAINER_DURATION = 0.55;
-const CONTAINER_GAP = 0.08; // small breathing room between the two
+// ── Timing (slowed down, cinematic pacing) ──────────────────────────
+// How long each card's own slide-in animation runs.
+const CONTAINER_DURATION = 0.9;
+// Breathing room between a card finishing and its CTA starting.
+const CONTAINER_GAP = 0.2;
+// Stagger between one card's entrance and the next card's.
+const CARD_STAGGER = 0.18;
+// How long the CTA button's fade/rise takes.
+const CTA_DURATION = 0.7;
+// Breathing room between the last CTA finishing and the nav row appearing.
+const CTA_GAP = 0.2;
 
-/** Hook: fires once the ref'd element actually scrolls into the viewport (not just visible on load) */
+// Works out when the prev/next nav row should appear: only once every
+// visible card AND its button have fully finished animating in.
+function navDelay(visibleCount) {
+  return (
+    (visibleCount - 1) * CARD_STAGGER +
+    CONTAINER_DURATION +
+    CONTAINER_GAP +
+    CTA_DURATION +
+    CTA_GAP
+  );
+}
+
+/** Hook: fires every time the ref'd element scrolls into the viewport, and
+ *  resets when it scrolls out — so the whole entrance replays each time. */
 function useInView() {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -114,10 +134,9 @@ function useInView() {
           skippedInitial = true;
           return;
         }
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
+        // Toggle both ways: animate in on entry, reset on exit, so it's
+        // ready to play again the next time it scrolls into view.
+        setInView(entry.isIntersecting);
       },
       {
         threshold: 0,
@@ -146,9 +165,10 @@ function PlanCard({ plan, animIndex }) {
   const visible = expanded ? features : features.slice(0, PREVIEW_COUNT);
   const hasMore = features.length > PREVIEW_COUNT;
 
-  // Container starts at animIndex * 0.1s and takes CONTAINER_DURATION
-  // to finish. The button's own entrance waits until that's done.
-  const containerDelay = animIndex * 0.1;
+  // Container starts at animIndex * CARD_STAGGER and takes
+  // CONTAINER_DURATION to finish. The button's own entrance waits
+  // until that's done, plus a small gap.
+  const containerDelay = animIndex * CARD_STAGGER;
   const buttonDelay = containerDelay + CONTAINER_DURATION + CONTAINER_GAP;
 
   return (
@@ -220,7 +240,7 @@ function PlanCard({ plan, animIndex }) {
               <li
                 key={i}
                 className="flex items-start gap-3"
-                style={{ animation: `fadeUp 0.4s ease ${i * 0.04}s both` }}
+                style={{ animation: `fadeUp 0.55s ease ${containerDelay + 0.15 + i * 0.06}s both` }}
               >
                 <span
                   className="mt-[9px] shrink-0 rounded-full"
@@ -249,13 +269,13 @@ function PlanCard({ plan, animIndex }) {
         </div>
 
         {/* Footer CTA — its entrance only starts once the container's
-            own slide-in animation has finished. */}
+            own slide-in animation has fully finished. */}
         <div
           className="absolute bottom-0 left-0 right-0 px-6 pb-5 pt-4 rounded-b-[28px]"
           style={{
             background: C.footerGrad,
             opacity: 0,
-            animation: `ctaFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) ${buttonDelay}s both`,
+            animation: `ctaFadeUp ${CTA_DURATION}s cubic-bezier(0.22,1,0.36,1) ${buttonDelay}s both`,
           }}
         >
           <button
@@ -292,15 +312,15 @@ function PlanCard({ plan, animIndex }) {
 
       <style>{`
         @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(60px); }
+          from { opacity: 0; transform: translateX(70px); }
           to   { opacity: 1; transform: translateX(0); }
         }
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(8px); }
+          from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes ctaFadeUp {
-          from { opacity: 0; transform: translateY(14px); }
+          from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
@@ -344,11 +364,17 @@ export default function ProgramSection() {
   const [startIndex, setStartIndex] = useState(0);
   const [animKey, setAnimKey] = useState(0);
 
-  // Scroll-triggered entrance for the whole section
+  // Scroll-triggered entrance for the whole section — replays every
+  // time the section scrolls into view, resets when it scrolls out.
   const [sectionRef, isVisible] = useInView();
 
   const VISIBLE_DESKTOP = 3;
   const VISIBLE_MOBILE = 1;
+
+  // Nav row (arrows + dots) only appears once every visible card and
+  // its "Make Appointment" button have fully finished animating in.
+  const mobileNavDelay = navDelay(VISIBLE_MOBILE);
+  const desktopNavDelay = navDelay(VISIBLE_DESKTOP);
 
   const canPrevDesktop = startIndex > 0;
   const canNextDesktop = startIndex + VISIBLE_DESKTOP < plans.length;
@@ -375,6 +401,26 @@ export default function ProgramSection() {
     setAnimKey(k => k + 1);
   };
 
+  // Slow, staggered rise for the header — slides in while visible,
+  // drops out quickly (no delay) when it scrolls out of view so it's
+  // reset and ready to replay next time.
+  const headerStyle = (delay) => ({
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "translateY(0)" : "translateY(32px)",
+    transition: isVisible
+      ? `opacity 1.1s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 1.1s cubic-bezier(0.22,1,0.36,1) ${delay}s`
+      : "opacity 0.35s ease, transform 0.35s ease",
+  });
+
+  // Nav row fade — waits for cards to finish on the way in, fades out
+  // immediately on the way out.
+  const navStyle = (delay) => ({
+    opacity: isVisible ? 1 : 0,
+    transition: isVisible
+      ? `opacity 0.7s ease ${delay}s`
+      : "opacity 0.3s ease",
+  });
+
   return (
     <section
       ref={sectionRef}
@@ -387,33 +433,20 @@ export default function ProgramSection() {
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pb-14">
           <h1
             className="text-[2.75rem] sm:text-5xl lg:text-6xl xl:text-7xl font-semibold text-[#1d1d1f] leading-[1.07] tracking-tight max-w-5xl 2xl:max-w-6xl mb-6"
-            style={{
-              letterSpacing: "-0.02em",
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(28px)",
-              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0s",
-            }}
+            style={{ letterSpacing: "-0.02em", ...headerStyle(0) }}
           >
             FitMom Club Plans
           </h1>
           <p
             className="text-lg sm:text-xl lg:text-2xl text-[#6e6e73] leading-relaxed mb-8 max-w-3xl"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(24px)",
-              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0.12s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0.12s",
-            }}
+            style={headerStyle(0.18)}
           >
             Customized. Effective. Nurturing.<br className="hidden sm:block" /> Expert-backed solutions to fit your lifestyle.
           </p>
           <a
             href="#"
             className="inline-flex items-center gap-2 text-[#1d1d1f] text-lg sm:text-xl font-medium hover:underline underline-offset-4"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 0.7s cubic-bezier(0.22,1,0.36,1) 0.24s, transform 0.7s cubic-bezier(0.22,1,0.36,1) 0.24s",
-            }}
+            style={headerStyle(0.36)}
           >
             See how it works
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -430,13 +463,11 @@ export default function ProgramSection() {
             </div>
           )}
 
-          {/* Mobile nav */}
+          {/* Mobile nav — appears only after the card + its button
+              have fully finished animating in */}
           <div
             className="mt-8 flex items-center justify-between px-1"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transition: "opacity 0.6s ease 0.3s",
-            }}
+            style={navStyle(mobileNavDelay)}
           >
             <NavBtn onClick={() => prev(1)} disabled={!canPrevMobile} aria-label="Previous">
               <ChevronLeft size={18} />
@@ -468,7 +499,10 @@ export default function ProgramSection() {
           </div>
 
           {/* Plan counter */}
-          <p className="text-center text-sm text-[#86868b] mt-4 font-medium">
+          <p
+            className="text-center text-sm text-[#86868b] mt-4 font-medium"
+            style={navStyle(mobileNavDelay + 0.1)}
+          >
             {startIndex + 1} of {plans.length}
           </p>
         </div>
@@ -483,13 +517,11 @@ export default function ProgramSection() {
             </div>
           )}
 
-          {/* Desktop nav */}
+          {/* Desktop nav — appears only after all 3 cards + their
+              buttons have fully finished animating in */}
           <div
             className="mt-8 flex items-center justify-end gap-3"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              transition: "opacity 0.6s ease 0.3s",
-            }}
+            style={navStyle(desktopNavDelay)}
           >
             <div className="flex items-center gap-2 mr-3">
               {plans.map((_, i) => {

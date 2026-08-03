@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const SOCIAL_LINKS = [
   {
@@ -54,17 +54,101 @@ const linkGroups = [
 
 const policyLinks = ["Privacy Policy", "Terms of Service Policy"];
 
+const WORDART_LETTERS = "FITMOMCLUB".split("");
+
 export default function Footer() {
   const [openGroup, setOpenGroup] = useState(null);
+  const [wordartVisible, setWordartVisible] = useState(false);
+  const [cycle, setCycle] = useState(0);
+  const wordartRef = useRef(null);
 
   const toggleGroup = (title) => {
     setOpenGroup((prev) => (prev === title ? null : title));
   };
 
+  // Only run the wordart animation while it's actually in the
+  // viewport: it plays fresh every time it scrolls into view, and
+  // resets when it scrolls out so it's ready to replay next time.
+  useEffect(() => {
+    const node = wordartRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setWordartVisible(true);
+          setCycle((c) => c + 1);
+        } else {
+          setWordartVisible(false);
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <footer className="w-full bg-black text-white font-sans">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+        .wordart-text {
+          transform: translate(-50%, 0);
+        }
+
+        @keyframes wordartDrift {
+          0%, 100% { transform: translate(-50%, 0) translateY(0); }
+          50% { transform: translate(-50%, 0) translateY(-6px); }
+        }
+
+        .wordart-text.is-visible {
+          animation: wordartDrift 7s ease-in-out ${WORDART_LETTERS.length * 0.13 + 0.9}s infinite;
+        }
+
+        .wordart-letter {
+          display: inline-block;
+          opacity: 0;
+          filter: blur(18px);
+          transform: translateY(70px) scale(1.2);
+          will-change: transform, opacity, filter;
+        }
+
+        .wordart-letter.is-visible {
+          animation: wordartLetterReveal 1.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes wordartLetterReveal {
+          0% {
+            opacity: 0;
+            filter: blur(18px);
+            transform: translateY(70px) scale(1.2);
+          }
+          55% {
+            filter: blur(3px);
+          }
+          70% {
+            opacity: 0.1;
+          }
+          100% {
+            opacity: 0.1;
+            filter: blur(0);
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .wordart-text.is-visible {
+            animation: none !important;
+          }
+          .wordart-letter {
+            opacity: 0.1;
+            filter: none !important;
+            transform: none !important;
+            animation: none !important;
+          }
+        }
       `}</style>
 
       {/* Top section */}
@@ -151,11 +235,20 @@ export default function Footer() {
       {/* Bottom wordart section */}
       <div className="relative overflow-hidden border-t border-white/10 h-[100px] sm:h-[260px] lg:h-[240px]">
         <span
+          ref={wordartRef}
           aria-hidden="true"
-          className="pointer-events-none select-none pt-12 absolute left-1/2 -translate-x-1/2 -top-3 sm:-top-8 lg:-top-14 uppercase text-white/[0.1] leading-none whitespace-nowrap text-[22vw] sm:text-[19vw] lg:text-[15vw] tracking-tight"
+          className={`wordart-text ${wordartVisible ? "is-visible" : ""} pointer-events-none select-none pt-12 absolute left-1/2 -top-3 sm:-top-8 lg:-top-14 uppercase text-white leading-none whitespace-nowrap text-[22vw] sm:text-[19vw] lg:text-[15vw] tracking-tight`}
           style={{ fontFamily: "'Anton', sans-serif" }}
         >
-          FITMOMCLUB
+          {WORDART_LETTERS.map((letter, i) => (
+            <span
+              key={`${cycle}-${i}`}
+              className={`wordart-letter ${wordartVisible ? "is-visible" : ""}`}
+              style={{ animationDelay: `${i * 0.13}s` }}
+            >
+              {letter}
+            </span>
+          ))}
         </span>
 
         <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 px-5 sm:px-10 lg:px-16 py-4 sm:py-6">

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, FreeMode, Mousewheel } from "swiper/modules";
 import "swiper/css";
@@ -123,11 +123,57 @@ const cards = [
 }
 ];
 
+// ─── Reveal-on-scroll hook ──────────────────────────────────────────────────
+/** Fires once the ref'd element enters the viewport and stays true afterward.
+ *  Only triggers from an actual scroll intersection — no timer fallback.
+ *  Never attach this ref to an element that's conditionally display:none
+ *  (e.g. "lg:hidden") — a hidden element has a zero-size bounding box and
+ *  can never register as intersecting. */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
 
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.05, rootMargin: "0px 0px -5% 0px", ...options }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, inView];
+}
+
+// Wraps a card's content so the entrance animation lives on a plain div
+// instead of the .swiper-slide element itself (Swiper writes its own
+// inline transforms to slides for layout — animating the slide directly
+// fights with that and the animation never visibly plays).
+function RevealCard({ inView, delay, children }) {
+  return (
+    <div
+      style={{
+        height: "100%",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translate3d(0,0,0) scale(1)" : "translate3d(0,40px,0) scale(0.94)",
+        transition: `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 // ─── Section ──────────────────────────────────────────────────────────────────
-
 
 export default function CustomerSection() {
   const prevRef = useRef(null);
@@ -136,6 +182,12 @@ export default function CustomerSection() {
 
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+
+  const [headerRef, headerInView] = useInView();
+  // Single wrapper ref that always renders (contains both desktop & mobile
+  // blocks), so the observer works regardless of which layout is display:none
+  // at the current breakpoint.
+  const [bodyRef, bodyInView] = useInView({ threshold: 0.02 });
 
   const setPrevRef = useCallback((node) => {
     prevRef.current = node;
@@ -196,10 +248,31 @@ export default function CustomerSection() {
           background: #1c8c77;
           opacity: 1;
         }
+
+        @keyframes csRiseUp {
+          from { opacity: 0; transform: translate3d(0, 26px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .cs-header { opacity: 0; }
+        .cs-header[data-inview="true"] {
+          animation: csRiseUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .cs-header {
+            opacity: 1 !important;
+            animation: none !important;
+            transform: none !important;
+          }
+        }
       `}</style>
 
       {/* ── Header ── */}
-      <div className="max-w-[75%] px-2 xl:px-4 2xl:px-16 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:mb-20 mb-12 mx-auto">
+      <div
+        ref={headerRef}
+        data-inview={headerInView}
+        className="cs-header max-w-[75%] px-2 xl:px-4 2xl:px-16 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:mb-20 mb-12 mx-auto"
+      >
         <div>
             
           <h2 className=" text-teal-700 leading-none font-[poppins] font-semibold text-[clamp(2.2rem,4.5vw,3.5rem)]">
@@ -209,50 +282,56 @@ export default function CustomerSection() {
        
       </div>
 
-      {/* ── DESKTOP ── */}
-      <div className="hidden lg:block">
-        <div className="cs-clip">
-          <div className="2xl:pl-76 pl-36">
-            <Swiper
-              modules={[Navigation, FreeMode, Mousewheel]}
-              className="customers-swiper"
-              freeMode={{ enabled: true, momentum: true, momentumRatio: 0.55, momentumVelocityRatio: 0.55, minimumVelocity: 0.02, sticky: false }}
-              mousewheel={{
-                forceToAxis: true,
-                sensitivity: 1,
-                releaseOnEdges: true,
-              }}
-              slidesPerView="auto"
-              slidesOffsetAfter={80}
-              spaceBetween={15}
-              grabCursor={true}
-              simulateTouch={true}
-              touchRatio={1}
-              speed={520}
-              navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
-              onSwiper={(swiper) => {
-                swiperRef.current = swiper;
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-                swiper.navigation.init();
-                swiper.navigation.update();
-              }}
-              onSlideChange={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
-              onReachBeginning={() => { setIsBeginning(true); setIsEnd(false); }}
-              onReachEnd={() => setIsEnd(true)}
-              onFromEdge={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
-            >
-              {cards.map((card, i) => (
-                <SwiperSlide key={i} style={{ width: 390 }}>
-                  <TestimonialCard card={card} width={"390px"} height={"690px"}/>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
-        </div>
+      {/* Always-rendered wrapper carries the observer ref, so it works
+          regardless of which internal layout (mobile/desktop) is visible */}
+      <div ref={bodyRef}>
 
-        <div className="flex justify-end gap-3 mt-6 px-6 xl:px-10 2xl:px-16">
-          <button ref={setPrevRef} disabled={isBeginning} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
+        {/* ── DESKTOP ── */}
+        <div className="hidden lg:block">
+          <div className="cs-clip">
+            <div className="2xl:pl-76 pl-36">
+              <Swiper
+                modules={[Navigation, FreeMode, Mousewheel]}
+                className="customers-swiper"
+                freeMode={{ enabled: true, momentum: true, momentumRatio: 0.55, momentumVelocityRatio: 0.55, minimumVelocity: 0.02, sticky: false }}
+                mousewheel={{
+                  forceToAxis: true,
+                  sensitivity: 1,
+                  releaseOnEdges: true,
+                }}
+                slidesPerView="auto"
+                slidesOffsetAfter={80}
+                spaceBetween={15}
+                grabCursor={true}
+                simulateTouch={true}
+                touchRatio={1}
+                speed={520}
+                navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
+                onSwiper={(swiper) => {
+                  swiperRef.current = swiper;
+                  swiper.params.navigation.prevEl = prevRef.current;
+                  swiper.params.navigation.nextEl = nextRef.current;
+                  swiper.navigation.init();
+                  swiper.navigation.update();
+                }}
+                onSlideChange={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
+                onReachBeginning={() => { setIsBeginning(true); setIsEnd(false); }}
+                onReachEnd={() => setIsEnd(true)}
+                onFromEdge={(swiper) => { setIsBeginning(swiper.isBeginning); setIsEnd(swiper.isEnd); }}
+              >
+                {cards.map((card, i) => (
+                  <SwiperSlide key={i} style={{ width: 390 }}>
+                    <RevealCard inView={bodyInView} delay={`${Math.min(i, 9) * 0.07}s`}>
+                      <TestimonialCard card={card} width={"390px"} height={"690px"}/>
+                    </RevealCard>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6 px-6 xl:px-10 2xl:px-16">
+            <button ref={setPrevRef} disabled={isBeginning} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -267,7 +346,7 @@ export default function CustomerSection() {
     strokeLinejoin="round"
   />
 </svg></button>
-          <button ref={setNextRef} disabled={isEnd} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
+            <button ref={setNextRef} disabled={isEnd} className="w-12 h-12 rounded-full border-2 border-teal-300 flex items-center justify-center text-violet-500 text-lg hover:border-violet-600 hover:text-violet-700 disabled:opacity-25 transition-all duration-150"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -282,34 +361,38 @@ export default function CustomerSection() {
     strokeLinejoin="round"
   />
 </svg></button>
+          </div>
         </div>
-      </div>
 
-      {/* ── MOBILE ── */}
-      <div className="lg:hidden px-4 sm:px-6 overflow-x-hidden ">
-        <Swiper
-          modules={[Pagination, FreeMode, Mousewheel]}
-          className="customers-swiper customers-swiper-mobile"
-          freeMode={{ enabled: true, momentum: true, momentumRatio: 0.5, minimumVelocity: 0.02, sticky: false }}
-          mousewheel={{
-            forceToAxis: true,
-            sensitivity: 1,
-            releaseOnEdges: true,
-          }}
-          slidesPerView={1.2}
-          spaceBetween={30}
-          grabCursor={true}
-          simulateTouch={true}
-          touchRatio={1}
-          speed={520}
-          pagination={{ clickable: true }}
-        >
-          {cards.map((card, i) => (
-            <SwiperSlide key={i}>
-              <TestimonialCard card={card} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        {/* ── MOBILE ── */}
+        <div className="lg:hidden px-4 sm:px-6 overflow-x-hidden ">
+          <Swiper
+            modules={[Pagination, FreeMode, Mousewheel]}
+            className="customers-swiper customers-swiper-mobile"
+            freeMode={{ enabled: true, momentum: true, momentumRatio: 0.5, minimumVelocity: 0.02, sticky: false }}
+            mousewheel={{
+              forceToAxis: true,
+              sensitivity: 1,
+              releaseOnEdges: true,
+            }}
+            slidesPerView={1.2}
+            spaceBetween={30}
+            grabCursor={true}
+            simulateTouch={true}
+            touchRatio={1}
+            speed={520}
+            pagination={{ clickable: true }}
+          >
+            {cards.map((card, i) => (
+              <SwiperSlide key={i}>
+                <RevealCard inView={bodyInView} delay={`${Math.min(i, 9) * 0.07}s`}>
+                  <TestimonialCard card={card} />
+                </RevealCard>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+
       </div>
     </section>
   );

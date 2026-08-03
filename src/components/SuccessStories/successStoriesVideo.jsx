@@ -110,8 +110,31 @@ export default function SuccessStoriesVideoSection() {
     track.scrollBy({ left: dir * (cardWidth + gap), behavior: "smooth" });
   };
 
+  // --- scroll-triggered reveal ---
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(node); // animate only once
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       className="w-full sm:py-16 px-6 sm:px-10 lg:px-16 relative overflow-hidden"
       style={{ background:"#EBEAEA" }}
     >
@@ -135,7 +158,11 @@ export default function SuccessStoriesVideoSection() {
       <div className="max-w-7xl mx-auto relative">
         {/* Headline */}
         <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-start py-3">
-          <div>
+          <div
+            className={`transition-all duration-700 ease-out ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
             <h1
               className="text-center sm:text-left text-5xl sm:text-6xl leading-[1.05] tracking-tight"
               style={{ color: TOKENS.ink, fontFamily: "'Fraunces', serif", fontWeight: 500, fontStyle: "italic" }}
@@ -146,7 +173,11 @@ export default function SuccessStoriesVideoSection() {
               <Squiggle color={TOKENS.sageDark} className="mt-1 max-w-[220px] 2xl:max-w-[380px] mx-auto sm:mx-0" />
             </h1>
           </div>
-          <div className="lg:pt-4 lg:pl-22">
+          <div
+            className={`lg:pt-4 lg:pl-22 transition-all duration-700 ease-out delay-150 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
             <p
               className="text-center sm:text-left max-w-lg"
               style={{ color: TOKENS.inkSoft, fontFamily: "'Work Sans', sans-serif", fontSize: 16, lineHeight: 1.7 }}
@@ -204,7 +235,15 @@ export default function SuccessStoriesVideoSection() {
                   style={{ width: `${100 / mobilePages.length}%` }}
                 >
                   {group.map((card, i) => (
-                    <MediaCard key={i} card={card} index={gIdx * 4 + i} />
+                    <div
+                      key={i}
+                      className={`transition-all duration-700 ease-out ${
+                        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                      }`}
+                      style={{ transitionDelay: isVisible ? `${(gIdx * 4 + i) * 80}ms` : "0ms" }}
+                    >
+                      <MediaCard card={card} index={gIdx * 4 + i} />
+                    </div>
                   ))}
                 </div>
               ))}
@@ -225,16 +264,23 @@ export default function SuccessStoriesVideoSection() {
           
         >
           {CARDS.map((card, i) => (
-            <MediaCard
+            <div
               key={i}
-              card={card}
-              index={i} 
-className={`shrink-0 snap-start w-[clamp(200px,14vw,250px)] ${
-  i === 0 ? "pl-4" : "pl-0"
-} ${
-  i === 7 ? "pr-4" : "pr-0"
-}`}              
-            />
+              className={`shrink-0 transition-all duration-700 ease-out ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+              style={{ transitionDelay: isVisible ? `${i * 90}ms` : "0ms" }}
+            >
+              <MediaCard
+                card={card}
+                index={i}
+                className={`snap-start w-[clamp(200px,14vw,250px)] ${
+                  i === 0 ? "pl-4" : "pl-0"
+                } ${
+                  i === 7 ? "pr-4" : "pr-0"
+                }`}
+              />
+            </div>
           ))}
         </div>
       </div>

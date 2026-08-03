@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import img1 from "../../assets/our app/mockup-left.png"
 import img2 from "../../assets/our app/mockup-right.png"
 import img3 from "../../assets/our app/mockup-mid.png"
@@ -10,6 +10,36 @@ const LEFT_SRC = img1;
 const CENTER_SRC = img3;
 const RIGHT_SRC = img2;
 const FAR_RIGHT_SRC = img5;
+
+/** Fires once the ref'd element enters the viewport and stays true afterward.
+ *  Only triggers from an actual scroll intersection — no timer fallback.
+ *  IMPORTANT: never attach this ref to an element that's conditionally
+ *  display:none (e.g. "md:hidden") — a hidden element has a zero-size
+ *  bounding box and can never register as intersecting. */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -10% 0px", ...options }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, inView];
+}
 
 function Placeholder({ label }) {
   return (
@@ -25,6 +55,34 @@ function Placeholder({ label }) {
   );
 }
 
+/**
+ * Reveal wrapper: keeps the OUTER div doing pure positioning (untouched,
+ * same math as your original code) and puts the fade/slide animation on
+ * an INNER div using a simple CSS transition driven directly by React
+ * state. This avoids CSS custom properties + calc() combos inside
+ * keyframes, which is a much more fragile technique.
+ */
+function RevealImg({ from, inView, delay, children }) {
+  const offset =
+    from === "left" ? "translateX(-60px)" :
+    from === "right" ? "translateX(60px)" :
+    "translateY(70px) scale(0.92)"; // from === "center"
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateX(0) translateY(0) scale(1)" : offset,
+        transition: `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function PhoneFan({
   heightStyle,
   sideOffset,
@@ -35,6 +93,7 @@ function PhoneFan({
   sideShadow,
   farShadow,
   centerShadow,
+  inView,
 }) {
   return (
     <div
@@ -51,11 +110,13 @@ function PhoneFan({
           filter: `drop-shadow(0 14px 28px rgba(0,0,0,${farShadow}))`,
         }}
       >
-        {FAR_LEFT_SRC ? (
-          <img src={FAR_LEFT_SRC} alt="App screen far left" className="w-full h-full object-contain" />
-        ) : (
-          <Placeholder label="Mockup image far left" />
-        )}
+        <RevealImg from="left" inView={inView} delay="0.05s">
+          {FAR_LEFT_SRC ? (
+            <img src={FAR_LEFT_SRC} alt="App screen far left" className="w-full h-full object-contain" />
+          ) : (
+            <Placeholder label="Mockup image far left" />
+          )}
+        </RevealImg>
       </div>
 
       {/* Left image */}
@@ -68,11 +129,13 @@ function PhoneFan({
           filter: `drop-shadow(0 16px 32px rgba(0,0,0,${sideShadow}))`,
         }}
       >
-        {LEFT_SRC ? (
-          <img src={LEFT_SRC} alt="App screen 1" className="w-full h-full object-contain" />
-        ) : (
-          <Placeholder label="Mockup image 1" />
-        )}
+        <RevealImg from="left" inView={inView} delay="0.18s">
+          {LEFT_SRC ? (
+            <img src={LEFT_SRC} alt="App screen 1" className="w-full h-full object-contain" />
+          ) : (
+            <Placeholder label="Mockup image 1" />
+          )}
+        </RevealImg>
       </div>
 
       {/* Center image */}
@@ -86,11 +149,13 @@ function PhoneFan({
           filter: `drop-shadow(0 24px 48px rgba(0,0,0,${centerShadow}))`,
         }}
       >
-        {CENTER_SRC ? (
-          <img src={CENTER_SRC} alt="App screen 2" className="w-full h-full object-contain" />
-        ) : (
-          <Placeholder label="Mockup image 2" />
-        )}
+        <RevealImg from="center" inView={inView} delay="0.3s">
+          {CENTER_SRC ? (
+            <img src={CENTER_SRC} alt="App screen 2" className="w-full h-full object-contain" />
+          ) : (
+            <Placeholder label="Mockup image 2" />
+          )}
+        </RevealImg>
       </div>
 
       {/* Right image */}
@@ -103,11 +168,13 @@ function PhoneFan({
           filter: `drop-shadow(0 16px 32px rgba(0,0,0,${sideShadow}))`,
         }}
       >
-        {RIGHT_SRC ? (
-          <img src={RIGHT_SRC} alt="App screen 3" className="w-full h-full object-contain" />
-        ) : (
-          <Placeholder label="Mockup image 3" />
-        )}
+        <RevealImg from="right" inView={inView} delay="0.18s">
+          {RIGHT_SRC ? (
+            <img src={RIGHT_SRC} alt="App screen 3" className="w-full h-full object-contain" />
+          ) : (
+            <Placeholder label="Mockup image 3" />
+          )}
+        </RevealImg>
       </div>
 
       {/* Far-right image */}
@@ -120,51 +187,83 @@ function PhoneFan({
           filter: `drop-shadow(0 14px 28px rgba(0,0,0,${farShadow}))`,
         }}
       >
-        {FAR_RIGHT_SRC ? (
-          <img src={FAR_RIGHT_SRC} alt="App screen far right" className="w-full h-full object-contain" />
-        ) : (
-          <Placeholder label="Mockup image far right" />
-        )}
+        <RevealImg from="right" inView={inView} delay="0.05s">
+          {FAR_RIGHT_SRC ? (
+            <img src={FAR_RIGHT_SRC} alt="App screen far right" className="w-full h-full object-contain" />
+          ) : (
+            <Placeholder label="Mockup image far right" />
+          )}
+        </RevealImg>
       </div>
     </div>
   );
 }
 
 export default function PhoneMockupSection() {
+  // Ref lives on a wrapper that is ALWAYS rendered (never display:none),
+  // so the observer can measure it on every screen size.
+  const [fanRef, fanInView] = useInView({ threshold: 0.1 });
+  const [textRef, textInView] = useInView();
+
   return (
     <section className="w-full flex flex-col items-center bg-[#F6F5F1] px-4 sm:px-6 ">
-      {/* Mobile fan — tighter spacing, hidden md+ */}
-      <div className="md:hidden w-full flex justify-center" style={{ transform: "translateY(-4%)" }}>
-        <PhoneFan
-          heightStyle="clamp(290px, 58vw, 280px)"
-          sideOffset="clamp(26px, 13vw, 60px)"
-          farOffset="clamp(48px, 24vw, 100px)"
-          sideSize={{ width: "clamp(258px, 15vw,290px)", height: "clamp(242px, 32vw, 290px)" }}
-          farSize={{ width: "clamp(220px, 13vw, 250px)", height: "clamp(200px, 27vw, 250px)" }}
-          centerSize={{ width: "clamp(290px, 18vw, 322px)", height: "clamp(266px, 38vw, 310px)" }}
-          sideShadow="0.16"
-          farShadow="0.12"
-          centerShadow="0.2"
-        />
-      </div>
+      <style>{`
+        .pm-text {
+          opacity: 0;
+        }
+        .pm-text[data-inview="true"] {
+          animation: pmTextUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes pmTextUp {
+          from { opacity: 0; transform: translate3d(0, 24px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .pm-text { opacity: 1 !important; animation: none !important; transform: none !important; }
+        }
+      `}</style>
 
-      {/* Desktop fan — original spacing, hidden below md */}
-      <div className="hidden md:flex w-full justify-center" style={{ transform: "translateY(-6%)" }}>
-        <PhoneFan
-          heightStyle="clamp(300px, 50vw, 540px)"
-          sideOffset="clamp(120px, 19vw, 210px)"
-          farOffset="clamp(220px, 34vw, 380px)"
-          sideSize={{ width: "clamp(140px, 19vw, 220px)", height: "clamp(290px, 40vw, 500px)" }}
-          farSize={{ width: "clamp(110px, 15vw, 180px)", height: "clamp(230px, 32vw, 400px)" }}
-          centerSize={{ width: "clamp(170px, 23vw, 250px)", height: "clamp(350px, 48vw, 510px)" }}
-          sideShadow="0.18"
-          farShadow="0.12"
-          centerShadow="0.22"
-        />
+      {/* Always-rendered wrapper carries the observer ref */}
+      <div ref={fanRef} className="w-full flex flex-col items-center">
+        {/* Mobile fan — tighter spacing, hidden md+ */}
+        <div className="md:hidden w-full flex justify-center" style={{ transform: "translateY(-4%)" }}>
+          <PhoneFan
+            heightStyle="clamp(290px, 58vw, 280px)"
+            sideOffset="clamp(26px, 13vw, 60px)"
+            farOffset="clamp(48px, 24vw, 100px)"
+            sideSize={{ width: "clamp(258px, 15vw,290px)", height: "clamp(242px, 32vw, 290px)" }}
+            farSize={{ width: "clamp(220px, 13vw, 250px)", height: "clamp(200px, 27vw, 250px)" }}
+            centerSize={{ width: "clamp(290px, 18vw, 322px)", height: "clamp(266px, 38vw, 310px)" }}
+            sideShadow="0.16"
+            farShadow="0.12"
+            centerShadow="0.2"
+            inView={fanInView}
+          />
+        </div>
+
+        {/* Desktop fan — original spacing, hidden below md */}
+        <div className="hidden md:flex w-full justify-center" style={{ transform: "translateY(-6%)" }}>
+          <PhoneFan
+            heightStyle="clamp(300px, 50vw, 540px)"
+            sideOffset="clamp(120px, 19vw, 210px)"
+            farOffset="clamp(220px, 34vw, 380px)"
+            sideSize={{ width: "clamp(140px, 19vw, 220px)", height: "clamp(290px, 40vw, 500px)" }}
+            farSize={{ width: "clamp(110px, 15vw, 180px)", height: "clamp(230px, 32vw, 400px)" }}
+            centerSize={{ width: "clamp(170px, 23vw, 250px)", height: "clamp(350px, 48vw, 510px)" }}
+            sideShadow="0.18"
+            farShadow="0.12"
+            centerShadow="0.22"
+            inView={fanInView}
+          />
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-2 sm:px-0 pt-4">
-        <p className="font-semibold text-sm sm:text-base md:text-lg text-center text-black/50 leading-relaxed">
+        <p
+          ref={textRef}
+          data-inview={textInView}
+          className="pm-text font-semibold text-sm sm:text-base md:text-lg text-center text-black/50 leading-relaxed"
+        >
           At FitMom Club, we believe in a unique, personalized approach to fitness. We begin by assessing your fitness level, health conditions, and personal goals to design a plan just for you. With tailored workouts and expert guidance, we help you achieve sustainable results in your wellness journey.
         </p>
       </div>

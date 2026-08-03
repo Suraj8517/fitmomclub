@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Trophy, Star, Flame, Plus, X, ArrowUpRight } from "lucide-react";
 
 const CARDS = [
@@ -48,6 +48,35 @@ const CARDS = [
     linkHref: "https://fitmomclub.co/contact/",
   },
 ];
+
+/** Fires once the ref'd element enters the viewport and stays true afterward.
+ *  Only ever triggered by an actual scroll intersection — no timer fallback,
+ *  so the animation never plays on page load if the section is off-screen. */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0, rootMargin: "0px 0px -10% 0px", ...options }
+    );
+
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, inView];
+}
 
 function Modal({ card, onClose }) {
   const handleKey = useCallback(
@@ -133,10 +162,19 @@ function Modal({ card, onClose }) {
   );
 }
 
-function InfoCard({ card, onOpen }) {
+function InfoCard({ card, onOpen, inView, delay }) {
   const Icon = card.icon;
   return (
-    <div className="flex h-full flex-col rounded-[26px] bg-white p-7 shadow-[0_2px_10px_rgba(27,21,35,0.06)] ring-1 ring-[#1B1523]/[0.04] transition-shadow hover:shadow-[0_10px_30px_rgba(27,21,35,0.1)] sm:py-4 sm:px-8">
+    <div
+      className="fms-card flex h-full flex-col rounded-[26px] bg-white p-7 shadow-[0_2px_10px_rgba(27,21,35,0.06)] ring-1 ring-[#1B1523]/[0.04] transition-shadow hover:shadow-[0_10px_30px_rgba(27,21,35,0.1)] sm:py-4 sm:px-8"
+      style={{
+        opacity: inView ? undefined : 0,
+        animation: inView
+          ? `fmsCardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both`
+          : "none",
+        animationDelay: inView ? delay : "0s",
+      }}
+    >
       <div
         className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl"
         style={{ color: card.accent }} 
@@ -172,20 +210,43 @@ function InfoCard({ card, onOpen }) {
 
 export default function FitMomSuccessSection() {
   const [activeCard, setActiveCard] = useState(null);
+  const [sectionRef, sectionInView] = useInView();
 
   return (
-    <section className=" w-full bg-[#F6F5F1] px-5 py-16 sm:px-10 sm:py-20">
+    <section
+      ref={sectionRef}
+      className=" w-full bg-[#F6F5F1] px-5 py-16 sm:px-10 sm:py-20"
+    >
       <style>{`
      @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
         @keyframes popin { from { opacity: 0; transform: translateY(14px) scale(.97) } to { opacity: 1; transform: translateY(0) scale(1) } }
+
+        @keyframes fmsCardIn {
+          from { opacity: 0; transform: translate3d(0, 36px, 0) scale(0.96); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .fms-card {
+            opacity: 1 !important;
+            animation: none !important;
+            transform: none !important;
+          }
+        }
       `}</style>
 
       <div className="mx-auto max-w-6xl">
       
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {CARDS.map((card) => (
-            <InfoCard key={card.id} card={card} onOpen={setActiveCard} />
+          {CARDS.map((card, i) => (
+            <InfoCard
+              key={card.id}
+              card={card}
+              onOpen={setActiveCard}
+              inView={sectionInView}
+              delay={`${i * 0.14}s`}
+            />
           ))}
         </div>
       </div>

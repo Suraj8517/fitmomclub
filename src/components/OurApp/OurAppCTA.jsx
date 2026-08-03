@@ -1,36 +1,63 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import img from '../../assets/our app/mockupcta.png'
 export default function CTASection({
-  eyebrow= "Get the FitMom Club App",
-  imageSrc= img,
-  imageAlt= "Person holding the FitMom Club app",
+  eyebrow = "Get the FitMom Club App",
+  imageSrc = img,
+  imageAlt = "Person holding the FitMom Club app",
 
-  left= {
+  left = {
     heading: "Download for Android",
     ctaLabel: "Get it on Android",
     onClick: () => {},
   },
 
-  right= {
+  right = {
     heading: "Download for iPhone",
     ctaLabel: "Download on iOS",
     onClick: () => {},
   },
 }) {
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(node); // animate only once
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="w-full bg-neutral-100 py-10 sm:py-14">
+    <section ref={sectionRef} className="w-full bg-neutral-100 py-10 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Headline */}
         {eyebrow && (
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-6 sm:mb-8">
+          <h2
+            className={`text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-6 sm:mb-8 transition-all duration-700 ease-out ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
             {eyebrow}
           </h2>
         )}
 
         {/* Card */}
         <div
-          className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] min-h-[500px] sm:min-h-[520px]"
+          className={`relative overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] min-h-[500px] sm:min-h-[520px] transition-all duration-700 ease-out ${
+            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-[0.98]"
+          }`}
           style={{
             background:
               "linear-gradient(120deg, #e7e7ec 0%, #dcdce1 32%, #7fbcae 62%, #0f766e 100%)",
@@ -39,7 +66,11 @@ export default function CTASection({
           {/* Text + CTA layer */}
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-6 px-6 sm:px-10 md:px-12 pt-12 sm:pt-14 md:pt-16">
             {/* Left CTA block */}
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <div
+              className={`flex flex-col items-center md:items-start text-center md:text-left transition-all duration-700 ease-out delay-150 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
               <h3 className="text-xl sm:text-4xl font-semibold leading-snug text-neutral-900 max-w-xl">
                 {left.heading}
               </h3>
@@ -53,7 +84,11 @@ export default function CTASection({
             </div>
 
             {/* Right CTA block */}
-            <div className="flex flex-col items-center md:items-end text-center md:text-right">
+            <div
+              className={`flex flex-col items-center md:items-end text-center md:text-right transition-all duration-700 ease-out delay-300 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
               <h3 className="text-xl sm:text-4xl font-semibold leading-snug text-white max-w-xl">
                 {right.heading}
               </h3>
@@ -68,7 +103,11 @@ export default function CTASection({
           </div>
 
           {/* Image layer — anchored to the bottom of the card */}
-          <div className="absolute inset-x-0 bottom-0 z-0 flex justify-center pointer-events-none">
+          <div
+            className={`absolute inset-x-0 bottom-0 z-0 flex justify-center pointer-events-none transition-all duration-700 ease-out delay-500 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            }`}
+          >
             <img
               src={imageSrc}
               alt={imageAlt}
