@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
-
+import img1 from "../../assets/home/text reveal/img1.webp"
+import img2 from "../../assets/home/text reveal/img2.webp"
+import img3 from "../../assets/home/text reveal/img3.webp"
 const ROTATE_ANCHORS = [-100, -78, -46, -16, 0];
 const SCALE_ANCHORS = [0.05, 0.3, 0.6, 0.88, 1];
 const STOPS = [0, 0.25, 0.5, 0.75, 1];
@@ -264,19 +266,19 @@ export default function HeroReveal() {
 
           <img
             ref={img1Ref}
-            src="https://picsum.photos/seed/gummy1/220/220"
+            src={img1}
             alt=""
             className="pointer-events-none absolute right-[16%] top-0 z-20 sm:h-[16vw] sm:w-[16vw] max-h-48 max-w-48 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img2Ref}
-            src="https://picsum.photos/seed/gummy2/220/220"
+            src={img2}
             alt=""
             className="pointer-events-none absolute left-[6%] top-[30%] z-20 sm:h-[15vw] sm:w-[15vw] max-h-52 max-w-52 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />
           <img
             ref={img3Ref}
-            src="https://picsum.photos/seed/gummy3/220/220"
+            src={img3}
             alt=""
             className="pointer-events-none absolute bottom-[6%] right-[10%] z-20 sm:h-[14vw] sm:w-[14vw] max-h-44 max-w-44 object-cover opacity-0 shadow-[0_18px_40px_rgba(0,0,0,0.3)]"
           />

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState, forwardRef } from 'react';
 import { Dumbbell, Zap, Trophy, Flame, HeartPulse, Timer } from 'lucide-react';
+import img1 from "../../assets/home/text reveal/img4.webp"
+import img2 from "../../assets/home/text reveal/img5.webp"
 
 /* ------------------------------------------------------------------ */
 /*  helpers                                                             */
@@ -181,8 +183,8 @@ const LINES = ['Your Fitness','Journey,', 'Anywhere', 'Anytime'];
 
 const TOKENS = [
   { t: 'Personalised' }, { t: 'workouts,' },
-  { img: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=200&h=200&fit=crop&crop=faces', alt: 'progress tracking' },{ t: 'progress,' },{ t: 'tracking,' },
-  { img: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=200&h=200&fit=crop', alt: 'Mom and baby' },
+  { img: img1, alt: 'progress tracking' },{ t: 'progress,' },{ t: 'tracking,' },
+  { img: img2, alt: 'Mom and baby' },
   { t: 'and' }, { t: 'expert' }, { t: 'support' }, { t: 'all' }, { t: 'in' }, { t: 'one' }, { t: 'app' }
 ];
 
@@ -221,7 +223,7 @@ function RevealParagraph({ wordRefs, imageWrapRefs, imageRefs, isMobile }) {
                 ref={(el) => (imageRefs.current[capturedIdx] = el)}
                 src={tok.img}
                 alt={tok.alt}
-                className="fsl-reveal-img h-[1.2em] w-[2.6em] rounded-2xl object-cover"
+                className="fsl-reveal-img h-[1.2em] w-[2.6em] rounded-2xl object-cover object-top"
                 style={{
                   opacity: 0,
                   transform: 'scale(0.8)',
