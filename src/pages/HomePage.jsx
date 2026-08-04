@@ -18,8 +18,7 @@ export default function HomePage() {
     <HomeHeroSecondSection/>
     <AppInterfaceSection/>
     <ProgramSection/>
-    <TextReveal/>
-        <FitnessScrollLanding/>
+    
     <AppShowCaseSection/>
     <StorySection/>
     <CommunityStatsSection/>

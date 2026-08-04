@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 export default function OurExpertSection() {
   return (
-    <section className="bg-[#F6F5F1] px-6 py-16 md:px-16 md:py-24 lg:px-20 lg:py-28 min-h-[60vh] items-center">
+    <section className="bg-[#F6F5F1] px-6 py-16 md:px-16 md:py-24 lg:px-20 lg:py-28 min-h-[40vh] items-center">
       <div className="max-w-8xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-10 md:gap-16">
 
         {/* Left — heading */}

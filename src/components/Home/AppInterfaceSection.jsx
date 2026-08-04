@@ -3,7 +3,7 @@ import logo from "../../assets/home/fitmom.png";
 import phoneFrame from "../../assets/home/phone-frame.png";
 
 // ── Scroll section height ────────────────────────────────────────────────────
-const SCROLL_LENGTH_VH = 280;
+const SCROLL_LENGTH_VH = 200;
 
 // ── Spring constants ─────────────────────────────────────────────────────────
 const SCROLL_SPRING = 7.5;   // exponential decay coefficient for scroll progress
@@ -497,7 +497,7 @@ export default function AppInterfaceSection() {
               }}
             />
 
-            <div className="hidden sm:block">
+            <div className="">
               <div
                 ref={mobileUIRef}
                 aria-hidden="true"
@@ -506,7 +506,7 @@ export default function AppInterfaceSection() {
                   left: 0,
                   top: 0,
                   transform: "translate(-50%, -50%)",
-                  height: `680px`,
+                  height: `780px`,
                   width: `calc(min(${78}px, 88vh) * ${5})`,
                   opacity: 0,
                   borderRadius: 40,

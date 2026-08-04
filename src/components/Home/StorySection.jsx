@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   HeartPulse,
   Sparkles,
@@ -161,6 +161,27 @@ case "expert":
 function StoryScene({ story, index }) {
   const ref = useRef(null);
   const Icon = story.icon;
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        } else {
+          // reset so the animation replays when scrolling back up/down
+          setIsVisible(false);
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
@@ -200,16 +221,34 @@ function StoryScene({ story, index }) {
           >
             {/* Badge pill */}
             <div
-              className="rounded-full backdrop-blur-sm px-5 py-4.5 font-medium text-sm shadow-lg"
-              style={{ backgroundColor: story.badgeBg, color: story.iconColor }}
+              className="rounded-full backdrop-blur-sm px-5 py-4.5 font-medium text-sm shadow-lg transition-all duration-700 ease-out"
+              style={{
+                backgroundColor: story.badgeBg,
+                color: story.iconColor,
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible
+                  ? "translateY(0) translateX(0)"
+                  : "translateY(-16px) translateX(-12px)",
+                transitionDelay: isVisible ? "80ms" : "0ms",
+              }}
             >
               {story.badge}
             </div>
 
             {/* Icon circle */}
             <div
-              className="flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-sm shadow-lg"
-              style={{ backgroundColor: story.badgeBg }}
+              className="flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-sm shadow-lg transition-all duration-700 ease-out"
+              style={{
+                backgroundColor: story.badgeBg,
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible
+                  ? "translateY(0) translateX(0) scale(1)"
+                  : "translateY(-16px) translateX(-12px) scale(0.6)",
+                transitionDelay: isVisible ? "220ms" : "0ms",
+                animation: isVisible
+                  ? "storyIconFloat 2.8s ease-in-out 900ms infinite"
+                  : "none",
+              }}
             >
               <Icon size={26} color={story.iconColor} strokeWidth={2.3} />
             </div>
@@ -221,13 +260,25 @@ function StoryScene({ story, index }) {
             style={{ zIndex: 2 }}
           >
             <h1
-              className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em]"
-              style={{ fontSize: "clamp(28px, 4vw, 64px)" }}
+              className="whitespace-pre-line font-medium text-white leading-[0.98] tracking-[-0.02em] transition-all duration-700 ease-out"
+              style={{
+                fontSize: "clamp(28px, 4vw, 64px)",
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(28px)",
+                transitionDelay: isVisible ? "260ms" : "0ms",
+              }}
             >
               {story.title}
             </h1>
 
-            <p className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl">
+            <p
+              className="mt-12 sm:text-[26px] text-[20px] mt:leading-10 leading-8 text-white/85 max-w-xl transition-all duration-700 ease-out"
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(28px)",
+                transitionDelay: isVisible ? "420ms" : "0ms",
+              }}
+            >
               {story.description}
             </p>
           </div>
@@ -242,6 +293,12 @@ function StoryScene({ story, index }) {
 export default function StorySection() {
   return (
     <section className="relative bg-[#F6F5F1]">
+      <style>{`
+        @keyframes storyIconFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-6px) scale(1.06); }
+        }
+      `}</style>
       <div className="max-w-4xl md:px-16 md:py-30 px-2 py-10">
         <h2 className="md:text-5xl text-3xl leading-8 md:leading-12 text-black/90 text-center sm:text-left">
           Why FitMom Club? Wellness Designed Just for You,{" "}
