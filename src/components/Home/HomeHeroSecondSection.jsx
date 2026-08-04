@@ -39,14 +39,14 @@ export default function HomeHeroSecondSection() {
               src={bg}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none select-none absolute top-0 right-0 h-full w-auto max-w-[70%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[65%] object-contain -z-10 will-change-transform"
+              className="hidden sm:block pointer-events-none select-none absolute top-0 right-0 h-full w-auto max-w-[70%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[65%] object-contain -z-10 will-change-transform"
               style={{ transform: `translateY(${offsetY}px)` }}
             />
         <img
               src={bg}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none select-none absolute top-0 left-0 scale-x-[-1] h-full w-auto max-w-[70%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[65%] object-contain -z-10 will-change-transform"
+              className="hidden sm:block pointer-events-none select-none absolute top-0 left-0 scale-x-[-1] h-full w-auto max-w-[70%] sm:max-w-[65%] md:max-w-[60%] lg:max-w-[65%] object-contain -z-10 will-change-transform"
               style={{ transform: `translateY(${offsetY}px)` }}
             />
       <div className="max-w-3xl mx-auto px-6 sm:px-12 lg:px-8 text-center">

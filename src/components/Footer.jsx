@@ -1,5 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-
+import React, { useEffect, useRef, useState } from "react";
+import bgdesk from "../assets/footer/bgdesk.png";
+import bgmob from "../assets/footer/bgmob.png";
+import logo from "../assets/home/fitmom.png"
+import { Link } from "react-router-dom";
+import { HashLink } from 'react-router-hash-link';
 const SOCIAL_LINKS = [
   {
     label: "Instagram",
@@ -10,7 +14,7 @@ const SOCIAL_LINKS = [
         <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
       </svg>
     ),
-    href: "#",
+    href: "https://www.instagram.com/fitmomclub.co/",
   },
   {
     label: "Facebook",
@@ -19,7 +23,7 @@ const SOCIAL_LINKS = [
         <path d="M22 12.06C22 6.505 17.523 2 12 2S2 6.505 2 12.06c0 5.022 3.657 9.184 8.438 9.94v-7.03H7.898v-2.91h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.91h-2.33V22c4.78-.756 8.437-4.918 8.437-9.94z" />
       </svg>
     ),
-    href: "#",
+    href: "https://www.facebook.com/Fitmomclub.co",
   },
   {
     label: "YouTube",
@@ -28,244 +32,224 @@ const SOCIAL_LINKS = [
         <path d="M23.498 6.186a2.994 2.994 0 0 0-2.107-2.12C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.391.521a2.994 2.994 0 0 0-2.107 2.12A31.29 31.29 0 0 0 0 12a31.29 31.29 0 0 0 .502 5.814 2.994 2.994 0 0 0 2.107 2.12c1.886.521 9.391.521 9.391.521s7.505 0 9.391-.521a2.994 2.994 0 0 0 2.107-2.12A31.29 31.29 0 0 0 24 12a31.29 31.29 0 0 0-.502-5.814zM9.6 15.568V8.432L15.818 12 9.6 15.568z" />
       </svg>
     ),
-    href: "#",
+    href: "https://www.youtube.com/channel/UCD1g7ji_oZieKaeU3vMvoQw",
   },
 ];
 
 const linkGroups = [
   {
     title: "Pages",
-    links: ["Home", "Community", "Our App", "Blogs", "FAQ", "Webinars"],
+    links: [
+      { label: "Home", href: "/" },
+      { label: "Community", href: "/community" },
+      { label: "Our App", href: "/our-app" },
+      { label: "Blogs", href: "/blogs" },
+      { label: "FAQ", href: "/FAQs" },
+      { label: "Webinars", href: "/webinars" },
+    ],
   },
   {
     title: "Resources",
-    links: ["Health Calculator", "Links"],
+    links: [
+      { label: "BMI Calculator", href: "/bmi-calculator" },
+      { label: "BMR Calculator", href: "/bmr-calculator" },
+      { label: "Body Fat Calculator", href: "/body-fat-calculator" },
+      { label: "HeartRate Calculator", href: "/heart-rate-calculator" },
+      { label: "Water Intake Calculator", href: "/water-intake-calculator" },
+      { label: "Protein Intake Calculator", href: "/protein-intake-calculator" },
+      { label: "Calorie Calculator", href: "/calorie-calculator" },
+      { label: "Weight Loss Calculator", href: "/weight-loss-calculator" },
+      { label: "Ovulation Calculator", href: "/ovulation-calculator" },
+      { label: "Menstrual Cycle Calculator", href: "/menstrual-cycle-calculator" },
+      { label: "Pregnancy Calculator", href: "/pregnancy-calculator" },
+    ],
   },
   {
     title: "Programs",
     links: [
-      "Prenatal Fitness",
-      "Postnatal Recovery",
-      "Nutrition Plans",
-      "Mind & Body",
+      { label: "Health & Lifestyle Management", href: "/fmc" },
+      { label: "Natural Conception & Fertility", href: "/miracle" },
     ],
   },
 ];
 
-const policyLinks = ["Privacy Policy", "Terms of Service Policy"];
+const policyLinks = [  { label: "Privacy Policy", href: "/privacy-policy" }, { label: "Terms & Conditions", href: "/terms-and-conditions" } ];
 
-const WORDART_LETTERS = "FITMOMCLUB".split("");
+/* ---------- parallax hook ---------- */
+
+function useParallax(speed = 0.15) {
+  const ref = useRef(null);
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const update = () => {
+      const el = ref.current;
+      if (!el) {
+        ticking = false;
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      const viewportH = window.innerHeight || document.documentElement.clientHeight;
+      // distance of the element's center from the viewport center, used
+      // to drive a gentle up/down drift as the footer scrolls into view
+      const elementCenter = rect.top + rect.height / 2;
+      const viewportCenter = viewportH / 2;
+      const delta = (viewportCenter - elementCenter) * speed;
+      setOffset(delta);
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [speed]);
+
+  return { ref, offset };
+}
+
+/* ---------- footer ---------- */
 
 export default function Footer() {
-  const [openGroup, setOpenGroup] = useState(null);
-  const [wordartVisible, setWordartVisible] = useState(false);
-  const [cycle, setCycle] = useState(0);
-  const wordartRef = useRef(null);
-
-  const toggleGroup = (title) => {
-    setOpenGroup((prev) => (prev === title ? null : title));
-  };
-
-  // Only run the wordart animation while it's actually in the
-  // viewport: it plays fresh every time it scrolls into view, and
-  // resets when it scrolls out so it's ready to replay next time.
-  useEffect(() => {
-    const node = wordartRef.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setWordartVisible(true);
-          setCycle((c) => c + 1);
-        } else {
-          setWordartVisible(false);
-        }
-      },
-      { threshold: 0.25 }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const { ref: parallaxRef, offset } = useParallax(0.12);
 
   return (
-    <footer className="w-full bg-black text-white font-sans">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+    <footer className=" px-3 py-3 sm:px-6 sm:py-6">
+      <div
+        ref={parallaxRef}
+        className="relative mx-auto overflow-hidden rounded-[26px] bg-[#0b4732] shadow-[0_20px_60px_-20px_rgba(11,60,42,0.55)]"
+      >
+        {/* ===== Background artwork (parallax) ===== */}
+        <div
+          className="absolute inset-0 will-change-transform"
+          style={{ transform: `translate3d(0, ${offset}px, 0) scale(1.15)` }}
+        >
+          <img
+            src={bgmob}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover sm:hidden"
+          />
+          <img
+            src={bgdesk}
+            alt=""
+            aria-hidden="true"
+            className="hidden h-full w-full object-cover sm:block"
+          />
+        </div>
 
-        .wordart-text {
-          transform: translate(-50%, 0);
-        }
+        {/* ===== Overlay for legibility ===== */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#04180f]/70 via-[#0b4732]/35 to-[#04180f]/85"
+        />
 
-        @keyframes wordartDrift {
-          0%, 100% { transform: translate(-50%, 0) translateY(0); }
-          50% { transform: translate(-50%, 0) translateY(-6px); }
-        }
+        {/* ===== Hero copy ===== */}
+        <div className="relative z-10 flex flex-col gap-6 px-6 pt-10 sm:px-10 sm:pt-14 md:flex-row md:items-start md:justify-between">
+          <h2 className="text-3xl font-bold leading-tight text-white drop-shadow-sm sm:text-4xl">
+            Are you ready?
+            <span className="block text-white/90">Make a change.</span>
+          </h2>
 
-        .wordart-text.is-visible {
-          animation: wordartDrift 7s ease-in-out ${WORDART_LETTERS.length * 0.13 + 0.9}s infinite;
-        }
+          <div className="flex shrink-0 items-center gap-6">
+            <HashLink
+              to="/#programs"
+              className="flex items-center gap-2 text-[14px] font-medium text-white/90 underline decoration-white/40 underline-offset-4 transition hover:text-white hover:decoration-white"
+            >
+              Our Programs
+            </HashLink>
+            <Link
+              to="/book-consultation"
+              className="rounded-lg bg-white px-5 py-2.5 text-[13.5px] font-semibold text-[#0b4732] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              Book a session
+            </Link>
+          </div>
+        </div>
 
-        .wordart-letter {
-          display: inline-block;
-          opacity: 0;
-          filter: blur(18px);
-          transform: translateY(70px) scale(1.2);
-          will-change: transform, opacity, filter;
-        }
+        {/* spacer so the illustration has room to breathe before the panel */}
+        <div className="h-[190px] sm:h-[230px]" />
 
-        .wordart-letter.is-visible {
-          animation: wordartLetterReveal 1.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes wordartLetterReveal {
-          0% {
-            opacity: 0;
-            filter: blur(18px);
-            transform: translateY(70px) scale(1.2);
-          }
-          55% {
-            filter: blur(3px);
-          }
-          70% {
-            opacity: 0.1;
-          }
-          100% {
-            opacity: 0.1;
-            filter: blur(0);
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .wordart-text.is-visible {
-            animation: none !important;
-          }
-          .wordart-letter {
-            opacity: 0.1;
-            filter: none !important;
-            transform: none !important;
-            animation: none !important;
-          }
-        }
-      `}</style>
-
-      {/* Top section */}
-      <div className="px-5 sm:px-10 lg:px-16 pt-12 sm:pt-20 pb-10 sm:pb-16">
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-10 sm:gap-12">
-          {/* Left: brand + socials */}
-          <div className="flex flex-col justify-between max-w-xs">
-            <div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
-                Stronger Moms,
-                <br />
-                Healthier Families.
-              </h2>
-              <p className="mt-3 sm:mt-4 text-sm text-white/50 leading-relaxed">
-                Join a community built for every stage of motherhood.
-              </p>
+        {/* ===== Bottom row: brand (transparent) + glass nav card ===== */}
+        <div className="relative z-10 flex flex-col gap-6 px-6 pb-6 sm:flex-row sm:items-end sm:justify-between sm:px-10 sm:pb-10">
+          {/* Brand, sits directly on the illustration */}
+          <div className="shrink-0">
+            <div className="flex items-center gap-2 text-white">
+             <img src={logo} alt="FitMom Club" className="h-18 w-18" />
+              <span className="text-[18px] font-bold uppercase tracking-[0.16em]">
+                FitMom Club
+              </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 mt-8 sm:mt-10">
-              {SOCIAL_LINKS.map(({ label, icon, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-teal-400 hover:text-black transition-colors shrink-0"
-                >
-                  {icon}
-                </a>
-              ))}
+            <div className="mt-4 flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                {SOCIAL_LINKS.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target={social.href.startsWith("http") ? "_blank" : undefined}
+                    rel={social.href.startsWith("http") ? "noreferrer" : undefined}
+                    aria-label={social.label}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 ring-1 ring-white/20 transition hover:text-white hover:ring-white/50"
+                  >
+                    {social.icon}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Right: link columns */}
-          <div className="w-full sm:w-auto grid grid-cols-1 sm:grid-cols-3 gap-x-6 sm:gap-x-10 lg:gap-x-20 gap-y-0 sm:gap-y-10 divide-y divide-white/10 sm:divide-y-0">
-            {linkGroups.map((group) => {
-              const isOpen = openGroup === group.title;
-              return (
-                <div key={group.title} className="py-4 sm:py-0">
-                  <button
-                    type="button"
-                    onClick={() => toggleGroup(group.title)}
-                    className="w-full flex items-center justify-between sm:pointer-events-none"
-                  >
-                    <h3 className="text-teal-400 text-sm font-medium">
-                      {group.title}
-                    </h3>
-                    <svg
-                      className={`w-4 h-4 text-teal-400 transition-transform sm:hidden ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  <ul
-                    className={`space-y-3 overflow-hidden transition-all sm:!max-h-none sm:!opacity-100 sm:mt-4 ${
-                      isOpen ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0 sm:opacity-100"
-                    }`}
-                  >
+          {/* Glass nav card */}
+          <div className="w-full rounded-2xl bg-[#06301f]/70 px-6 py-6 backdrop-blur-md ring-1 ring-white/10 sm:w-auto sm:px-8">
+            <div className="grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
+              {linkGroups.map((group) => (
+                <div key={group.title}>
+                  <h4 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                    {group.title}
+                  </h4>
+                  <ul className="space-y-2.5">
                     {group.links.map((link) => (
-                      <li key={link}>
-                        <a
-                          href="#"
-                          className="text-sm text-white/80 hover:text-teal-400 transition-colors"
-                        >
-                          {link}
+                      <li key={link.label}>
+                        <a href={link.href} className="text-[13.5px] text-white/85 transition hover:text-white">
+                          {link.label}
                         </a>
                       </li>
                     ))}
                   </ul>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+              ))}
 
-      {/* Bottom wordart section */}
-      <div className="relative overflow-hidden border-t border-white/10 h-[100px] sm:h-[260px] lg:h-[240px]">
-        <span
-          ref={wordartRef}
-          aria-hidden="true"
-          className={`wordart-text ${wordartVisible ? "is-visible" : ""} pointer-events-none select-none pt-12 absolute left-1/2 -top-3 sm:-top-8 lg:-top-14 uppercase text-white leading-none whitespace-nowrap text-[22vw] sm:text-[19vw] lg:text-[15vw] tracking-tight`}
-          style={{ fontFamily: "'Anton', sans-serif" }}
-        >
-          {WORDART_LETTERS.map((letter, i) => (
-            <span
-              key={`${cycle}-${i}`}
-              className={`wordart-letter ${wordartVisible ? "is-visible" : ""}`}
-              style={{ animationDelay: `${i * 0.13}s` }}
-            >
-              {letter}
-            </span>
-          ))}
-        </span>
-
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 px-5 sm:px-10 lg:px-16 py-4 sm:py-6">
-          <p className="text-[11px] sm:text-xs text-white/40 text-center sm:text-left">
-            2026 FitMomClub. All rights reserved.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
-            {policyLinks.map((link) => (
-              <a
-                key={link}
-                href="#"
-                className="text-[11px] sm:text-xs text-white/50 hover:text-teal-400 transition-colors"
-              >
-                {link}
-              </a>
-            ))}
+              {/* Legal */}
+              <div>
+                <h4 className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                  Legal
+                </h4>
+                <ul className="space-y-2.5">
+                  {policyLinks.map((label) => (
+                    <li key={label.label}>
+                      <a
+                        href={label.href}
+                        className="text-[13.5px] text-white/85 transition hover:text-white"
+                      >
+                        {label.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>

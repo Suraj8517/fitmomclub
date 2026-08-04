@@ -422,7 +422,7 @@ export default function ProgramSection() {
   });
 
   return (
-    <section
+    <section id="programs"
       ref={sectionRef}
       className="px-4 sm:px-6 md:px-8 py-10 sm:py-20 md:py-24"
       style={{ backgroundColor: C.pageBg }}

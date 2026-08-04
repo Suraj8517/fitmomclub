@@ -1,28 +1,29 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/home/fitmom.png"
+
 const NAV_LINKS = [
-  { label: "Home",links:"/" },
-  { label: "About Us",links:"about-us" },
-  { label: "Our Community", links:"community" },
+  { label: "Home", links: "/" },
+  { label: "About Us", links: "about-us" },
+  { label: "Our Community", links: "community" },
 ];
 
 const WHAT_WE_OFFER = [
-  { label: "Success Stories",links:"success-stories" },
-  { label: "Our App",links:"our-app" },
-  {label:"Webinars",links:"webinars"}
+  { label: "Success Stories", links: "success-stories" },
+  { label: "Our App", links: "our-app" },
+  { label: "Webinars", links: "webinars" }
 ];
 const Programs = [
-  { label: "Health & Lifestyle Management",links:"fmc" },
-  { label: "Natural Conception & Fertility",links:"miracle" },
+  { label: "Health & Lifestyle Management", links: "fmc" },
+  { label: "Natural Conception & Fertility", links: "miracle" },
 ];
 const RESOURCES = [
-  { label: "Blogs" ,links:"blogs"},
-  { label: "Health Calculators" ,links:"health-calculators"},
+  { label: "Blogs", links: "blogs" },
+  { label: "Health Calculators", links: "health-calculators" },
 ];
 
 const SUPPORT = [
-  { label: "FAQ",links:"FAQs" },
+  { label: "FAQ", links: "FAQs" },
 ];
 
 const DOWNLOAD_LINKS = [
@@ -46,27 +47,49 @@ const DOWNLOAD_LINKS = [
 
 const DEFAULT_THEME = "dark";
 const ROUTE_THEME_MAP = {
-  "/": "light",              
+  "/": "light",
   "/about-us": "dark",
-  "/community": "dark",
- "/terms-and-conditions":"dark",
- "/community":"light",
-
+  "/community": "light",
+  "/terms-and-conditions": "dark",
 };
 
 function getThemeForPath(pathname) {
   return ROUTE_THEME_MAP[pathname] ?? DEFAULT_THEME;
 }
 
-function MenuLink({ to, children }) {
+// Normalizes a link's `links` value ("about-us", "/") into a real path
+function toPath(link) {
+  return link === "/" ? "/" : `/${link}`;
+}
+
+// Case-insensitive, trailing-slash-tolerant comparison so route casing
+// (e.g. "FAQs" vs "/faqs") or a trailing "/" doesn't silently break the match
+function isActivePath(pathname, link) {
+  const clean = (p) => p.replace(/\/+$/, "").toLowerCase() || "/";
+  return clean(pathname) === clean(toPath(link));
+}
+
+function MenuLink({ to, children, active, delay = 0 }) {
   return (
     <Link
       to={to}
-      className="group flex items-center gap-1.5 -mx-2 px-2 py-[7px] rounded-lg text-[14.5px] font-medium text-gray-700 transition-colors hover:bg-black/[0.04] hover:text-gray-900"
+      style={{ animationDelay: `${delay}ms` }}
+      className={[
+        "stagger-item group flex items-center gap-2 -mx-2 px-2 py-[7px] rounded-lg text-[14.5px] transition-all duration-150 border",
+        active
+          ? "bg-teal-600 text-white font-semibold border-teal-700 shadow-sm"
+          : "font-medium text-gray-700 border-transparent hover:bg-black/[0.04] hover:text-gray-900 hover:translate-x-0.5",
+      ].join(" ")}
     >
+      {active && <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />}
       {children}
       <svg
-        className="w-3 h-3 opacity-0 ml-auto -translate-x-0.5 transition-all duration-150 group-hover:opacity-40 group-hover:translate-x-0"
+        className={[
+          "w-3 h-3 ml-auto -translate-x-0.5 transition-all duration-150",
+          active
+            ? "opacity-80 translate-x-0 text-white"
+            : "opacity-0 group-hover:opacity-40 group-hover:translate-x-0",
+        ].join(" ")}
         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -75,15 +98,20 @@ function MenuLink({ to, children }) {
   );
 }
 
-function MenuColumn({ title, items }) {
+function MenuColumn({ title, items, pathname, baseDelay = 0 }) {
   return (
-    <div>
+    <div className="stagger-item" style={{ animationDelay: `${baseDelay}ms` }}>
       <p className="text-[10.5px] text-teal-700/70 font-bold uppercase tracking-[0.08em] mb-1.5">
         {title}
       </p>
       <div className="flex flex-col">
-        {items.map((link) => (
-          <MenuLink key={link.label} to={link.links}>
+        {items.map((link, i) => (
+          <MenuLink
+            key={link.label}
+            to={link.links}
+            active={isActivePath(pathname, link)}
+            delay={baseDelay + (i + 1) * 30}
+          >
             {link.label}
           </MenuLink>
         ))}
@@ -120,7 +148,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (downloadRef.current && !downloadRef.current.contains(e.target)) {
@@ -134,13 +161,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  
   useEffect(() => {
     setMenuOpen(false);
     setDownloadOpen(false);
   }, [pathname]);
 
- 
   const useLightStyling = !scrolled && textTheme === "light";
 
   return (
@@ -162,8 +187,8 @@ export default function Navbar() {
                 "flex items-center gap-2.5 shrink-0",
                 pathname === "/terms-and-conditions" ? "invisible" : "",
               ].join(" ")}
-            ><img className="w-12 h-12" src={logo}/>
-              
+            >
+              <img className="w-12 h-12" src={logo} />
             </Link>
 
             {/* Right side */}
@@ -173,7 +198,8 @@ export default function Navbar() {
                 <button
                   onClick={() => { setMenuOpen((v) => !v); setDownloadOpen(false); }}
                   className={[
-                    "flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-xl transition-colors duration-200",
+                    "flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-xl transition-all duration-200 active:scale-90",
+                    menuOpen ? "rotate-90" : "rotate-0",
                     useLightStyling
                       ? "bg-white/20 hover:bg-white/30 text-white"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-700",
@@ -189,36 +215,50 @@ export default function Navbar() {
                   </svg>
                 </button>
 
-                {/* Floating dropdown card — anchored to the right of the hamburger.
-                    Width is capped relative to the viewport so it never runs off
-                    the edge of small phone screens. */}
                 {menuOpen && (
-                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-[68px] sm:top-full sm:mt-3 w-auto sm:w-[440px] max-h-[calc(100vh-84px)] sm:max-h-[80vh] overflow-y-auto bg-[#f5f0eb] rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-black/[0.06] p-4 sm:p-5 animate-fadeIn">
+                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-[68px] sm:top-full sm:mt-3 w-auto sm:w-[440px] max-h-[calc(100vh-84px)] sm:max-h-[80vh] overflow-y-auto bg-[#f5f0eb] rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] border border-black/[0.06] p-4 sm:p-5 animate-panelIn">
 
-                    {/* Main nav links — pill row, wraps on narrow screens */}
+                    {/* Main nav links — gradient pills, wraps on narrow screens */}
                     <div className="flex flex-wrap items-center gap-2 pb-4 mb-4 border-b border-black/[0.07]">
-                      {NAV_LINKS.map((link) => (
-                        <Link
-                          key={link.label}
-                          to={link.links}
-                          className="text-[13.5px] sm:text-[14px] font-semibold text-white bg-teal-800/80 hover:bg-teal-800 px-3.5 py-1.5 rounded-full border border-black/[0.05] transition-colors"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                      {NAV_LINKS.map((link, i) => {
+                        const active = isActivePath(pathname, link);
+                        return (
+                          <Link
+                            key={link.label}
+                            to={link.links}
+                            style={{
+                              animationDelay: `${i * 40}ms`,
+                              background: active
+                                ? "linear-gradient(90deg,#00d4ff,#50ffaa)"
+                                : "linear-gradient(90deg,#50ffaa,#00d4ff)",
+                            }}
+                            className={[
+                              "stagger-item flex items-center gap-1.5 text-[13.5px] sm:text-[14px] font-semibold px-3.5 py-1.5 rounded-full transition-all duration-200 hover:scale-105 hover:brightness-110 hover:shadow-lg active:scale-95",
+                              active ? "scale-105 ring-2 ring-offset-1 ring-[#062019]/70 shadow-md" : "",
+                            ].join(" ")}
+                          >
+                            {active && (
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#062019" }} />
+                            )}
+                            <span style={{ color: "#062019" }}>{link.label}</span>
+                          </Link>
+                        );
+                      })}
                     </div>
 
                     {/* Sections — single column on mobile, 2-column grid from sm up */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                      <MenuColumn title="What We Offer" items={WHAT_WE_OFFER} />
-                      <MenuColumn title="Programs" items={Programs} />
-                      <MenuColumn title="Resources" items={RESOURCES} />
-                      <MenuColumn title="Support" items={SUPPORT} />
+                      <MenuColumn title="What We Offer" items={WHAT_WE_OFFER} pathname={pathname} baseDelay={80} />
+                      <MenuColumn title="Programs" items={Programs} pathname={pathname} baseDelay={110} />
+                      <MenuColumn title="Resources" items={RESOURCES} pathname={pathname} baseDelay={140} />
+                      <MenuColumn title="Support" items={SUPPORT} pathname={pathname} baseDelay={170} />
                     </div>
 
-                    {/* Get the app — only shown here on mobile, since the
-                        standalone download button is hidden below sm */}
-                    <div className="sm:hidden mt-5 pt-4 border-t border-black/[0.07]">
+                    {/* Get the app — only shown here on mobile */}
+                    <div
+                      className="stagger-item sm:hidden mt-5 pt-4 border-t border-black/[0.07]"
+                      style={{ animationDelay: "220ms" }}
+                    >
                       <p className="text-[10.5px] text-teal-700/70 font-bold uppercase tracking-[0.08em] mb-1.5">
                         Get The App
                       </p>
@@ -227,7 +267,7 @@ export default function Navbar() {
                           <a
                             key={dl.label}
                             href="#"
-                            className="flex items-center gap-3 -mx-2 px-2 py-2 rounded-lg text-[14.5px] font-medium text-gray-700 hover:bg-black/[0.04] hover:text-gray-900 transition-colors"
+                            className="flex items-center gap-3 -mx-2 px-2 py-2 rounded-lg text-[14.5px] font-medium text-gray-700 hover:bg-black/[0.04] hover:text-gray-900 hover:translate-x-0.5 transition-all duration-150"
                           >
                             <span className="text-gray-500 shrink-0">{dl.icon}</span>
                             {dl.label}
@@ -239,17 +279,17 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-{/* Download button — desktop/tablet only; mobile users get the
-                  same links inside the hamburger menu above */}
+
+              {/* Download button — desktop/tablet only */}
               <div className="hidden sm:block relative" ref={downloadRef}>
-                <button 
+                <button
                   onClick={() => { setDownloadOpen((v) => !v); setMenuOpen(false); }}
-                  className="flex items-center gap-2 text-base font-medium px-5 py-4.5 rounded-full transition-colors duration-200 shadow-sm"
-                 style={{
-          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
-          color: "#062019",
-          
-        }}>
+                  className="flex items-center gap-2 text-base font-medium px-5 py-4.5 rounded-full transition-all duration-200 shadow-sm hover:scale-105 hover:brightness-110 hover:shadow-lg active:scale-95"
+                  style={{
+                    background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+                    color: "#062019",
+                  }}
+                >
                   Get the App
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${downloadOpen ? "rotate-180" : ""}`}
@@ -260,15 +300,16 @@ export default function Navbar() {
                 </button>
 
                 {downloadOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-fadeIn">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-panelIn">
                     <p className="text-xs text-gray-400 font-medium uppercase tracking-wide px-4 pt-1 pb-2">
                       Get the app
                     </p>
-                    {DOWNLOAD_LINKS.map((dl) => (
+                    {DOWNLOAD_LINKS.map((dl, i) => (
                       <a
                         key={dl.label}
                         href="#"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        style={{ animationDelay: `${i * 40}ms` }}
+                        className="stagger-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:translate-x-0.5 transition-all duration-150"
                       >
                         <span className="text-gray-500">{dl.icon}</span>
                         {dl.label}
@@ -283,11 +324,20 @@ export default function Navbar() {
       </nav>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-6px); }
+        @keyframes panelIn {
+          from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-panelIn { animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        @keyframes staggerIn {
+          from { opacity: 0; transform: translateY(-8px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeIn { animation: fadeIn 0.18s ease; }
+        .stagger-item {
+          opacity: 0;
+          animation: staggerIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `}</style>
     </>
   );
