@@ -48,22 +48,7 @@ const linkGroups = [
       { label: "Webinars", href: "/webinars" },
     ],
   },
-  {
-    title: "Resources",
-    links: [
-      { label: "BMI Calculator", href: "/bmi-calculator" },
-      { label: "BMR Calculator", href: "/bmr-calculator" },
-      { label: "Body Fat Calculator", href: "/body-fat-calculator" },
-      { label: "HeartRate Calculator", href: "/heart-rate-calculator" },
-      { label: "Water Intake Calculator", href: "/water-intake-calculator" },
-      { label: "Protein Intake Calculator", href: "/protein-intake-calculator" },
-      { label: "Calorie Calculator", href: "/calorie-calculator" },
-      { label: "Weight Loss Calculator", href: "/weight-loss-calculator" },
-      { label: "Ovulation Calculator", href: "/ovulation-calculator" },
-      { label: "Menstrual Cycle Calculator", href: "/menstrual-cycle-calculator" },
-      { label: "Pregnancy Calculator", href: "/pregnancy-calculator" },
-    ],
-  },
+ 
   {
     title: "Programs",
     links: [
@@ -180,7 +165,7 @@ export default function Footer() {
         </div>
 
         {/* spacer so the illustration has room to breathe before the panel */}
-        <div className="h-[190px] sm:h-[230px]" />
+        <div className="h-[190px] sm:h-[200px]" />
 
         {/* ===== Bottom row: brand (transparent) + glass nav card ===== */}
         <div className="relative z-10 flex flex-col gap-6 px-6 pb-6 sm:flex-row sm:items-end sm:justify-between sm:px-10 sm:pb-10">
@@ -212,7 +197,7 @@ export default function Footer() {
           </div>
 
           {/* Glass nav card */}
-          <div className="w-full rounded-2xl bg-[#06301f]/70 px-6 py-6 backdrop-blur-md ring-1 ring-white/10 sm:w-auto sm:px-8">
+          <div className="w-full rounded-2xl bg-[#06301f]/30 px-6 py-6 backdrop-blur-sm ring-1 ring-white/10 sm:w-auto sm:px-8">
             <div className="grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
               {linkGroups.map((group) => (
                 <div key={group.title}>
