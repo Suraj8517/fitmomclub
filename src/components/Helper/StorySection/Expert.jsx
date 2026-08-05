@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import RunningSVG from './RunningSVG'
+import RunningSVG1 from './running1svg'
 
 function useCountUp(target, duration = 900, delay = 0, decimals = 0, enabled = true) {
   const [value, setValue] = useState(0)
@@ -255,7 +256,7 @@ export default function RunningMap() {
             className={`map-stat${mounted ? " in" : ""}`}
             style={{ position: "relative", width: 34, height: 34, animationDelay: "0.1s" }}
           >
-            {mounted && <RunningSVG/>}
+            {mounted && <RunningSVG1/>}
           </div>
           <div className={`map-stat${mounted ? " in" : ""}`} style={{ animationDelay: "0.18s" }}>
             <p className="text-lg font-semibold text-white leading-tight">Trail run</p>

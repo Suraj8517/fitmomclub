@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import hero from "../../assets/home/hero.jpg";
+import RunningSVG from "../Helper/StorySection/RunningSVG";
 
 const BG_IMAGE = hero;
 const SMOOTHING = 7;
@@ -15,15 +16,7 @@ const pills = [
     bg: "bg-emerald-50",
     text: "text-emerald-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600">
-        <path
-          d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </svg>
+      <RunningSVG color="#1c8c77" />
     ),
   },
   {
@@ -262,7 +255,7 @@ export default function HomeHeroSection() {
                 pointerEvents: phaseAOpacity > 0.05 ? "auto" : "none",
               }}
             >
-              <h1 className="hero-fade-up max-w-2xl text-3xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="hero-fade-up 2xl:max-w-5xl max-w-2xl text-5xl font-medium leading-tight text-white sm:text-6xl 2xl:text-[5.25rem]">
                 Join the #1 Fitness &amp; Wellness
                 Community for Moms
               </h1>
@@ -281,10 +274,10 @@ export default function HomeHeroSection() {
               >
                 <p
                   ref={phaseBMeasureRef}
-                  className="hero-fade-up max-w-3xl text-2xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-6xl"
+                  className="hero-fade-up max-w-2xl 2xl:max-w-5xl text-5xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-[5.25rem]"
                 >
                   Personalised Strength, Wellness,
-                  and Support — by Mom and for Mom
+                  and Support, by Mom and for Mom
                 </p>
               </div>
             )}
@@ -293,7 +286,7 @@ export default function HomeHeroSection() {
                 pops in with a short stagger */}
             {pillsVisible && (
               <div
-                className="absolute left-0 will-change-transform"
+                className="absolute left-0 "
                 style={{
                   top: 0,
                   transform: `translateY(${pillsTranslateY}px)`,
@@ -301,11 +294,11 @@ export default function HomeHeroSection() {
                 }}
               >
                 {/* Pills */}
-                <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="flex flex-col items-start gap-2 sm:gap-3 mb-4 sm:mb-6">
                   {pills.map((pill, i) => (
                     <span
                       key={pill.label}
-                      className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rounded-full ${pill.bg} px-4 py-2.5 sm:px-6 sm:py-4 text-xs sm:text-sm font-medium ${pill.text} shadow-sm`}
+                      className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rounded-full ${pill.bg} px-4 py-2.5 sm:px-6 sm:py-4 text-xs sm:text-lg font-medium ${pill.text} shadow-sm`}
                       style={{ animationDelay: `${0.1 + i * 0.08}s` }}
                     >
                       {pill.icon}
@@ -316,7 +309,7 @@ export default function HomeHeroSection() {
 
                 {/* Download CTA */}
                 <p
-                  className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-sm font-medium text-white/80"
+                  className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-lg font-medium text-white/80"
                   style={{ animationDelay: "0.3s" }}
                 >
                   Download the app

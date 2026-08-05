@@ -10,18 +10,19 @@ import CTASection from '../components/Home/CTASection'
 import CommunityStatsSection from '../components/Home/StatSection'
 import TextReveal from '../components/Home/TextReveal'
 import FitnessScrollLanding from '../components/Home/FitnessScrollHero'
+import Testimonial from '../components/Home/Testimonial'
 
 export default function HomePage() {
   return (
     <section >
     <HomeHeroSection/>
     <HomeHeroSecondSection/>
-    <AppInterfaceSection/>
     <ProgramSection/>
-    
+        <AppInterfaceSection/>
     <AppShowCaseSection/>
     <StorySection/>
     <CommunityStatsSection/>
+    <Testimonial/>
     <OurExpertSection/>
     <CTASection/>
     </section>

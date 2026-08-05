@@ -1,6 +1,8 @@
 import { useEffect, useRef, forwardRef } from "react";
 import logo from "../../assets/home/fitmom.png";
-import phoneFrame from "../../assets/home/phone-frame.png";
+import phoneFrame from "../../assets/home/mockup.png";
+// NOTE: point this at your actual mockup screenshot asset
+import mockupImage from "../../assets/home/mockup.png";
 
 // ── Scroll section height ────────────────────────────────────────────────────
 const SCROLL_LENGTH_VH = 200;
@@ -10,8 +12,8 @@ const SCROLL_SPRING = 7.5;   // exponential decay coefficient for scroll progres
 const ENTRY_SPRING  = 6.0;   // exponential decay coefficient for entry progress
 
 // ── Grid layout constants (UNCHANGED from file 1, except GAP split) ─────────
-const GRID_W  = 480;
-const GRID_H  = 680;
+const GRID_W  = 580;
+const GRID_H  = 780;
 const PAD     = 24;
 const SCR_W   = GRID_W - PAD * 2;
 const SCR_H   = GRID_H - PAD * 2;
@@ -47,6 +49,14 @@ const MOBILE_UI_MAX_H      = 980; // was GRID_H (680) — increase this to make 
 const MOBILE_UI_ASPECT     = GRID_W / GRID_H;
 const MOBILE_UI_FADE_START = 0.58; // logo band opacity reaches 0 at p ≈ 0.56 (see bandOpacity below)
 const MOBILE_UI_FADE_END   = 0.82; // finishes just as the phone frame bezel starts fading in
+
+// ── Final phase: once cards have landed in the grid, cross-fade them out
+// for a static mockup image. Tune these two ranges to control when the
+// swap happens and how long the crossfade lasts.
+const CARDS_FADE_START  = 0.78;
+const CARDS_FADE_END    = .89;
+const MOCKUP_FADE_START = 0.80;
+const MOCKUP_FADE_END   = 1.0;
 
 // ── Utility: linear interpolate ──────────────────────────────────────────────
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -158,6 +168,10 @@ export default function AppInterfaceSection() {
   const cardRefs      = useRef({});
   const phoneFrameRef = useRef(null);
   const mobileUIRef   = useRef(null);
+
+  // ── Final phase: cards group + mockup image refs ────────────────────────
+  const cardsGroupRef  = useRef(null);
+  const mockupImageRef = useRef(null);
 
   // ── Dynamic text / visual nodes for the dark cards ─────────────────────────
   const weightNodeRef     = useRef(null); // "Weight" card kg value
@@ -350,6 +364,25 @@ export default function AppInterfaceSection() {
         mobileUIRef.current.style.opacity = uiFadeT;
       }
 
+      // ── Final phase: fade out the live cards, fade in the static mockup ──
+      if (cardsGroupRef.current) {
+        const cardsFadeT = Math.min(
+          Math.max((p - CARDS_FADE_START) / (CARDS_FADE_END - CARDS_FADE_START), 0),
+          1
+        );
+        const cardsOpacity = 1 - cardsFadeT;
+        cardsGroupRef.current.style.opacity = cardsOpacity;
+        cardsGroupRef.current.style.pointerEvents = cardsOpacity < 0.05 ? "none" : "auto";
+      }
+
+      if (mockupImageRef.current) {
+        const mockupFadeT = Math.min(
+          Math.max((p - MOCKUP_FADE_START) / (MOCKUP_FADE_END - MOCKUP_FADE_START), 0),
+          1
+        );
+        mockupImageRef.current.style.opacity = mockupFadeT;
+      }
+
       // ── Core stat text values ───────────────────────────────────────────────
       const weightKg   = lerp(70, 68, p).toFixed(1);
       const sleepHours = Math.round(lerp(6, 8, p));
@@ -456,7 +489,7 @@ export default function AppInterfaceSection() {
           aria-hidden="true"
           className="pointer-events-none select-none absolute z-0"
           style={{
-            height: `0vh`,
+            height: `90vh`,
             width: "auto",
             opacity: 0,
           }}
@@ -478,7 +511,7 @@ export default function AppInterfaceSection() {
               className="absolute pointer-events-none w-[150px] mt:w-[220px] mt:h-[300px]"
               style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
             >
-              <img src={logo} className="w-full h-full object-contain" alt="FitMom logo" />
+              <img src={logo} className="w-full h-full object-contain " alt="FitMom logo" />
             </div>
             <img
               src={phoneFrame}
@@ -490,261 +523,206 @@ export default function AppInterfaceSection() {
               }}
               className="pointer-events-none select-none absolute z-0"
               style={{
-                height: `min(${PHONE_FRAME_MAX_H}px, 90vh)`,
+                height: `70vh)`,
                 width: "auto",
                 opacity: 0,
                 transition: "opacity 0.15s linear",
               }}
             />
 
-            <div className="">
-              <div
-                ref={mobileUIRef}
-                aria-hidden="true"
-                className="pointer-events-none select-none absolute overflow-hidden border-12 border-gray-800 "
-                style={{
-                  left: 0,
-                  top: 0,
-                  transform: "translate(-50%, -50%)",
-                  height: `780px`,
-                  width: `calc(min(${78}px, 88vh) * ${5})`,
-                  opacity: 0,
-                  borderRadius: 40,
-                  background: "linear-gradient(160deg, #0B0B0D 0%, #17171B 55%, #0A0A0C 100%)",
-                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
-                }}
-              >
-                {/* Soft glowing color blobs, echoing the cards' accent palette */}
+            {/* ── FINAL MOCKUP IMAGE ──────────────────────────────────────────
+                Sits at the same centered origin the card grid uses. Starts
+                invisible; fades in during the final phase of scroll as the
+                live cards (below) fade out. */}
+            <img
+              ref={mockupImageRef}
+              src={mockupImage}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute z-30"
+              style={{
+                left: 0,
+                top: 0,
+                transform: "translate(-50%, -50%)",
+                width: GRID_W,
+                height: GRID_H,
+                objectFit: "contain",
+                opacity: 0,
+                willChange: "opacity",
+              }}
+            />
+
+            {/* ── LIVE CARD GRID ── fades out during the final scroll phase,
+                revealing the mockup image above it. All existing cards,
+                positions, and animations are untouched. */}
+            <div ref={cardsGroupRef} style={{ willChange: "opacity" }}>
+
+              {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}
+              <CardGPU name="yoga">
                 <div
-                  className="absolute rounded-full"
-                  style={{
-                    top: "-10%",
-                    left: "-20%",
-                    width: "70%",
-                    height: "30%",
-                    background: "radial-gradient(circle, rgba(45,212,191,0.35) 0%, rgba(45,212,191,0) 70%)",
-                    filter: "blur(30px)",
-                  }}
-                />
-                <div
-                  className="absolute rounded-full"
-                  style={{
-                    top: "35%",
-                    right: "-25%",
-                    width: "65%",
-                    height: "28%",
-                    background: "radial-gradient(circle, rgba(244,114,182,0.30) 0%, rgba(244,114,182,0) 70%)",
-                    filter: "blur(34px)",
-                  }}
-                />
-                <div
-                  className="absolute rounded-full"
-                  style={{
-                    bottom: "-12%",
-                    left: "10%",
-                    width: "60%",
-                    height: "26%",
-                    background: "radial-gradient(circle, rgba(56,189,248,0.28) 0%, rgba(56,189,248,0) 70%)",
-                    filter: "blur(30px)",
-                  }}
-                />
-
-
-                {/* Faint dot-grid texture */}
-                <div
-                  className="absolute inset-0 opacity-[0.06]"
-                  style={{
-                    backgroundImage: "radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)",
-                    backgroundSize: "14px 14px",
-                  }}
-                />
-
-                {/* Mock status bar */}
-                <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 pt-4 text-white/80">
-                  <span className="text-[12px] font-medium tracking-wide">9:41</span>
-                  <div className="flex items-center gap-1">
-                    <svg viewBox="0 0 18 12" className="w-3.5 h-2.5" fill="currentColor">
-                      <rect x="0" y="7" width="3" height="5" rx="0.5" />
-                      <rect x="5" y="4" width="3" height="8" rx="0.5" />
-                      <rect x="10" y="1" width="3" height="11" rx="0.5" />
-                      <rect x="15" y="1" width="3" height="11" rx="0.5" opacity="0.35" />
-                    </svg>
-                    <svg viewBox="0 0 25 12" className="w-5 h-2.5" fill="none" stroke="currentColor" strokeWidth="1">
-                      <rect x="0.5" y="0.5" width="20" height="11" rx="2.5" />
-                      <rect x="2" y="2" width="15" height="8" rx="1.2" fill="currentColor" stroke="none" />
-                      <rect x="21.5" y="4" width="1.5" height="4" rx="0.7" fill="currentColor" stroke="none" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Home indicator */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full bg-white/25" />
-              </div>
-            </div>
-
-            {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}
-            <CardGPU name="yoga">
-              <div
-                ref={el => { cardRefs.current["yoga_inner"] = el; }}
-                className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4 border border-neutral-800 transition-colors duration-300 hover:border-neutral-700"
-                style={{ borderRadius: 16 }}
-              >
-                <p className="text-sm text-neutral-300 font-semibold mb-3">Track your Daily Calorie</p>
-                <div className="flex items-center justify-between flex-1">
-                  {[
-                    { label: "Calories Intake", ref: calorieIntakeRef, unit: "Kcal", color: "#2DD4BF", emoji: "🥗" },
-                    { label: "Workout",         ref: workoutBurnRef,   unit: "Kcal Burned", color: "#F87171", emoji: "⚡️" },
-                    { label: "Steps",           ref: stepsBurnRef,     unit: "Kcal Burned", color: "#FB923C", emoji: "👟" },
-                  ].map((ring, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1.5 flex-1 transition-transform duration-300 hover:scale-105">
-                      <div className="relative w-20 h-20">
-                        <svg viewBox="0 0 40 40" className="w-full h-full -rotate-90">
-                          <circle cx="20" cy="20" r="17" fill="none" stroke="#2A2A2E" strokeWidth="2" />
-                          <circle
-                            ref={el => { ringRefs.current[i] = el; }}
-                            cx="20" cy="20" r="17" fill="none" stroke={ring.color} strokeWidth="2"
-                            strokeDasharray={`${RING_CIRC}`}
-                            strokeDashoffset={`${RING_CIRC}`}
-                            strokeLinecap="round"
-                            style={{ transition: "stroke-dashoffset 0.1s linear" }}
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-2xl">{ring.emoji}</span>
+                  ref={el => { cardRefs.current["yoga_inner"] = el; }}
+                  className="w-full h-full bg-neutral-900 flex flex-col justify-center px-6 py-4 border border-neutral-800 transition-colors duration-300 hover:border-neutral-700"
+                  style={{ borderRadius: 16 }}
+                >
+                  <p className="text-sm text-neutral-300 font-semibold mb-3">Track your Daily Calorie</p>
+                  <div className="flex items-center justify-between flex-1">
+                    {[
+                      { label: "Calories Intake", ref: calorieIntakeRef, unit: "Kcal", color: "#2DD4BF", emoji: "🥗" },
+                      { label: "Workout",         ref: workoutBurnRef,   unit: "Kcal Burned", color: "#F87171", emoji: "⚡️" },
+                      { label: "Steps",           ref: stepsBurnRef,     unit: "Kcal Burned", color: "#FB923C", emoji: "👟" },
+                    ].map((ring, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1.5 flex-1 transition-transform duration-300 hover:scale-105">
+                        <div className="relative w-20 h-20">
+                          <svg viewBox="0 0 40 40" className="w-full h-full -rotate-90">
+                            <circle cx="20" cy="20" r="17" fill="none" stroke="#2A2A2E" strokeWidth="2" />
+                            <circle
+                              ref={el => { ringRefs.current[i] = el; }}
+                              cx="20" cy="20" r="17" fill="none" stroke={ring.color} strokeWidth="2"
+                              strokeDasharray={`${RING_CIRC}`}
+                              strokeDashoffset={`${RING_CIRC}`}
+                              strokeLinecap="round"
+                              style={{ transition: "stroke-dashoffset 0.1s linear" }}
+                            />
+                          </svg>
+                          <span className="absolute inset-0 flex items-center justify-center text-2xl">{ring.emoji}</span>
+                        </div>
+                        <p className="text-[11px] text-neutral-300 text-center leading-tight font-medium">{ring.label}</p>
+                        <p className="text-[10px] font-bold text-center leading-tight" style={{ color: ring.color }}>
+                          <span ref={ring.ref}>0</span> <span className="text-neutral-500 font-medium">{ring.unit}</span>
+                        </p>
                       </div>
-                      <p className="text-[11px] text-neutral-300 text-center leading-tight font-medium">{ring.label}</p>
-                      <p className="text-[10px] font-bold text-center leading-tight" style={{ color: ring.color }}>
-                        <span ref={ring.ref}>0</span> <span className="text-neutral-500 font-medium">{ring.unit}</span>
-                      </p>
+                    ))}
+                  </div>
+                </div>
+              </CardGPU>
+
+              {/* ── SLEEP ── */}
+              <CardGPU name="sleep">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <IconBadge bg="rgba(56,189,248,0.15)" color="#38BDF8" size={32}>{Icons.moon}</IconBadge>
+                      <p className="text-[13px] text-blue-400 font-semibold">Sleep</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </CardGPU>
-
-            {/* ── SLEEP ── */}
-            <CardGPU name="sleep">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3.5 flex flex-col justify-between overflow-hidden border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <IconBadge bg="rgba(56,189,248,0.15)" color="#38BDF8" size={32}>{Icons.moon}</IconBadge>
-                    <p className="text-[13px] text-blue-400 font-semibold">Sleep</p>
+                    <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
                   </div>
-                  <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span ref={sleepHoursNodeRef} className="text-3xl font-normal text-white">8</span>
-                  <span className="text-[11px] text-neutral-400">hr</span>
-                  <span className="text-3xl font-normal text-white">00</span>
-                  <span className="text-[11px] text-neutral-400">min</span>
-                </div>
-                <p className="text-[11px] text-neutral-500">100% Goal</p>
-                <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
-                  <div
-                    ref={sleepGoalBarRef}
-                    className="h-full rounded-full bg-blue-400"
-                    style={{ width: "0%", transition: "width 0.1s linear" }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-neutral-500">
-                  <span>Deep: 5h 10m</span>
-                  <span>Light: 2h 50m</span>
-                </div>
-              </div>
-            </CardGPU>
-
-            {/* ── WATER (count-up ml) ── */}
-            <CardGPU name="steps">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <IconBadge bg="rgba(59,130,246,0.15)" color="#3B82F6" size={32}>{Icons.drop}</IconBadge>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-blue-400 leading-none">Water</p>
-                  <p ref={waterMlRef} className="text-base font-normal text-white leading-tight">0 ml</p>
-                </div>
-              </div>
-            </CardGPU>
-
-            {/* ── HEALTH / VIEW ALL ── */}
-            <CardGPU name="ready">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32} >{Icons.heartbeat}</IconBadge>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] text-teal-400 leading-none">Health</p>
-                  <p className="text-[12px] font-normal text-white leading-tight">View all</p>
-                </div>
-                <span className="text-neutral-500">{Icons.chevron}</span>
-              </div>
-            </CardGPU>
-
-            {/* ── EMOTIONAL ── */}
-            <CardGPU name="sleepPill">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32} >{Icons.moon}</IconBadge>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-pink-400 leading-none">Emotional</p>
-                  <p ref={emotionalNodeRef} className="text-[12px] font-normal text-white leading-tight">Tracking</p>
-                </div>
-              </div>
-            </CardGPU>
-
-            {/* ── WEIGHT ── */}
-            <CardGPU name="heart">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <IconBadge bg="rgba(52,211,153,0.15)" color="#34D399" size={32}>{Icons.scale}</IconBadge>
-                    <p className="text-[13px] text-emerald-400 font-semibold">Weight</p>
+                  <div className="flex items-baseline gap-1">
+                    <span ref={sleepHoursNodeRef} className="text-3xl font-normal text-white">8</span>
+                    <span className="text-[11px] text-neutral-400">hr</span>
+                    <span className="text-3xl font-normal text-white">00</span>
+                    <span className="text-[11px] text-neutral-400">min</span>
                   </div>
-                  <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span ref={weightNodeRef} className="text-4xl font-normal text-white">68.0</span>
-                  <span className="text-sm text-neutral-400">kg</span>
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 text-red-400 ml-0.5" fill="currentColor">
-                    <path d="M4 6l8 8 4-4 6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <GradientBar ref={weightBarRef} initialValue={0} />
-                <p className="text-[11px] text-neutral-500">
-                  BMI <span ref={bmiValueRef} className="text-emerald-400 font-semibold">18.00</span>
-                </p>
-              </div>
-            </CardGPU>
-
-            {/* ── WHR ── */}
-            <CardGPU name="run">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.ratio}</IconBadge>
-                    <p className="text-[13px] text-teal-400 font-semibold">WHR</p>
+                  <p className="text-[11px] text-neutral-500">100% Goal</p>
+                  <div className="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
+                    <div
+                      ref={sleepGoalBarRef}
+                      className="h-full rounded-full bg-blue-400"
+                      style={{ width: "0%", transition: "width 0.1s linear" }}
+                    />
                   </div>
-                  <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
+                  <div className="flex justify-between text-[10px] text-neutral-500">
+                    <span>Deep: 5h 10m</span>
+                    <span>Light: 2h 50m</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span ref={whrValueRef} className="text-3xl font-normal text-white">0.50</span>
-                  <span className="text-[11px] text-neutral-400">Ratio</span>
-                </div>
-                <GradientBar ref={whrBarRef} initialValue={0} />
-                <p className="text-[11px] text-neutral-500">
-                  Progress <span className="text-teal-400 font-semibold">↘ Good</span>
-                </p>
-              </div>
-            </CardGPU>
+              </CardGPU>
 
-            {/* ── MEDICAL RECORDS ── */}
-            <CardGPU name="med">
-              <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01]">
-                <div className="flex items-center gap-3">
-                  <IconBadge bg="rgba(255,255,255,0.06)" color="#9CA3AF" size={30}>
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M9 12h6M9 16h6M7 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M9 4a2 2 0 0 1 4 0H9Z" strokeLinecap="round" />
+              {/* ── WATER (count-up ml) ── */}
+              <CardGPU name="steps">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <IconBadge bg="rgba(59,130,246,0.15)" color="#3B82F6" size={32}>{Icons.drop}</IconBadge>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-blue-400 leading-none">Water</p>
+                    <p ref={waterMlRef} className="text-base font-normal text-white leading-tight">0 ml</p>
+                  </div>
+                </div>
+              </CardGPU>
+
+              {/* ── HEALTH / VIEW ALL ── */}
+              <CardGPU name="ready">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32} >{Icons.heartbeat}</IconBadge>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-teal-400 leading-none">Health</p>
+                    <p className="text-[12px] font-normal text-white leading-tight">View all</p>
+                  </div>
+                  <span className="text-neutral-500">{Icons.chevron}</span>
+                </div>
+              </CardGPU>
+
+              {/* ── EMOTIONAL ── */}
+              <CardGPU name="sleepPill">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center px-3 gap-2.5 border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <IconBadge bg="rgba(244,114,182,0.15)" color="#F472B6" size={32} >{Icons.moon}</IconBadge>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-pink-400 leading-none">Emotional</p>
+                    <p ref={emotionalNodeRef} className="text-[12px] font-normal text-white leading-tight">Tracking</p>
+                  </div>
+                </div>
+              </CardGPU>
+
+              {/* ── WEIGHT ── */}
+              <CardGPU name="heart">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <IconBadge bg="rgba(52,211,153,0.15)" color="#34D399" size={32}>{Icons.scale}</IconBadge>
+                      <p className="text-[13px] text-emerald-400 font-semibold">Weight</p>
+                    </div>
+                    <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span ref={weightNodeRef} className="text-4xl font-normal text-white">68.0</span>
+                    <span className="text-sm text-neutral-400">kg</span>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-red-400 ml-0.5" fill="currentColor">
+                      <path d="M4 6l8 8 4-4 6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
                     </svg>
-                  </IconBadge>
-                  <span className="text-base font-medium text-neutral-300">Medical Records</span>
+                  </div>
+                  <GradientBar ref={weightBarRef} initialValue={0} />
+                  <p className="text-[11px] text-neutral-500">
+                    BMI <span ref={bmiValueRef} className="text-emerald-400 font-semibold">18.00</span>
+                  </p>
                 </div>
-                <span className="text-neutral-500">{Icons.chevron}</span>
-              </div>
-            </CardGPU>
+              </CardGPU>
+
+              {/* ── WHR ── */}
+              <CardGPU name="run">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl p-3 flex flex-col justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <IconBadge bg="rgba(45,212,191,0.15)" color="#2DD4BF" size={32}>{Icons.ratio}</IconBadge>
+                      <p className="text-[13px] text-teal-400 font-semibold">WHR</p>
+                    </div>
+                    <span className="text-[10px] text-neutral-500 flex items-center gap-0.5">25 Oct {Icons.chevron}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span ref={whrValueRef} className="text-3xl font-normal text-white">0.50</span>
+                    <span className="text-[11px] text-neutral-400">Ratio</span>
+                  </div>
+                  <GradientBar ref={whrBarRef} initialValue={0} />
+                  <p className="text-[11px] text-neutral-500">
+                    Progress <span className="text-teal-400 font-semibold">↘ Good</span>
+                  </p>
+                </div>
+              </CardGPU>
+
+              {/* ── MEDICAL RECORDS ── */}
+              <CardGPU name="med">
+                <div className="w-full h-full bg-neutral-900 rounded-2xl px-4 flex items-center justify-between border border-neutral-800 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01]">
+                  <div className="flex items-center gap-3">
+                    <IconBadge bg="rgba(255,255,255,0.06)" color="#9CA3AF" size={30}>
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                        <path d="M9 12h6M9 16h6M7 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M9 4a2 2 0 0 1 4 0H9Z" strokeLinecap="round" />
+                      </svg>
+                    </IconBadge>
+                    <span className="text-base font-medium text-neutral-300">Medical Records</span>
+                  </div>
+                  <span className="text-neutral-500">{Icons.chevron}</span>
+                </div>
+              </CardGPU>
+
+            </div>
+            {/* end cardsGroupRef */}
 
           </div>
         </div>

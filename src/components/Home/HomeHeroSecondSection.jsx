@@ -33,7 +33,7 @@ export default function HomeHeroSecondSection() {
    }, [])
   return (
     <section
-      className="relative w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-10 lg:pt-20 mt-[-60vh] sm:mt-[-70vh]" 
+      className="relative w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-25 lg:pt-25 mt-[-60vh] sm:mt-[-70vh]" 
     >
        <img
               src={bg}
@@ -50,11 +50,11 @@ export default function HomeHeroSecondSection() {
               style={{ transform: `translateY(${offsetY}px)` }}
             />
       <div className="max-w-3xl mx-auto px-6 sm:px-12 lg:px-8 text-center">
-        <h2 className="text-4xl sm:text-5xl lg:text-5xl font-normal text-neutral-900 leading-tight tracking-tight mb-8">
+        <h2 className="text-4xl sm:text-5xl 2xl:text-6xl font-normal text-neutral-900 leading-tight tracking-tight mb-8">
           A Weight Loss Program Designed Just for You
         </h2>
 
-        <p className="text-lg sm:text-xl text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10">
+        <p className="text-lg 2xl:text-2xl text-neutral-500 leading-relaxed max-w-2xl mx-auto mb-10">
           Your journey is unique, and so is our Best Online Weight Loss Fitness &amp; Diet Program
           for Women &amp; Moms. We tailor every workout and meal plan to your body, your goals,
           and your lifestyle. Rediscover your strength with the support you deserve.

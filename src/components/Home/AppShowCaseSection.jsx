@@ -24,7 +24,7 @@ export default function HealthCoachSection() {
       );
 
       if (phone1Ref.current) {
-      const rotateZ = -progress * 20;
+      const rotateZ = -progress * 30;
 const rotateX = progress * 12;
 const translateY = progress * 80;
 const translateX = -progress * 40;
@@ -32,7 +32,7 @@ const translateX = -progress * 40;
       }
 
       if (phone2Ref.current) {
-        const rotateZ = 0 + progress * 12;
+        const rotateZ = 0 + progress * 32;
         const rotateX = 0 + progress * 10;
         const translateY = 0 - progress * 40;
         const translateX = 0 + progress * 20;
@@ -80,6 +80,7 @@ const translateX = -progress * 40;
             src={screen2}
             alt="Health Coach chat interface"
             className="w-[75%] sm:w-[60%] max-w-xs drop-shadow-xl rounded-[2rem]"
+            style={{ transform: "rotateZ(-8deg)" }}
           />
           
         </div>
@@ -100,8 +101,8 @@ const translateX = -progress * 40;
       {/* ── DESKTOP VERSION (lg+) — original design unchanged ── */}
       <section
         ref={sectionRef}
-        className="relative w-full 2xl:min-h-[190vh] min-h-[205vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
-      >{/*
+        className="relative w-full 2xl:min-h-[230vh] min-h-[265vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
+      >
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-14 pb-2">
           <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl mb-5">
             Your Fitness Journey, <br />
@@ -121,7 +122,7 @@ const translateX = -progress * 40;
             </svg>
           </a>
         </div>
-*/}
+
         <div className="relative w-full 2xl:max-w-8xl mx-auto px-18 2xl:px-40 min-h-screen flex flex-col lg:flex-row items-center justify-between">
           <div className="flex-shrink-0 w-full 2xl:w-[42%] lg:w-[52%] pt-22 lg:pt-0 z-30">
             <h2 className="text-4xl lg:text-5xl 2xl:text-[4rem] xl:text-[3rem] font-normal text-[#1C1B1F] leading-[1.15] tracking-tight mb-6">
@@ -140,7 +141,7 @@ const translateX = -progress * 40;
 
             <div
               ref={phone2Ref}
-              className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[580px] xl:w-[550px] 2xl:w-[650px] 2xl:bottom-[-350px] 2xl:right-[330px] right-[150px] bottom-[-280px]"
+              className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[580px] xl:w-[550px] 2xl:w-[750px] 2xl:bottom-[-350px] 2xl:right-[330px] right-[150px] bottom-[-280px]"
               style={{
                 transform: "perspective(1400px) rotateZ(0deg) rotateX(0deg)",
                 transition: "transform 0.08s linear",

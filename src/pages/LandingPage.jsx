@@ -36,6 +36,7 @@ export default function LandingPage() {
   return (
     <>
     <Router>
+    <ScrollToTop/>
       <Navbar/>
       <PopupForm scriptURL="https://script.google.com/macros/s/AKfycbwyFQzwNGKRkxEP3NAZgZJuvz53ehI50gvciFiK9zmld7UrmO1KQlmY7KrpVIwDFyw/exec"/>
       <Routes>
