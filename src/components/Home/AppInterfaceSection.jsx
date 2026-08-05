@@ -54,8 +54,8 @@ const MOBILE_UI_FADE_END   = 0.82; // finishes just as the phone frame bezel sta
 // for a static mockup image. Tune these two ranges to control when the
 // swap happens and how long the crossfade lasts.
 const CARDS_FADE_START  = 0.78;
-const CARDS_FADE_END    = .89;
-const MOCKUP_FADE_START = 0.80;
+const CARDS_FADE_END    = .95;
+const MOCKUP_FADE_START = 0.90;
 const MOCKUP_FADE_END   = 1.0;
 
 // ── Utility: linear interpolate ──────────────────────────────────────────────
