@@ -33,7 +33,7 @@ export default function HomeHeroSecondSection() {
    }, [])
   return (
     <section
-      className="relative w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-25 lg:pt-25 mt-[-60vh] sm:mt-[-70vh]" 
+      className="relative h-[110vh] w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-25 lg:pt-25 mt-[-60vh] sm:mt-[-70vh] " 
     >
        <img
               src={bg}

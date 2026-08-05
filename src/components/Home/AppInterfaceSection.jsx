@@ -380,8 +380,11 @@ export default function AppInterfaceSection() {
           Math.max((p - MOCKUP_FADE_START) / (MOCKUP_FADE_END - MOCKUP_FADE_START), 0),
           1
         );
-        mockupImageRef.current.style.opacity = mockupFadeT;
-      }
+const t = mockupFadeT * mockupFadeT * (3 - 2 * mockupFadeT); // smoothstep
+
+mockupImageRef.current.style.opacity = t;
+mockupImageRef.current.style.transform =
+  `translate(-50%, -50%) scale(${1.5 - 0.5 * t})`;      }
 
       // ── Core stat text values ───────────────────────────────────────────────
       const weightKg   = lerp(70, 68, p).toFixed(1);
@@ -548,7 +551,7 @@ export default function AppInterfaceSection() {
                 height: GRID_H,
                 objectFit: "contain",
                 opacity: 0,
-                willChange: "opacity",
+                willChange: "opacity, transform",
               }}
             />
 

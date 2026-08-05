@@ -17,11 +17,11 @@ export default function HomePage() {
     <section >
     <HomeHeroSection/>
     <HomeHeroSecondSection/>
+        <CommunityStatsSection/>
     <ProgramSection/>
         <AppInterfaceSection/>
     <AppShowCaseSection/>
     <StorySection/>
-    <CommunityStatsSection/>
     <Testimonial/>
     <OurExpertSection/>
     <CTASection/>

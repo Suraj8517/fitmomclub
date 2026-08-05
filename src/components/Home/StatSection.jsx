@@ -146,7 +146,7 @@ export default function CommunityStatsSection() {
       <style>{styles}</style>
       <div
         ref={containerRef}
-        className="flex bg-[#F6F5F1] px-4 py-6 sm:px-6 sm:py-8 md:px-14 md:py-5 font-poppins min-h-[60vh] items-center"
+        className="flex bg-[#F6F5F1] px-4 py-6 sm:px-6 sm:py-8 md:px-14 md:py-5 font-poppins min-h-[50vh] items-center"
       >
         <div
           className="cs-card bg-white rounded-3xl px-6 py-10 sm:px-10 sm:py-12 md:px-14 md:py-16 w-full max-w-7xl mx-auto"
