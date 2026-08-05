@@ -141,7 +141,7 @@ const translateX = -progress * 40;
 
             <div
               ref={phone2Ref}
-              className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[580px] xl:w-[550px] 2xl:w-[850px] 3xl:w-[850px] 2xl:bottom-[-350px] 2xl:right-[140px] right-[150px] bottom-[-280px] xl:right-[150px] xl:bottom-[-280px] lg:right-[150px] lg:bottom-[-280px]"
+              className="absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[580px] xl:w-[550px] 2xl:w-[850px] 3xl:w-[850px] 2xl:bottom-[-350px] 2xl:right-[140px] right-[150px] bottom-[-280px] xl:right-[60px] xl:bottom-[-280px] lg:right-[80px] lg:bottom-[-280px]"
               style={{
                 transform: "perspective(1400px) rotateZ(0deg) rotateX(0deg)",
                 transition: "transform 0.08s linear",
@@ -157,7 +157,7 @@ const translateX = -progress * 40;
 
             <div
               ref={phone1Ref}
-              className=" absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[590px] 2xl:w-[850px] 2xl:bottom-[-730px] 2xl:left-[80px] left-[100px] bottom-[-500px]"
+              className=" absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[590px] 2xl:w-[850px] 2xl:bottom-[-730px] 2xl:left-[80px] left-[60px] bottom-[-500px] lg:left-[60px] lg:bottom-[-500px] xl:left-[60px] xl:bottom-[-500px]"
               style={{
                 transform: "perspective(1400px) rotateZ(0deg) rotateX(0deg)",
                 transition: "transform 0.08s linear",
