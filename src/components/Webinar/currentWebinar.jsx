@@ -3,7 +3,7 @@ const img = "https://res.cloudinary.com/q1vba78b/image/upload/v1783676813/Websit
 export default function CurrentWebinar() {
   return (
     <div className='w-full p-6 flex justify-center flex-col pb-4 bg-white'>
-        <div className='w-[50%] mx-auto'>
+        <div className='sm:w-[50%] mx-auto'>
             <img src={img} className='rounded-xl '/>
         </div>
            <p className=' max-w-3xl text-center mx-auto py-10 text-lg text-slate-600'>

@@ -9,7 +9,7 @@ import handleConsultation from "../Helper/handleClick";
 // ─────────────────────────────────────────────
 function AboutUsPurposeMobile({ imageUrl, content }) {
   return (
-    <section className="relative w-full bg-white overflow-hidden">
+    <section className="relative w-full bg-[#F6F4F0] overflow-hidden">
       {/* Hero image – full width, portrait crop */}
       <div className="relative w-full" style={{ height: "30svh" }}>
         <img
@@ -24,7 +24,7 @@ function AboutUsPurposeMobile({ imageUrl, content }) {
 
         {/* Eyebrow pill – top-left of image */}
         <div className="absolute top-5 left-5 flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5">
-          <span className="block w-6 h-px bg-white/60" />
+          <span className="block w-6 h-px bg-[#F6F4F0]" />
           <p
             className="text-white/80 text-[10px] tracking-[0.22em] uppercase"
             style={{ fontFamily: "'Poppins', sans-serif" }}

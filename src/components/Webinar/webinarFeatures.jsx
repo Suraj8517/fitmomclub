@@ -43,9 +43,9 @@ export default function WebinarFeatures() {
   }, []);
 
   return (
-    <section ref={sectionRef} className=' flex justify-center py-14 bg-white'>
+    <section ref={sectionRef} className=' flex justify-center py-14 bg-white '>
          <div className='max-w-5xl'>
-                                        <div className='grid grid-cols-2 md:grid-cols-4 max-w-5xl gap-6'>
+                                        <div className='grid grid-cols-2 md:grid-cols-4 max-w-5xl sm:gap-6 gap-2'>
 
             {
                 features.map(
@@ -53,13 +53,13 @@ export default function WebinarFeatures() {
                         <div key={i}>
 
                                 <div
-                                  className={`flex flex-col items-center transition-all duration-700 ease-out ${
+                                  className={` flex flex-col items-center transition-all duration-700 ease-out ${
                                     isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
                                   }`}
                                   style={{ transitionDelay: isVisible ? `${i * 120}ms` : "0ms" }}
                                 >
                                     <f.icon className='text-teal-800 w-8 h-8 '/>
-                               <p className='text-center pt-6'>{f.title}</p>
+                               <p className='text-center pt-6 sm:text-lg text-sm '>{f.title}</p>
                                     </div>
                                     </div>
                         

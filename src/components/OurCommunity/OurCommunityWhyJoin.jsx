@@ -390,7 +390,7 @@ export default function WhyJoinCommunity() {
             releaseOnEdges: true,
           }}
           slidesPerView={1.2}
-          spaceBetween={30}
+          spaceBetween={10}
           grabCursor={true}
           simulateTouch={true}
           touchRatio={1}

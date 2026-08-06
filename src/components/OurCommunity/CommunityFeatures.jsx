@@ -147,17 +147,17 @@ export default function CommunityFeatures() {
           {FEATURES.map(({ icon: Icon, title, description }) => (
             <div key={title} className="cf-feature flex flex-col items-center text-center">
               <Icon
-                className="h-12 w-12 text-[#1d1d1f] sm:h-14 sm:w-14"
+                className="h-10 w-10 text-[#1d1d1f] sm:h-14 sm:w-14"
                 strokeWidth={1.25}
                 stroke="url(#icon-gradient)"
                 fill="none"
               />
 
-              <h3 className="cf-sans mt-2 text-[19px] font-medium leading-snug text-[#3c4257] sm:mt-4 sm:text-[14px]">
+              <h3 className="cf-sans mt-2 text-[15px] font-medium leading-snug text-[#3c4257] sm:mt-4 sm:text-[14px]">
                 {title}
               </h3>
 
-              <p className="cf-sans mt-2 max-w-[150px] text-[15px] font-normal leading-relaxed text-[#4b5468] sm:max-w-[240px] sm:text-[12px]">
+              <p className="cf-sans mt-2 max-w-[150px] text-[12px] font-normal leading-relaxed text-[#4b5468] sm:max-w-[240px] sm:text-[12px]">
                 {description}
               </p>
             </div>

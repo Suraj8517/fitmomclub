@@ -5,7 +5,7 @@ import phoneFrame from "../../assets/home/mockup.png";
 import mockupImage from "../../assets/home/mockup.png";
 
 // ── Scroll section height ────────────────────────────────────────────────────
-const SCROLL_LENGTH_VH = 200;
+const SCROLL_LENGTH_VH = 250;
 
 // ── Spring constants ─────────────────────────────────────────────────────────
 const SCROLL_SPRING = 7.5;   // exponential decay coefficient for scroll progress
