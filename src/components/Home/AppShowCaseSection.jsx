@@ -51,7 +51,7 @@ const translateX = -progress * 40;
       {/* ── MOBILE VERSION (< lg) ── */}
       <section className="lg:hidden bg-[#F6F5F1] px-6 py-2">
 
-        {/* Header text 
+       
         <div className="text-center mb-10">
           <h1 className="text-3xl sm:text-4xl font-normal text-[#2C2C2C] leading-[1.2] tracking-tight mb-4">
             Your Fitness Journey, <br />
@@ -73,7 +73,7 @@ const translateX = -progress * 40;
             </svg>
           </Link>
         </div>
-*/}
+
         {/* Phone images — stacked, centered, no parallax */}
         <div className="flex flex-col items-center gap-6 mb-10">
           <img
