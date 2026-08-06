@@ -4,10 +4,7 @@ import RunningSVG from "../Helper/StorySection/RunningSVG";
 import Heart from "../Helper/Heart"
 const BG_IMAGE = hero;
 const SMOOTHING = 7;
-// Small fixed gap between Phase B's headline and the pills/CTA block that
-// follows it. The block's own height is measured live (see phaseBHeightRef)
-// so this stays tight and correct at every screen size instead of relying
-// on one hardcoded number tuned for desktop.
+
 const PILLS_GAP = 28;
 
 const pills = [
@@ -321,8 +318,11 @@ export default function HomeHeroSection() {
                   {pills.map((pill, i) => (
                     <span
                       key={pill.label}
-                      className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rounded-full ${pill.bg} px-4 py-2.5 sm:px-6 sm:py-4 text-xs sm:text-lg font-medium ${pill.text} shadow-sm`}
-                      style={{ animationDelay: `${0.1 + i * 0.08}s` }}
+className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rounded-full ${pill.bg} ${
+  pill.label === "Proactive and adaptive coaching"
+    ? "px-3 py-1 sm:px-4 sm:py-3"
+    : "px-4 py-2.5 sm:px-6 sm:py-4"
+} text-xs sm:text-lg font-medium ${pill.text} shadow-sm`}                      style={{ animationDelay: `${0.1 + i * 0.08}s` }}
                     >
                       {pill.icon}
                       {pill.label}
