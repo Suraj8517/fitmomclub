@@ -551,7 +551,7 @@ mockupImageRef.current.style.transform =
                 height: GRID_H,
                 objectFit: "contain",
                 opacity: 0,
-                willChange: "opacity, transform",
+                willChange: "opacity",
               }}
             />
 

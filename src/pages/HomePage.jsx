@@ -17,7 +17,6 @@ export default function HomePage() {
     <section >
     <HomeHeroSection/>
     <HomeHeroSecondSection/>
-        <CommunityStatsSection/>
     <ProgramSection/>
         <AppInterfaceSection/>
     <AppShowCaseSection/>

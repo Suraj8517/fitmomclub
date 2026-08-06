@@ -146,7 +146,7 @@ export default function CommunityStatsSection() {
       <style>{styles}</style>
       <div
         ref={containerRef}
-        className="flex bg-[#F6F5F1] px-4 py-6 sm:px-6 sm:py-8 md:px-14 md:py-5 font-poppins min-h-[50vh] items-center"
+        className="flex bg-[#F6F5F1] px-4 py-6 sm:px-6 sm:py-8 md:px-14 md:py-3 font-poppins min-h-[40vh] items-center"
       >
         <div
           className="cs-card bg-white rounded-3xl px-6 py-10 sm:px-10 sm:py-12 md:px-14 md:py-16 w-full max-w-7xl mx-auto"
@@ -155,7 +155,7 @@ export default function CommunityStatsSection() {
             animation: inView ? "csCardIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards" : "none",
           }}
         >
-          {/* Heading */}
+          {/* Heading 
           <h2
             className="cs-heading text-[20px] sm:text-[24px] md:text-[30px] font-semibold text-[#1a1a1a] leading-snug max-w-[520px] mb-8 md:mb-10 font-poppins"
             style={{

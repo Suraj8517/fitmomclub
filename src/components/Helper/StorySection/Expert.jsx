@@ -35,15 +35,28 @@ function useInFullView(ref, threshold = 0.98) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    let skippedInitial = false
+
+    // Synchronous measurement, taken the instant this effect runs —
+    // not subject to the IntersectionObserver's own callback delay.
+    // This lets us tell "already in view at page load" apart from
+    // "scrolled into view very fast, before the observer's first
+    // report arrived."
+    const rect = el.getBoundingClientRect()
+    const viewportH = window.innerHeight || document.documentElement.clientHeight
+    const visibleH = Math.min(rect.bottom, viewportH) - Math.max(rect.top, 0)
+    const ratioAtMount = rect.height > 0 ? Math.max(0, visibleH) / rect.height : 0
+    const wasInViewAtMount = ratioAtMount >= threshold
+
+    let firstCallback = true
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // The very first callback fires immediately upon observe() and
-        // simply reports whatever the state already is at page load —
-        // ignore it so being in view at load can't trigger the reveal.
-        if (!skippedInitial) {
-          skippedInitial = true
-          return
+        if (firstCallback) {
+          firstCallback = false
+          // Only discard this callback if it's just confirming what
+          // was already true synchronously at mount.
+          if (wasInViewAtMount) {
+            return
+          }
         }
         if (entry.intersectionRatio >= threshold) {
           setInView(true)

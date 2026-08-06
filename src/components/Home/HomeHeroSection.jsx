@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import hero from "../../assets/home/hero.jpg";
 import RunningSVG from "../Helper/StorySection/RunningSVG";
-
+import Heart from "../Helper/Heart"
 const BG_IMAGE = hero;
 const SMOOTHING = 7;
 // Small fixed gap between Phase B's headline and the pills/CTA block that
@@ -24,14 +24,18 @@ const pills = [
     bg: "bg-violet-50",
     text: "text-violet-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-600">
-        <path
-          d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9Z"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-      </svg>
+     <svg
+  viewBox="0 0 24 24"
+  fill="none"
+  className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-600 animate-heartbeat"
+>
+  <path
+    d="M12 20s-7-4.4-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.6-9.5 9-9.5 9Z"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinejoin="round"
+  />
+</svg>
     ),
   },
   {
@@ -39,14 +43,33 @@ const pills = [
     bg: "bg-sky-50",
     text: "text-sky-900",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600">
-        <path
-          d="M5 3v4M3 5h4M19 13v4M17 15h4M11 4l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
+  <svg
+  viewBox="0 0 24 24"
+  fill="none"
+  className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600 overflow-visible"
+>
+  <path
+    d="M5 3v4M3 5h4"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinejoin="round"
+    className="animate-twinkle-a origin-[5px_5px]"
+  />
+  <path
+    d="M19 13v4M17 15h4"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinejoin="round"
+    className="animate-twinkle-b origin-[19px_15px]"
+  />
+  <path
+    d="M11 4l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinejoin="round"
+    className="animate-twinkle-main origin-[11px_11px]"
+  />
+</svg>
     ),
   },
 ];
