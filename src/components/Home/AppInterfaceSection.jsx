@@ -490,9 +490,8 @@ mockupImageRef.current.style.transform =
           src={phoneFrame}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute z-0"
+          className="pointer-events-none select-none absolute z-0 h-[60vh] lg:h-[80vh]"
           style={{
-            height: `90vh`,
             width: "auto",
             opacity: 0,
           }}
