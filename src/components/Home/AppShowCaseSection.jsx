@@ -77,9 +77,9 @@ const translateX = -progress * 40;
         {/* Phone images — stacked, centered, no parallax */}
         <div className="flex flex-col items-center gap-6 mb-10">
           <img
-            src={screen2}
+            src={screen1}
             alt="Health Coach chat interface"
-            className="w-[75%] sm:w-[60%] max-w-xs drop-shadow-xl rounded-[2rem]"
+            className="w-[95%] sm:w-[60%] max-w-xs drop-shadow-xl rounded-[2rem]"
             style={{ transform: "rotateZ(-8deg)" }}
           />
           
