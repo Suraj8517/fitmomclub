@@ -85,7 +85,7 @@ export default function HealthCoachSection() {
       {/* ── MOBILE VERSION (< lg) ── */}
       <section
         ref={mobileSectionRef}
-        className="lg:hidden bg-[#F6F5F1] px-6 py-2"
+        className="lg:hidden bg-[#F6F5F1] px-6 py-2 overflow-hidden"
       >
         <div className="text-center mb-10 max-w-xs mx-auto">
           <h1 className="text-3xl sm:text-4xl font-normal text-[#2C2C2C] leading-[1.2] tracking-tight mb-4">
