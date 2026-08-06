@@ -167,21 +167,35 @@ export default function CommunityStatsSection() {
             <br />
             With Our Community of Strength
           </h2>
+          */}
 
-          {/* Stats grid — 2 cols on mobile, 5 on desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 md:gap-0">
+          {/*
+            Mobile / tablet: flex-wrap + justify-center. Each stat gets a
+            fixed basis of ~30% so exactly 3 fit per row — the wrap then
+            naturally centers the leftover 2 on their own row.
+            Desktop (md+): back to the original 5-column grid with dividers.
+          */}
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-8 sm:gap-x-8 md:grid md:grid-cols-5 md:gap-0 md:flex-nowrap">
             {loading &&
               stats.map((_, i) => (
-                <div key={i} className={`flex flex-col gap-2 ${i < stats.length - 1 ? "md:pr-8" : ""} ${i > 0 ? "md:pl-8" : ""}`}>
-                  <div className="cs-skel" style={{ width: "40%", height: 10, animationDelay: `${i * 0.07}s` }} />
-                  <div className="cs-skel" style={{ width: "65%", height: 32, animationDelay: `${i * 0.07}s` }} />
-                  <div className="cs-skel" style={{ width: "80%", height: 10, animationDelay: `${i * 0.07}s` }} />
+                <div
+                  key={i}
+                  className={`flex flex-col items-center sm:items-start gap-2 w-[28%] sm:w-[27%] md:w-auto ${
+                    i < stats.length - 1 ? "md:pr-8" : ""
+                  } ${i > 0 ? "md:pl-8" : ""}`}
+                >
+                  <div className="cs-skel" style={{ width: "60%", height: 10, animationDelay: `${i * 0.07}s` }} />
+                  <div className="cs-skel" style={{ width: "85%", height: 32, animationDelay: `${i * 0.07}s` }} />
+                  <div className="cs-skel" style={{ width: "95%", height: 10, animationDelay: `${i * 0.07}s` }} />
                 </div>
               ))}
 
             {revealed &&
               stats.map((s, i) => (
-                <div key={i} className="relative flex items-center">
+                <div
+                  key={i}
+                  className="relative flex items-center w-[28%] sm:w-[27%] md:w-auto"
+                >
                   {i > 0 && (
                     <div
                       className="cs-divider hidden md:block absolute left-0 top-0 bottom-0"
@@ -194,7 +208,9 @@ export default function CommunityStatsSection() {
                     />
                   )}
                   <div
-                    className={`cs-stat flex flex-col gap-1 ${i < stats.length - 1 ? "md:pr-8" : ""} ${i > 0 ? "md:pl-8" : ""}`}
+                    className={`cs-stat flex flex-col items-center text-center sm:items-start sm:text-left gap-1 w-full ${
+                      i < stats.length - 1 ? "md:pr-8" : ""
+                    } ${i > 0 ? "md:pl-8" : ""}`}
                     style={{
                       opacity: 0,
                       animation: `csStatIn 0.5s ease ${i * 0.1}s forwards`,
@@ -203,7 +219,7 @@ export default function CommunityStatsSection() {
                     <p className="text-[11px] sm:text-[12px] text-[#888888] font-normal font-poppins">
                       {s.prefix}
                     </p>
-                    <p className="cs-gradient-text text-[26px] sm:text-[32px] md:text-[40px] font-medium leading-none font-poppins tabular-nums">
+                    <p className="cs-gradient-text text-[24px] sm:text-[32px] md:text-[40px] font-medium leading-none font-poppins tabular-nums">
                       <StatValue value={s.value} active={revealed} delay={i * 100 + 150} />
                     </p>
                     <p className="text-[11px] sm:text-[12px] text-[#666666] font-normal font-poppins mt-1">

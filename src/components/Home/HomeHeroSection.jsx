@@ -278,7 +278,7 @@ export default function HomeHeroSection() {
                 pointerEvents: phaseAOpacity > 0.05 ? "auto" : "none",
               }}
             >
-              <h1 className="hero-fade-up 2xl:max-w-5xl max-w-2xl text-5xl font-medium leading-tight text-white sm:text-6xl 2xl:text-[5.25rem]">
+              <h1 className="hero-fade-up 2xl:max-w-5xl max-w-2xl text-3xl font-medium leading-tight text-white sm:text-6xl 2xl:text-[5.25rem]">
                 Join the #1 Fitness &amp; Wellness
                 Community for Moms
               </h1>
@@ -297,7 +297,7 @@ export default function HomeHeroSection() {
               >
                 <p
                   ref={phaseBMeasureRef}
-                  className="hero-fade-up max-w-2xl 2xl:max-w-5xl text-5xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-[5.25rem]"
+                  className="hero-fade-up max-w-2xl 2xl:max-w-5xl text-3xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-[5.25rem]"
                 >
                   Personalised Strength, Wellness,
                   and Support, by Mom and for Mom

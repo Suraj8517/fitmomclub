@@ -33,7 +33,7 @@ export default function HomeHeroSecondSection() {
    }, [])
   return (
     <section
-      className="relative h-[110vh] w-full bg-[#F6F5F1] z-10 py-24 sm:py-12 lg:pb-25 lg:pt-10 mt-[-60vh] sm:mt-[-70vh] " 
+      className="relative h-[110vh] w-full bg-[#F6F5F1] z-10 py-6 sm:py-8 lg:pb-25 lg:pt-10 mt-[-60vh] sm:mt-[-70vh] " 
     >
               <CommunityStatsSection/>
       

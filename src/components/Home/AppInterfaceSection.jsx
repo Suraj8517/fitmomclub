@@ -230,14 +230,14 @@ export default function AppInterfaceSection() {
   };
 
   const S_mobile = {
-    yoga:      { x:  -10, y: -310 },
-    sleep:     { x: -185, y:  -60 },
-    steps:     { x:  155, y: -290 },
-    ready:     { x:  160, y: -180 },
-    sleepPill: { x:  155, y:  -75 },
-    heart:     { x: -160, y:  200 },
-    run:       { x:  140, y:  130 },
-    med:       { x:   10, y:  310 },
+    yoga:      { x:  -110, y: -310 },
+    sleep:     { x: -285, y:  -60 },
+    steps:     { x:  255, y: -290 },
+    ready:     { x:  260, y: -180 },
+    sleepPill: { x:  255, y:  -75 },
+    heart:     { x: -260, y:  200 },
+    run:       { x:  240, y:  130 },
+    med:       { x:   110, y:  310 },
   };
 
   const FINAL_SIZES = {
