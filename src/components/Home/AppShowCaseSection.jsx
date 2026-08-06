@@ -87,7 +87,7 @@ export default function HealthCoachSection() {
         ref={mobileSectionRef}
         className="lg:hidden bg-[#F6F5F1] px-6 py-2"
       >
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 max-w-xs mx-auto">
           <h1 className="text-3xl sm:text-4xl font-normal text-[#2C2C2C] leading-[1.2] tracking-tight mb-4">
             Your Fitness Journey, <br />
             Anywhere, Anytime
@@ -145,7 +145,7 @@ export default function HealthCoachSection() {
         </div>
 
         {/* Body copy + CTA */}
-        <div className="text-center max-w-sm mx-auto">
+        <div className="text-center max-w-xs mx-auto">
           <h2 className="text-2xl sm:text-3xl font-normal text-[#1C1B1F] leading-[1.2] tracking-tight mb-4">
             Have a question about your health and wellness?
           </h2>
