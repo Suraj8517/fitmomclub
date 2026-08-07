@@ -3,7 +3,7 @@ import screen1 from "../../assets/home/mobile/img1.png";
 import screen2 from "../../assets/home/mobile/img2.png";
 import useDeviceType from "../../components/Helper/DeviceType";
 import AppleIcon  from "../../components/Helper/AppleIcon";
-import  PlayStoreIcon  from "../../components/Helper/PlaystoreIcon";
+import  PlayStoreIcon  from "../../components/Helper/PlayStoreIcon";
 
 import { Link } from "react-router-dom";
 
