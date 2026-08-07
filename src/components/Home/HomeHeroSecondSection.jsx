@@ -1,42 +1,78 @@
 import { Link } from "react-router-dom";
-import { useEffect ,useState,useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import CommunityStatsSection from "./StatSection";
- 
-export default function HomeHeroSecondSection() {
-  const [offsetY, setOffsetY] = useState(0)
-  const containerRef = useRef(null)
 
+export default function HomeHeroSecondSection() {
+  const [offsetY, setOffsetY] = useState(0);
+  const containerRef = useRef(null);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-     const handleScroll = () => {
-       if (!containerRef.current) return
- 
-       const rect = containerRef.current.getBoundingClientRect()
-       const windowHeight = window.innerHeight
- 
-       // Only compute while the section is anywhere near the viewport
-       if (rect.top < windowHeight && rect.bottom > 0) {
-         // How far the section has scrolled through the viewport, -1 to 1 roughly
-         const progress = (rect.top - windowHeight) / (windowHeight + rect.height)
-         setOffsetY(progress * 80) // 80 = parallax strength in px, tweak as needed
-       }
-     }
- 
-     handleScroll()
-     window.addEventListener('scroll', handleScroll, { passive: true })
-     window.addEventListener('resize', handleScroll)
- 
-     return () => {
-       window.removeEventListener('scroll', handleScroll)
-       window.removeEventListener('resize', handleScroll)
-     }
-   }, [])
+    // Compute the raw scroll-driven target — same math as before,
+    // just no longer setting state directly.
+    const computeTarget = () => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      if (rect.top < windowHeight && rect.bottom > 0) {
+        const progress = (rect.top - windowHeight) / (windowHeight + rect.height);
+        targetRef.current = progress * 80; // parallax strength in px
+      }
+    };
+
+    // Smoothly chase the target every frame instead of snapping to it.
+    // Lower factor = smoother/laggier, higher = snappier/closer to raw.
+    const LERP_FACTOR = 0.08;
+
+    const tick = () => {
+      currentRef.current += (targetRef.current - currentRef.current) * LERP_FACTOR;
+
+      // Stop updating (and looping) once close enough to target,
+      // to avoid needless re-renders once things settle.
+      if (Math.abs(targetRef.current - currentRef.current) > 0.01) {
+        setOffsetY(currentRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        currentRef.current = targetRef.current;
+        setOffsetY(currentRef.current);
+        rafRef.current = null;
+      }
+    };
+
+    const handleScroll = () => {
+      computeTarget();
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    computeTarget();
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
   return (
     <section
-      className="relative h-[110vh] w-full bg-[#F6F5F1] z-10 py-6 sm:py-8 lg:pb-25 lg:pt-10 mt-[-60vh] sm:mt-[-70vh] " 
+      ref={containerRef}
+      className="relative h-[110vh] w-full bg-[#F6F5F1] z-10 py-6 sm:py-8 lg:pb-25 lg:pt-10 mt-[-60vh] sm:mt-[-70vh]"
+      style={{
+        transform: `translate3d(0, ${offsetY}px, 0)`,
+        willChange: "transform",
+      }}
     >
-              <CommunityStatsSection/>
-      
+      <CommunityStatsSection />
+
       <div className="max-w-3xl mx-auto px-6 sm:px-12 lg:px-8 text-center">
         <h2 className="text-4xl sm:text-5xl 2xl:text-6xl font-normal text-neutral-900 leading-tight tracking-tight mb-8">
           A Weight Loss Program Designed Just for You
@@ -51,12 +87,13 @@ export default function HomeHeroSecondSection() {
         <Link
           to="/fmc"
           className="inline-flex items-center justify-center rounded-full bg-teal-500 hover:bg-teal-600 active:bg-teal-700 transition-colors px-8 py-3.5 text-sm font-medium text-white shadow-sm"
-         style={{
-          background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
-          color: "#062019",
-          letterSpacing: "0.02em",
-          textDecoration: "none",
-        }}>
+          style={{
+            background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
+            color: "#062019",
+            letterSpacing: "0.02em",
+            textDecoration: "none",
+          }}
+        >
           Learn more
         </Link>
       </div>

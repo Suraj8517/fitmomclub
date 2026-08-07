@@ -131,7 +131,7 @@ export default function Footer() {
             src={bgdesk}
             alt=""
             aria-hidden="true"
-            className="hidden h-full w-full object-cover sm:block"
+            className="hidden h-full w-full object-cover object-bottom sm:block"
           />
         </div>
 

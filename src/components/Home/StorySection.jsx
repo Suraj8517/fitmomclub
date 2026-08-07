@@ -7,6 +7,7 @@ import {
   Users,
   Baby,
   Target,
+  Venus,
   Apple,
 } from "lucide-react";
 import Nutrition from "../Helper/StorySection/Nutrition";
@@ -15,6 +16,7 @@ import Coach from "../Helper/StorySection/Coach";
 import RunningMap from "../Helper/StorySection/Expert";
 import Goals from "../Helper/StorySection/Goals";
 import Nutrition2 from "../Helper/StorySection/Nutrition2";
+import MenstrualCycle from "../Helper/StorySection/MenstrualCycle";
 const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
 const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
 const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
@@ -23,7 +25,7 @@ const support ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/sup
 const family = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/family_madgcc.webp"
 const goals="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/goal_myqwro.webp"
 const nutrition ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/nutrition_zyz46h.webp"
-
+const cycle ="https://res.cloudinary.com/q1vba78b/image/upload/v1786078998/cycle_f6p4lu.webp"
 
 const stories = [
   {
@@ -110,8 +112,20 @@ const stories = [
       "Focus on achievable milestones that build lasting healthy habits, helping you gain confidence without overwhelming your daily routine.",
     overlay: "goals",
   },
+ {
+  id: 8,
+  title: "Menstrual Cycle Tracking",
+  badge: "Hormonal Health",
+  badgeBg: "#FAD7E6",      // Soft pink
+  icon: Venus,
+  iconColor: "#D63384",    // Deep pink
+  image: cycle,
+  description:
+    "Your cycle changes your body's needs. FitMom Club helps you train, eat, and recover with personalized guidance.",
+  overlay: "cycle",
+},
   {
-    id: 8,
+    id: 9,
     title: "Custom Nutrition Plans",
     badge: "Healthy Eating",
     badgeBg: "#D7F5D8",
@@ -151,7 +165,10 @@ case "expert":
       return (
        <Nutrition2/>
       );
-
+ case "cycle":
+      return (
+       <MenstrualCycle/>
+      );
     default:
       return null;
   }
@@ -186,7 +203,7 @@ function StoryScene({ story, index }) {
   return (
     <div
       ref={ref}
-      className="relative h-[100vh] md:h-[120vh]"
+      className="relative h-[100vh] md:h-[100vh]"
     >
       <div
         className="sticky top-0 h-screen overflow-hidden"
