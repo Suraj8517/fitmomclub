@@ -50,13 +50,22 @@ const MOBILE_UI_ASPECT     = GRID_W / GRID_H;
 const MOBILE_UI_FADE_START = 0.58; // logo band opacity reaches 0 at p ≈ 0.56 (see bandOpacity below)
 const MOBILE_UI_FADE_END   = 0.82; // finishes just as the phone frame bezel starts fading in
 
-// ── Final phase: once cards have landed in the grid, cross-fade them out
-// for a static mockup image. Tune these two ranges to control when the
-// swap happens and how long the crossfade lasts.
-const CARDS_FADE_START  = 0.78;
-const CARDS_FADE_END    = .95;
-const MOCKUP_FADE_START = 0.90;
-const MOCKUP_FADE_END   = 1.0;
+// ── Final phase: "implode → flash → iris reveal" transition ────────────────
+// Cards individually collapse toward center (staggered, blurred), a soft
+// radial flash sells the "snap", then the mockup image irises into focus.
+const IMPLODE_START      = 0.80;  // when the first card begins collapsing
+const IMPLODE_END        = 0.95;  // when the first card finishes collapsing
+const IMPLODE_STAGGER    = 0.012; // per-card delay (in `p` units), keyed to card order
+const IMPLODE_BLUR_PX    = 14;    // max blur applied to a card mid-implode
+const IMPLODE_PULL       = 0.65;  // fraction cards get pulled toward center (0 = no pull, 1 = fully centered)
+
+const FLASH_CENTER       = 0.92;  // where in scroll progress the flash peaks
+const FLASH_HALF_WIDTH   = 0.05;  // bell-curve width around FLASH_CENTER
+const FLASH_PEAK_OPACITY = 0.5;   // max opacity of the flash overlay
+
+const REVEAL_START       = 0.90;  // mockup iris begins opening
+const REVEAL_END         = 1.0;   // mockup iris fully open, in focus
+const REVEAL_BLUR_PX     = 10;    // mockup starts this blurred, resolves to sharp
 
 // ── Utility: linear interpolate ──────────────────────────────────────────────
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -169,9 +178,10 @@ export default function AppInterfaceSection() {
   const phoneFrameRef = useRef(null);
   const mobileUIRef   = useRef(null);
 
-  // ── Final phase: cards group + mockup image refs ────────────────────────
+  // ── Final phase: cards group + mockup image + flash overlay refs ────────
   const cardsGroupRef  = useRef(null);
   const mockupImageRef = useRef(null);
+  const flashRef       = useRef(null);
 
   // ── Dynamic text / visual nodes for the dark cards ─────────────────────────
   const weightNodeRef     = useRef(null); // "Weight" card kg value
@@ -287,6 +297,8 @@ export default function AppInterfaceSection() {
       }
     };
 
+    const KEYS = ["yoga","sleep","steps","ready","sleepPill","heart","run","med"];
+
     const tick = (time) => {
       if (lastTimeRef.current == null) lastTimeRef.current = time;
       const dt = Math.min((time - lastTimeRef.current) / 1000, 1 / 30);
@@ -320,7 +332,6 @@ export default function AppInterfaceSection() {
       const spreadScale = window.innerWidth / DESIGN_W;
       const S = isMobileRef.current ? S_mobile : S_desktop;
 
-      const KEYS = ["yoga","sleep","steps","ready","sleepPill","heart","run","med"];
       for (let i = 0; i < KEYS.length; i++) {
         const key  = KEYS[i];
         const node = cardRefs.current[key];
@@ -337,8 +348,22 @@ export default function AppInterfaceSection() {
         const scaleX = sw / fs.w;
         const scaleY = sh / fs.h;
 
+        // ── Implode: staggered, blurred pull-to-center on the way out ──────
+        const start = IMPLODE_START + i * IMPLODE_STAGGER;
+        const end   = IMPLODE_END   + i * IMPLODE_STAGGER * 0.5;
+        const it    = Math.min(Math.max((p - start) / (end - start), 0), 1);
+        const implodeT = ease(it);
+
+        const pullX = lerp(x, 0, implodeT * IMPLODE_PULL);
+        const pullY = lerp(y, 0, implodeT * IMPLODE_PULL);
+        const implodeScale   = lerp(1, 0.4, implodeT);
+        const implodeOpacity = 1 - implodeT;
+        const blurPx = implodeT * IMPLODE_BLUR_PX;
+
         node.style.transform =
-          `translate3d(calc(${x}px - 50%), calc(${y}px - 50%), 0) scale(${scaleX}, ${scaleY})`;
+          `translate3d(calc(${pullX}px - 50%), calc(${pullY}px - 50%), 0) scale(${scaleX * implodeScale}, ${scaleY * implodeScale})`;
+        node.style.opacity = implodeOpacity;
+        node.style.filter  = blurPx > 0.1 ? `blur(${blurPx}px)` : "none";
       }
 
       const yogaInner = cardRefs.current["yoga_inner"];
@@ -364,27 +389,34 @@ export default function AppInterfaceSection() {
         mobileUIRef.current.style.opacity = uiFadeT;
       }
 
-      // ── Final phase: fade out the live cards, fade in the static mockup ──
+      // ── Cards group: no longer drives opacity (per-card implode handles
+      // that above) — just kill pointer events once fully imploded ────────
       if (cardsGroupRef.current) {
-        const cardsFadeT = Math.min(
-          Math.max((p - CARDS_FADE_START) / (CARDS_FADE_END - CARDS_FADE_START), 0),
-          1
-        );
-        const cardsOpacity = 1 - cardsFadeT;
-        cardsGroupRef.current.style.opacity = cardsOpacity;
-        cardsGroupRef.current.style.pointerEvents = cardsOpacity < 0.05 ? "none" : "auto";
+        const groupDone = p >= IMPLODE_END + KEYS.length * IMPLODE_STAGGER * 0.5;
+        cardsGroupRef.current.style.pointerEvents = groupDone ? "none" : "auto";
       }
 
+      // ── Flash: soft radial pulse that peaks right before the reveal ──────
+      if (flashRef.current) {
+        const dist = Math.abs(p - FLASH_CENTER);
+        const flashT = Math.max(0, 1 - dist / FLASH_HALF_WIDTH);
+        flashRef.current.style.opacity = flashT * flashT * FLASH_PEAK_OPACITY;
+      }
+
+      // ── Mockup: iris reveal + defocus-to-sharp ────────────────────────────
       if (mockupImageRef.current) {
-        const mockupFadeT = Math.min(
-          Math.max((p - MOCKUP_FADE_START) / (MOCKUP_FADE_END - MOCKUP_FADE_START), 0),
+        const rt = Math.min(
+          Math.max((p - REVEAL_START) / (REVEAL_END - REVEAL_START), 0),
           1
         );
-const t = mockupFadeT * mockupFadeT * (3 - 2 * mockupFadeT); // smoothstep
+        const t = rt * rt * (3 - 2 * rt); // smoothstep
 
-mockupImageRef.current.style.opacity = t;
-mockupImageRef.current.style.transform =
-  `translate(-50%, -50%) scale(${1.5 - 0.5 * t})`;      }
+        const irisPct = lerp(0, 75, t); // % radius, clip-path circle grows from center
+        mockupImageRef.current.style.opacity   = t < 0.02 ? 0 : 1;
+        mockupImageRef.current.style.clipPath  = `circle(${irisPct}% at 50% 50%)`;
+        mockupImageRef.current.style.transform = `translate(-50%, -50%) scale(${1.08 - 0.08 * t})`;
+        mockupImageRef.current.style.filter    = `blur(${(1 - t) * REVEAL_BLUR_PX}px)`;
+      }
 
       // ── Core stat text values ───────────────────────────────────────────────
       const weightKg   = lerp(70, 68, p).toFixed(1);
@@ -532,31 +564,10 @@ mockupImageRef.current.style.transform =
               }}
             />
 
-            {/* ── FINAL MOCKUP IMAGE ──────────────────────────────────────────
-                Sits at the same centered origin the card grid uses. Starts
-                invisible; fades in during the final phase of scroll as the
-                live cards (below) fade out. */}
-            <img
-              ref={mockupImageRef}
-              src={mockupImage}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none select-none absolute z-30"
-              style={{
-                left: 0,
-                top: 0,
-                transform: "translate(-50%, -50%)",
-                width: GRID_W,
-                height: GRID_H,
-                objectFit: "contain",
-                opacity: 0,
-                willChange: "opacity",
-              }}
-            />
-
-            {/* ── LIVE CARD GRID ── fades out during the final scroll phase,
-                revealing the mockup image above it. All existing cards,
-                positions, and animations are untouched. */}
+            {/* ── LIVE CARD GRID ── each card individually implodes (blur +
+                pull-to-center + fade) during the final scroll phase, revealing
+                the flash and then the mockup image above it. All existing
+                positions and live-value animations are untouched. */}
             <div ref={cardsGroupRef} style={{ willChange: "opacity" }}>
 
               {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}
@@ -725,6 +736,50 @@ mockupImageRef.current.style.transform =
 
             </div>
             {/* end cardsGroupRef */}
+
+            {/* ── FLASH OVERLAY ── soft radial pulse that peaks right before
+                the mockup resolves, sitting between the imploding cards and
+                the mockup image. */}
+            <div
+              ref={flashRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute z-20"
+              style={{
+                left: 0,
+                top: 0,
+                width: GRID_W,
+                height: GRID_H,
+                transform: "translate(-50%, -50%)",
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)",
+                opacity: 0,
+                willChange: "opacity",
+              }}
+            />
+
+            {/* ── FINAL MOCKUP IMAGE ──────────────────────────────────────────
+                Sits at the same centered origin the card grid uses. Starts
+                invisible and clipped to a zero-radius circle; irises open
+                and defocuses to sharp as the cards finish imploding. */}
+            <img
+              ref={mockupImageRef}
+              src={mockupImage}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute z-30"
+              style={{
+                left: 0,
+                top: 0,
+                transform: "translate(-50%, -50%) scale(1.08)",
+                width: GRID_W,
+                height: GRID_H,
+                objectFit: "contain",
+                opacity: 0,
+                clipPath: "circle(0% at 50% 50%)",
+                filter: `blur(${REVEAL_BLUR_PX}px)`,
+                willChange: "opacity, clip-path, filter, transform",
+              }}
+            />
 
           </div>
         </div>
