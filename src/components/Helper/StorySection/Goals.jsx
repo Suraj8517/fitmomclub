@@ -1,260 +1,361 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Zap, Footprints, Watch } from "lucide-react";
 
-// Fires once when the element is (almost) fully inside the viewport,
-// then stops observing. Ignores the observer's very first callback,
-// which just reports whatever the state already is at page load — so
-// this only fires from a genuine scroll-driven entrance, never on load.
-function useInFullView(ref, threshold = 0.98) {
-  const [inView, setInView] = useState(false)
+// ---------------------------------------------------------------------------
+// Fires once when the element is (almost) fully in view, then stops
+// observing — matches the reveal pattern used by the other story overlays.
+function useInFullView(ref, threshold = 0.5) {
+  const [inView, setInView] = useState(false);
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    let skippedInitial = false
+    const el = ref.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!skippedInitial) {
-          skippedInitial = true
-          return
-        }
         if (entry.intersectionRatio >= threshold) {
-          setInView(true)
-          observer.disconnect()
+          setInView(true);
+          observer.disconnect();
         }
       },
-      { threshold: [0, 0.25, 0.5, 0.75, 0.9, threshold, 1] }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [ref, threshold])
-  return inView
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, threshold]);
+  return inView;
 }
 
-function useCountUp(target, duration = 900, delay = 0, enabled = true) {
-  const [value, setValue] = useState(0)
+// Eased ramp from 0 -> target, used for the ring's fill % and any counters.
+// Reports "done" a beat after it settles so callers can trigger a landing pulse.
+function useAnimatedValue(target, duration = 1000, delay = 0, enabled = true) {
+  const [value, setValue] = useState(0);
+  const [done, setDone] = useState(false);
   useEffect(() => {
-    if (!enabled) return
-    let raf
-    let start
+    if (!enabled) return;
+    let raf;
+    let start;
     const timeout = setTimeout(() => {
       const step = (ts) => {
-        if (!start) start = ts
-        const t = Math.min((ts - start) / duration, 1)
-        const eased = 1 - Math.pow(1 - t, 3)
-        setValue(Math.round(target * eased))
-        if (t < 1) raf = requestAnimationFrame(step)
-      }
-      raf = requestAnimationFrame(step)
-    }, delay)
+        if (!start) start = ts;
+        const t = Math.min((ts - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setValue(target * eased);
+        if (t < 1) {
+          raf = requestAnimationFrame(step);
+        } else {
+          setDone(true);
+        }
+      };
+      raf = requestAnimationFrame(step);
+    }, delay);
     return () => {
-      clearTimeout(timeout)
-      cancelAnimationFrame(raf)
-    }
-  }, [target, duration, delay, enabled])
-  return value
+      clearTimeout(timeout);
+      cancelAnimationFrame(raf);
+    };
+  }, [target, duration, delay, enabled]);
+  return [value, done];
 }
 
-const GOALS = [
-  { done: true, text: "Morning walk 30 min", pct: 100 },
-  { done: true, text: "2000 kcal intake", pct: 82 },
-  { done: true, text: "Drink 5L water", pct: 100 },
-  { done: false, text: "Evening yoga session", pct: 0 },
-]
+const CALORIES = 320;
+const GOAL = 500;
+const KM = 4.2;
+const WORKOUTS = 2;
 
-const SCORE = 75
-const RING_R = 20
-const RING_C = 2 * Math.PI * RING_R
+const ACCENT = "#FF4438"; // primary red
 
 export default function Goals() {
-  const containerRef = useRef(null)
-  const inView = useInFullView(containerRef)
+  const cardRef = useRef(null);
+  const inView = useInFullView(cardRef);
+  const [range, setRange] = useState("D");
 
-  const [loading, setLoading] = useState(false)
-  const [revealed, setRevealed] = useState(false)
+  const size = 190;
+  const stroke = 9;
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
 
-  useEffect(() => {
-    if (!inView) return
-    setLoading(true)
-    const t = setTimeout(() => {
-      setLoading(false)
-      setRevealed(true)
-    }, 650)
-    return () => clearTimeout(t)
-  }, [inView])
-
-  const score = useCountUp(SCORE, 1000, 550, revealed)
-
-  // The ring only starts drawing once the number has finished counting
-  // up, so the two read as one thing after another instead of both
-  // happening at once.
-  const [ringActive, setRingActive] = useState(false)
-  useEffect(() => {
-    if (!revealed) return
-    const t = setTimeout(() => setRingActive(true), 550 + 1000 + 150)
-    return () => clearTimeout(t)
-  }, [revealed])
-
-  const ringOffset = RING_C * (1 - (ringActive ? SCORE / 100 : 0))
+  const [animatedPct] = useAnimatedValue(CALORIES / GOAL, 950, 150, inView);
+  const [animatedCalories, caloriesDone] = useAnimatedValue(CALORIES, 950, 150, inView);
+  const [animatedKm, kmDone] = useAnimatedValue(KM, 900, 350, inView);
+  const dash = circumference * animatedPct;
 
   return (
-    <div ref={containerRef} className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
+    <div
+      ref={cardRef}
+      className="absolute hidden lg:block z-30 rounded-[1.75rem] overflow-hidden"
+      style={{
+        right: "6%",
+        top: "50%",
+        transform: inView ? "translateY(-50%)" : "translateY(-46%)",
+        opacity: inView ? 1 : 0,
+        transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+        background:
+          "radial-gradient(90% 55% at 50% 0%, #5c1210 0%, #2b0808 38%, #0a0303 68%, #000000 100%)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
       <style>{`
-        @keyframes goalsCardIn {
-          0% { opacity: 0; transform: translateY(18px) scale(0.98); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes gwPopIn { from { opacity: 0; transform: scale(0.6) rotate(-8deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+        @keyframes gwRowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes gwNumberLand { 0% { transform: scale(1); } 40% { transform: scale(1.14); } 100% { transform: scale(1); } }
+        @keyframes gwRingGlowPulse {
+          0%, 100% { filter: drop-shadow(0 0 4px rgba(255,68,56,0.45)); }
+          50% { filter: drop-shadow(0 0 10px rgba(255,68,56,0.85)); }
         }
-        @keyframes goalsRowIn {
-          0% { opacity: 0; transform: translateX(14px); }
-          100% { opacity: 1; transform: translateX(0); }
+        @keyframes gwWatchTick {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(-10deg); }
+          75% { transform: rotate(10deg); }
         }
-        @keyframes goalsCheckPop {
-          0% { transform: scale(0); }
-          55% { transform: scale(1.25); }
-          100% { transform: scale(1); }
+        @keyframes gwBtnPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,56,0.5); }
+          50% { box-shadow: 0 0 0 6px rgba(255,68,56,0); }
         }
-        @keyframes goalsBarFill {
-          0% { width: 0%; }
-        }
-        @keyframes goalsShimmer {
-          0% { background-position: -200px 0; }
-          100% { background-position: 200px 0; }
-        }
-        @keyframes goalsFooterIn {
-          0% { opacity: 0; transform: translateY(8px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes goalsBadgePulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0.35); }
-          50% { box-shadow: 0 0 0 5px rgba(20,184,166,0); }
-        }
-        .goals-skel {
-          background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.06) 63%);
-          background-size: 400px 100%;
-          animation: goalsShimmer 1.3s ease-in-out infinite;
-          border-radius: 8px;
-        }
+        .gw-number-land { animation: gwNumberLand 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        .gw-ring-active { animation: gwRingGlowPulse 2.4s ease-in-out infinite; }
+        .gw-watch { animation: gwWatchTick 2.6s ease-in-out 1.3s infinite; transform-origin: 50% 85%; }
+        .gw-btn-primary { animation: gwBtnPulse 2.6s ease-in-out 1.5s infinite; }
+        .gw-icon-btn { transition: transform 0.15s ease, background-color 0.15s ease; }
+        .gw-icon-btn:hover { background: rgba(255,255,255,0.12) !important; }
+        .gw-icon-btn:active { transform: scale(0.88); }
+        .gw-pill { transition: background-color 0.25s ease, color 0.25s ease, transform 0.15s ease; }
+        .gw-pill:active { transform: scale(0.94); }
+        .gw-btn { transition: transform 0.15s ease, filter 0.15s ease; }
+        .gw-btn:hover { filter: brightness(1.1); }
+        .gw-btn:active { transform: scale(0.96); }
+        .gw-stat-card { transition: transform 0.2s ease, background-color 0.2s ease; }
+        .gw-stat-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08) !important; }
         @media (prefers-reduced-motion: reduce) {
-          .goals-card, .goals-row, .goals-check, .goals-bar-fill, .goals-footer {
+          .gw-icon-btn, .gw-pill, .gw-btn, .gw-stat-card, .gw-watch, .gw-btn-primary, .gw-ring-active, .gw-number-land {
             animation: none !important;
+            transition: none !important;
           }
         }
       `}</style>
 
       <div
-        className="goals-card rounded-3xl p-7 shadow-2xl"
-        style={{
-          width: 300,
-          background: "rgba(28,28,30,0.96)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(16px)",
-          opacity: inView ? 1 : 0,
-          animation: inView ? "goalsCardIn 0.55s cubic-bezier(0.16,1,0.3,1) forwards" : "none",
-        }}
+        className="w-[300px] px-4 pt-4 pb-4 text-white"
+        style={{ fontFamily: "'Poppins', 'Segoe UI', sans-serif" }}
       >
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-base font-semibold text-white">My Goals</p>
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            className="gw-icon-btn w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(120,30,30,0.35)" }}
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} color="#fff" />
+          </button>
+
           <div
-            className="rounded-full px-3 py-1.5 text-xs"
+            className="flex items-center rounded-full p-0.5 gap-0.5"
+            style={{ background: "rgba(60,15,15,0.55)" }}
+          >
+            {["D", "W", "M"].map((r_) => (
+              <button
+                key={r_}
+                onClick={() => setRange(r_)}
+                className="gw-pill px-3.5 py-1.5 rounded-full text-xs font-medium"
+                style={{
+                  background: range === r_ ? "rgba(180,30,25,0.55)" : "transparent",
+                  color: range === r_ ? "#FF5A4E" : "rgba(255,255,255,0.85)",
+                  fontWeight: range === r_ ? 700 : 500,
+                }}
+              >
+                {r_}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-8 h-8" />
+        </div>
+
+        {/* Ring */}
+        <div className="flex items-center justify-center mb-4">
+          <button
+            className="gw-icon-btn p-1 -ml-1 rounded-full"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+          >
+            <ChevronLeft size={18} strokeWidth={2} />
+          </button>
+
+          <div className="relative mx-2" style={{ width: size, height: size }}>
+            <svg
+              width={size}
+              height={size}
+              style={{ transform: "rotate(-90deg)" }}
+              className={inView && dash > 0 ? "gw-ring-active" : ""}
+            >
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke="rgba(150,150,150,0.45)"
+                strokeWidth={stroke}
+              />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke={ACCENT}
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={`${dash} ${circumference - dash}`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p
+                className="text-xs font-semibold mb-0.5"
+                style={{
+                  color: ACCENT,
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translateY(0)" : "translateY(6px)",
+                  transition: "opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s",
+                }}
+              >
+                Today
+              </p>
+              <p
+                className={`text-4xl font-bold tabular-nums ${caloriesDone ? "gw-number-land" : ""}`}
+              >
+                {Math.round(animatedCalories)}
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{
+                  color: "rgba(255,255,255,0.6)",
+                  opacity: inView ? 1 : 0,
+                  transition: "opacity 0.5s ease 0.3s",
+                }}
+              >
+                of {GOAL} kcal
+              </p>
+              <button
+                className="gw-icon-btn mt-2 px-3 py-1 rounded-lg text-[11px]"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "rgba(0,0,0,0.4)",
+                  color: "rgba(255,255,255,0.75)",
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "scale(1)" : "scale(0.9)",
+                  transition: "opacity 0.5s ease 0.45s, transform 0.5s ease 0.45s, background-color 0.15s ease",
+                }}
+              >
+                Edit Goal
+              </button>
+            </div>
+          </div>
+
+          <button
+            className="gw-icon-btn p-1 -mr-1 rounded-full"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+          >
+            <ChevronRight size={18} strokeWidth={2} />
+          </button>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 gap-2.5 mb-3">
+          <div
+            className="gw-stat-card rounded-xl px-3 py-2.5 flex flex-col items-center gap-1"
             style={{
-              background: "rgba(20,184,166,0.15)",
-              border: "1px solid rgba(20,184,166,0.3)",
-              color: "#14B8A6",
-              animation: revealed ? "goalsBadgePulse 2.4s ease-in-out 1.2s infinite" : "none",
+              background: "rgba(255,255,255,0.05)",
+              opacity: inView ? 1 : 0,
+              animation: inView ? "gwRowIn 0.5s ease 0.55s both" : "none",
             }}
           >
-            Oct 25
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: ACCENT,
+                  opacity: inView ? 1 : 0,
+                  animation: inView ? "gwPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.7s both" : "none",
+                }}
+              >
+                <Zap size={11} color="#fff" fill="#fff" />
+              </span>
+              <span
+                className={`text-md font-semibold text-red-600 tabular-nums ${caloriesDone ? "gw-number-land" : ""}`}
+              >
+                {Math.round(animatedCalories)}
+              </span>
+            </div>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.8)" }}>
+              Kcal
+            </p>
+          </div>
+
+          <div
+            className="gw-stat-card rounded-xl px-3 py-2.5 flex flex-col items-center gap-1"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              opacity: inView ? 1 : 0,
+              animation: inView ? "gwRowIn 0.5s ease 0.65s both" : "none",
+            }}
+          >
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: ACCENT,
+                  opacity: inView ? 1 : 0,
+                  animation: inView ? "gwPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.8s both" : "none",
+                }}
+              >
+                <Footprints size={11} color="#fff" />
+              </span>
+              <span
+                className={`text-md font-semibold text-red-600 tabular-nums ${kmDone ? "gw-number-land" : ""}`}
+              >
+                {animatedKm.toFixed(1)}
+              </span>
+            </div>
+            <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.8)" }}>
+              Km
+            </p>
           </div>
         </div>
 
-        {loading &&
-          GOALS.map((_, i) => (
-            <div key={i} className="flex items-center gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-              <div className="goals-skel flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 9999, animationDelay: `${i * 0.08}s` }} />
-              <div className="goals-skel" style={{ flex: 1, height: 12, animationDelay: `${i * 0.08}s` }} />
-              <div className="goals-skel" style={{ width: 30, height: 12, animationDelay: `${i * 0.08}s` }} />
-            </div>
-          ))}
-
-        {revealed &&
-          GOALS.map((g, i) => (
-            <div
-              key={g.text}
-              className="goals-row flex items-center gap-3 py-3"
-              style={{
-                borderBottom: "1px solid rgba(255,255,255,0.07)",
-                opacity: 0,
-                animation: `goalsRowIn 0.45s ease ${i * 0.09}s forwards`,
-              }}
-            >
-              <div
-                className="goals-check rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                style={{
-                  width: 22,
-                  height: 22,
-                  background: g.done ? "rgba(20,184,166,0.2)" : "rgba(255,255,255,0.08)",
-                  border: g.done ? "none" : "1.5px solid rgba(255,255,255,0.2)",
-                  color: g.done ? "#14B8A6" : "transparent",
-                  animation: g.done ? `goalsCheckPop 0.4s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.09 + 0.25}s backwards` : "none",
-                }}
-              >
-                {g.done ? "✓" : ""}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm truncate" style={{ color: "rgba(255,255,255,0.7)" }}>{g.text}</p>
-                <div className="rounded-full mt-1.5 overflow-hidden" style={{ height: 4, background: "rgba(255,255,255,0.08)" }}>
-                  <div
-                    className="goals-bar-fill h-full rounded-full"
-                    style={{
-                      background: g.done ? "#14B8A6" : "rgba(255,255,255,0.25)",
-                      width: `${g.pct}%`,
-                      animation: `goalsBarFill 0.7s ease ${i * 0.09 + 0.15}s backwards`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              <p className="text-sm font-bold flex-shrink-0" style={{ color: g.done ? "#14B8A6" : "rgba(255,255,255,0.3)" }}>{g.pct}%</p>
-            </div>
-          ))}
-
+        {/* Gym Workouts card */}
         <div
-          className="goals-footer flex justify-between items-center mt-4 rounded-xl p-3"
+          className="rounded-2xl p-4"
           style={{
-            background: "rgba(20,184,166,0.08)",
-            opacity: 0,
-            animation: revealed ? `goalsFooterIn 0.5s ease ${GOALS.length * 0.09 + 0.2}s forwards` : "none",
+            background: "rgba(20,20,20,0.85)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(16px)",
+            transition: "opacity 0.55s ease 0.75s, transform 0.55s ease 0.75s",
           }}
         >
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Today's score</p>
-          <div className="flex items-center gap-2.5">
-            <svg
-              width="46"
-              height="46"
-              viewBox="0 0 46 46"
-              style={{
-                transform: `rotate(-90deg) scale(${ringActive ? 1 : 0.7})`,
-                opacity: ringActive ? 1 : 0,
-                transition: "opacity 0.35s ease, transform 0.35s ease",
-              }}
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-center">Gym Workouts</p>
+            <span className="gw-watch inline-flex">
+              <Watch size={16} color={ACCENT} strokeWidth={2} />
+            </span>
+          </div>
+
+          <p className="text-[11px] mb-3 text-center" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Number of Workouts completed Today
+          </p>
+
+          <p className="text-xl font-light text-center mb-4">{WORKOUTS} workouts<span className="text-[11px] font-light text-red-600"> (320kcal)</span></p>
+
+          <div className="flex gap-2">
+            <button
+              className="gw-btn gw-btn-primary flex-1 rounded-xl py-2.5 text-[10px] font-light"
+              style={{ background: ACCENT, color: "#fff" }}
             >
-              <circle cx="23" cy="23" r={RING_R} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
-              <circle
-                cx="23"
-                cy="23"
-                r={RING_R}
-                fill="none"
-                stroke="#14B8A6"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeDasharray={RING_C}
-                strokeDashoffset={ringOffset}
-                style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)" }}
-              />
-            </svg>
-            <p className="text-2xl font-extrabold tabular-nums" style={{ color: "#14B8A6" }}>{score}%</p>
+              Add Gym Workout
+            </button>
+            <button
+              className="gw-btn flex-1 rounded-xl py-2.5 text-[10px] font-light"
+              style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}
+            >
+              Workout Logs
+            </button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

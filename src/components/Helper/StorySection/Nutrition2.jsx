@@ -1,218 +1,360 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Pencil, Bell } from "lucide-react";
 
-// Fires once when the element is (almost) fully inside the viewport,
-// then stops observing. Ignores the observer's very first callback,
-// which just reports whatever the state already is at page load — so
-// this only fires from a genuine scroll-driven entrance, never on load.
-function useInFullView(ref, threshold = 0.98) {
-  const [inView, setInView] = useState(false)
+// ---------------------------------------------------------------------------
+// Fires once when the element is (almost) fully in view, then stops
+// observing — matches the reveal pattern used by the other story overlays.
+function useInFullView(ref, threshold = 0.5) {
+  const [inView, setInView] = useState(false);
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    let skippedInitial = false
+    const el = ref.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!skippedInitial) {
-          skippedInitial = true
-          return
-        }
         if (entry.intersectionRatio >= threshold) {
-          setInView(true)
-          observer.disconnect()
+          setInView(true);
+          observer.disconnect();
         }
       },
-      { threshold: [0, 0.25, 0.5, 0.75, 0.9, threshold, 1] }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [ref, threshold])
-  return inView
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, threshold]);
+  return inView;
 }
 
-function useCountUp(target, duration = 900, delay = 0, enabled = true) {
-  const [value, setValue] = useState(0)
+// Eased ramp from 0 -> target, used for both the calorie count and the
+// ring's fill percentage so they land in sync.
+function useAnimatedValue(target, duration = 1000, delay = 0, enabled = true) {
+  const [value, setValue] = useState(0);
   useEffect(() => {
-    if (!enabled) return
-    let raf
-    let start
+    if (!enabled) return;
+    let raf;
+    let start;
     const timeout = setTimeout(() => {
       const step = (ts) => {
-        if (!start) start = ts
-        const t = Math.min((ts - start) / duration, 1)
-        const eased = 1 - Math.pow(1 - t, 3)
-        setValue(Math.round(target * eased))
-        if (t < 1) raf = requestAnimationFrame(step)
-      }
-      raf = requestAnimationFrame(step)
-    }, delay)
+        if (!start) start = ts;
+        const t = Math.min((ts - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setValue(target * eased);
+        if (t < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    }, delay);
     return () => {
-      clearTimeout(timeout)
-      cancelAnimationFrame(raf)
-    }
-  }, [target, duration, delay, enabled])
-  return value
+      clearTimeout(timeout);
+      cancelAnimationFrame(raf);
+    };
+  }, [target, duration, delay, enabled]);
+  return value;
 }
 
-const MEALS = [
-  { emoji: "🌅", meal: "Breakfast", desc: "Oats + banana + seeds", cal: 380, color: "#F97316" },
-  { emoji: "☀️", meal: "Lunch", desc: "Grilled tofu + quinoa bowl", cal: 520, color: "#3B82F6" },
-  { emoji: "🌙", meal: "Dinner", desc: "Lentil soup + whole roti", cal: 460, color: "#8B5CF6" },
-  { emoji: "🍎", meal: "Snack", desc: "Greek yogurt + nuts", cal: 210, color: "#22C55E" },
-]
+const MACROS = [
+  { label: "Protein", value: 25, max: 146, unit: "g", color: "#E5484D" },
+  { label: "Carbs", value: 162, max: 293, unit: "g", color: "#2F8FE8" },
+  { label: "Fat", value: 22, max: 65, unit: "g", color: "#F5A524" },
+  { label: "Fibre", value: 13, max: 33, unit: "g", color: "#3DBE64" },
+];
 
-const TOTAL = MEALS.reduce((sum, m) => sum + m.cal, 0)
+const CALORIES = 986;
+const GOAL = 2342;
+const PCT = CALORIES / GOAL;
 
-export default function Nutrition2() {
-  const containerRef = useRef(null)
-  const inView = useInFullView(containerRef)
+export default function Nutrition1() {
+  const cardRef = useRef(null);
+  const inView = useInFullView(cardRef);
 
-  const [loading, setLoading] = useState(false)
-  const [revealed, setRevealed] = useState(false)
+  const [reminderOn, setReminderOn] = useState(false);
+  const [range, setRange] = useState("D");
 
-  useEffect(() => {
-    if (!inView) return
-    setLoading(true)
-    const t = setTimeout(() => {
-      setLoading(false)
-      setRevealed(true)
-    }, 650)
-    return () => clearTimeout(t)
-  }, [inView])
+  const size = 280;
+  const stroke = 14;
+  const r = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * r;
 
-  // Total counts up only after the meal rows have finished revealing,
-  // so it reads as a sum arriving once the parts are all in.
-  const [totalActive, setTotalActive] = useState(false)
-  useEffect(() => {
-    if (!revealed) return
-    const t = setTimeout(() => setTotalActive(true), MEALS.length * 0.1 * 1000 + 250)
-    return () => clearTimeout(t)
-  }, [revealed])
-
-  const total = useCountUp(TOTAL, 850, 0, totalActive)
+  // Ring sweeps in first, calories count up alongside it, macro bars and
+  // the reminder card follow in a short stagger once the card is visible.
+  const animatedPct = useAnimatedValue(PCT, 1100, 150, inView);
+  const animatedCalories = useAnimatedValue(CALORIES, 1100, 150, inView);
+  const dash = circumference * animatedPct;
 
   return (
-    <div ref={containerRef} className="absolute hidden lg:block z-30" style={{ right: "6%", top: "50%", transform: "translateY(-50%)" }}>
+    <div
+      ref={cardRef}
+      className="absolute hidden lg:block z-30 rounded-3xl overflow-hidden"
+      style={{
+        right: "6%",
+        top: "50%",
+        transform: inView ? "translateY(-50%)" : "translateY(-46%)",
+        opacity: inView ? 1 : 0,
+        transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+        background:
+          "radial-gradient(120% 90% at 50% 0%, #123328 0%, #0b1f19 45%, #060b0a 100%)",
+      }}
+    >
       <style>{`
-        @keyframes nutCardIn {
-          0% { opacity: 0; transform: translateY(18px) scale(0.98); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes nut1BellRing {
+          0%, 100% { transform: rotate(0deg); }
+          15% { transform: rotate(-14deg); }
+          30% { transform: rotate(12deg); }
+          45% { transform: rotate(-8deg); }
+          60% { transform: rotate(5deg); }
+          75% { transform: rotate(-2deg); }
         }
-        @keyframes nutRowIn {
-          0% { opacity: 0; transform: translateX(14px); }
-          100% { opacity: 1; transform: translateX(0); }
+        @keyframes nut1RowIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes nutEmojiPop {
-          0% { transform: scale(0) rotate(-15deg); }
-          60% { transform: scale(1.25) rotate(6deg); }
-          100% { transform: scale(1) rotate(0deg); }
+        @keyframes nut1BarFill {
+          from { width: 0%; }
         }
-        @keyframes nutBarFill {
-          0% { width: 0%; }
+        @keyframes nut1PopIn {
+          from { opacity: 0; transform: scale(0.85); }
+          to   { opacity: 1; transform: scale(1); }
         }
-        @keyframes nutShimmer {
-          0% { background-position: -200px 0; }
-          100% { background-position: 200px 0; }
+        .nut1-thumb {
+          transition: left 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes nutFooterIn {
-          0% { opacity: 0; transform: translateY(8px); }
-          100% { opacity: 1; transform: translateY(0); }
+        .nut1-toggle-track {
+          transition: background-color 0.28s ease;
         }
-        @keyframes nutFooterFlash {
-          0% { background: rgba(46,125,50,0.28); }
-          100% { background: rgba(46,125,50,0.1); }
+        .nut1-icon-btn {
+          transition: transform 0.15s ease, background-color 0.15s ease;
         }
-        .nut-skel {
-          background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.06) 63%);
-          background-size: 400px 100%;
-          animation: nutShimmer 1.3s ease-in-out infinite;
-          border-radius: 8px;
+        .nut1-icon-btn:hover {
+          background: rgba(255,255,255,0.1) !important;
+        }
+        .nut1-icon-btn:active {
+          transform: scale(0.88);
+        }
+        .nut1-pill {
+          transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+        }
+        .nut1-pill:active {
+          transform: scale(0.94);
         }
         @media (prefers-reduced-motion: reduce) {
-          .nut-card, .nut-row, .nut-emoji, .nut-bar-fill, .nut-footer {
-            animation: none !important;
+          .nut1-thumb, .nut1-toggle-track, .nut1-icon-btn, .nut1-pill {
+            transition: none !important;
           }
         }
       `}</style>
 
       <div
-        className="nut-card rounded-3xl p-7 shadow-2xl"
-        style={{
-          width: 310,
-          background: "rgba(28,28,30,0.96)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(16px)",
-          opacity: inView ? 1 : 0,
-          animation: inView ? "nutCardIn 0.55s cubic-bezier(0.16,1,0.3,1) forwards" : "none",
-        }}
+        className="w-full max-w-sm px-5 pt-6 pb-8 text-white"
+        style={{ fontFamily: "'Poppins', 'Segoe UI', sans-serif" }}
       >
-        <p className="text-base font-semibold text-white mb-1">Custom Meal Plan</p>
-        <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>Week 3 · Recovery Phase</p>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            className="nut1-icon-btn w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.06)" }}
+          >
+            <ChevronLeft size={20} strokeWidth={2.5} />
+          </button>
 
-        <div className="space-y-3">
-          {loading &&
-            MEALS.map((_, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <div className="nut-skel flex-shrink-0" style={{ width: 22, height: 22, borderRadius: 8, animationDelay: `${i * 0.08}s` }} />
-                <div className="flex-1 space-y-1.5 pt-0.5">
-                  <div className="nut-skel" style={{ width: "55%", height: 10, animationDelay: `${i * 0.08}s` }} />
-                  <div className="nut-skel" style={{ width: "85%", height: 8, animationDelay: `${i * 0.08}s` }} />
-                </div>
-                <div className="nut-skel" style={{ width: 34, height: 10, marginTop: 2, animationDelay: `${i * 0.08}s` }} />
-              </div>
-            ))}
-
-          {revealed &&
-            MEALS.map((m, i) => (
-              <div
-                key={m.meal}
-                className="nut-row flex items-start gap-3 rounded-xl px-3 py-2.5"
+          <div
+            className="flex items-center rounded-full p-1"
+            style={{ background: "rgba(255,255,255,0.05)" }}
+          >
+            {["D", "W", "M"].map((r_) => (
+              <button
+                key={r_}
+                onClick={() => setRange(r_)}
+                className="nut1-pill px-6 py-2 rounded-full text-sm font-medium"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  opacity: 0,
-                  animation: `nutRowIn 0.45s ease ${i * 0.1}s forwards`,
+                  background: range === r_ ? "rgba(45,184,144,0.18)" : "transparent",
+                  color: range === r_ ? "#3ECF9E" : "rgba(255,255,255,0.55)",
+                  border: range === r_ ? "1px solid rgba(62,207,158,0.35)" : "1px solid transparent",
                 }}
               >
-                <span
-                  className="nut-emoji text-xl mt-0.5 inline-block"
-                  style={{ animation: `nutEmojiPop 0.45s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.1 + 0.2}s backwards` }}
+                {r_}
+              </button>
+            ))}
+          </div>
+
+          <div
+            className="nut1-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.05)" }}
+          >
+            <span style={{ fontSize: 20 }}>📋</span>
+          </div>
+        </div>
+
+        {/* Ring */}
+        <div className="flex items-center justify-center mb-9">
+          <button className="nut1-icon-btn p-2 -ml-2 rounded-full" style={{ color: "rgba(255,255,255,0.55)" }}>
+            <ChevronLeft size={26} strokeWidth={2} />
+          </button>
+
+          <div className="relative mx-2" style={{ width: size, height: size }}>
+            <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke="rgba(255,255,255,0.14)"
+                strokeWidth={stroke}
+              />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke="#2FBE8F"
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={`${dash} ${circumference - dash}`}
+                style={{
+                  filter: inView ? "drop-shadow(0 0 6px rgba(47,190,143,0.55))" : "none",
+                  transition: "filter 0.4s ease",
+                }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p
+                className="text-sm font-medium mb-1"
+                style={{
+                  color: "#3ECF9E",
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "translateY(0)" : "translateY(6px)",
+                  transition: "opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s",
+                }}
+              >
+                Aug 04
+              </p>
+              <p className="text-5xl font-bold tabular-nums">
+                {Math.round(animatedCalories)}
+              </p>
+              <p
+                className="text-sm mt-1"
+                style={{
+                  color: "rgba(255,255,255,0.55)",
+                  opacity: inView ? 1 : 0,
+                  transition: "opacity 0.5s ease 0.3s",
+                }}
+              >
+                of {GOAL} cal
+              </p>
+              <button
+                className="nut1-icon-btn mt-3 px-4 py-1.5 rounded-lg text-xs"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  color: "rgba(255,255,255,0.7)",
+                  opacity: inView ? 1 : 0,
+                  transform: inView ? "scale(1)" : "scale(0.9)",
+                  transition: "opacity 0.5s ease 0.45s, transform 0.5s ease 0.45s, background-color 0.15s ease",
+                }}
+              >
+                Edit Goal
+              </button>
+            </div>
+          </div>
+
+          <button className="nut1-icon-btn p-2 -mr-2 rounded-full" style={{ color: "rgba(255,255,255,0.55)" }}>
+            <ChevronRight size={26} strokeWidth={2} />
+          </button>
+        </div>
+
+        {/* Goal card */}
+        <div
+          className="rounded-3xl p-6 mb-4"
+          style={{
+            background: "rgba(255,255,255,0.045)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(14px)",
+            transition: "opacity 0.55s ease 0.5s, transform 0.55s ease 0.5s",
+          }}
+        >
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-lg font-semibold">Goal</p>
+            <Pencil size={16} color="#3ECF9E" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+            {MACROS.map((m, i) => (
+              <div
+                key={m.label}
+                style={{
+                  opacity: inView ? 1 : 0,
+                  animation: inView
+                    ? `nut1RowIn 0.5s ease ${0.6 + i * 0.09}s both`
+                    : "none",
+                }}
+              >
+                <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  {m.label} <span className="font-bold text-white">{m.value}</span>
+                  <span style={{ color: "rgba(255,255,255,0.4)" }}>
+                    /{m.max}
+                    {m.unit}
+                  </span>
+                </p>
+                <div
+                  className="h-[5px] rounded-full overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.1)" }}
                 >
-                  {m.emoji}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-sm font-medium text-white">{m.meal}</p>
-                    <p className="text-xs font-semibold flex-shrink-0" style={{ color: m.color }}>{m.cal} kcal</p>
-                  </div>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{m.desc}</p>
-                  <div className="rounded-full mt-1.5 overflow-hidden" style={{ height: 3, background: "rgba(255,255,255,0.08)" }}>
-                    <div
-                      className="nut-bar-fill h-full rounded-full"
-                      style={{
-                        background: m.color,
-                        width: `${Math.round((m.cal / TOTAL) * 100)}%`,
-                        animation: `nutBarFill 0.7s ease ${i * 0.1 + 0.3}s backwards`,
-                      }}
-                    />
-                  </div>
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min((m.value / m.max) * 100, 100)}%`,
+                      background: m.color,
+                      animation: inView
+                        ? `nut1BarFill 0.7s ease ${0.75 + i * 0.09}s both`
+                        : "none",
+                    }}
+                  />
                 </div>
               </div>
             ))}
+          </div>
         </div>
 
+        {/* Meal reminder */}
         <div
-          className="nut-footer flex justify-between items-center mt-4 rounded-xl p-3"
+          className="rounded-3xl p-5 flex items-center gap-3"
           style={{
-            opacity: 0,
-            animation: revealed
-              ? `nutFooterIn 0.5s ease ${MEALS.length * 0.1 + 0.15}s forwards, nutFooterFlash 0.6s ease ${MEALS.length * 0.1 + 0.15 + 0.55}s backwards`
-              : "none",
-            background: "rgba(46,125,50,0.1)",
+            background: "rgba(255,255,255,0.045)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(14px)",
+            transition: "opacity 0.55s ease 1.05s, transform 0.55s ease 1.05s",
           }}
         >
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Total daily</p>
-          <p className="text-base font-extrabold tabular-nums" style={{ color: "#2E7D32" }}>{total} kcal</p>
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: "#2FBE8F" }}
+          >
+            <Bell
+              size={18}
+              color="#0b1f19"
+              fill="#0b1f19"
+              style={{
+                animation: inView ? "nut1BellRing 1.8s ease 1.4s 1" : "none",
+                transformOrigin: "50% 20%",
+              }}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-semibold mb-0.5">Meal Reminder</p>
+            <p className="text-xs leading-snug" style={{ color: "rgba(255,255,255,0.5)" }}>
+              Breakfast at 10:00 AM, Lunch at 02:00 PM, Dinner at 08:00 PM
+            </p>
+          </div>
+          <button
+            onClick={() => setReminderOn((v) => !v)}
+            className="nut1-toggle-track w-12 h-7 rounded-full flex-shrink-0 relative"
+            style={{ background: reminderOn ? "#2FBE8F" : "rgba(255,255,255,0.15)" }}
+          >
+            <div
+              className="nut1-thumb absolute top-0.5 w-6 h-6 rounded-full bg-white"
+              style={{ left: reminderOn ? 22 : 2 }}
+            />
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
