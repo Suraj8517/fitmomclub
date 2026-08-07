@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import hero from "../../assets/home/hero.jpg";
 import RunningSVG from "../Helper/StorySection/RunningSVG";
 import Heart from "../Helper/Heart"
+import ConsultationButton from "../Helper/ConsultationButton";
 const BG_IMAGE = hero;
 const SMOOTHING = 7;
 
@@ -335,26 +336,9 @@ className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rou
                   className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-lg font-medium text-white/80"
                   style={{ animationDelay: "0.3s" }}
                 >
-                  Download the app
+Consult With Our Experts
                 </p>
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  <a
-                    href="#"
-                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
-                    style={{ animationDelay: "0.38s" }}
-                  >
-                    <PlayStoreIcon />
-                    Google Play
-                  </a>
-                  <a
-                    href="#"
-                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
-                    style={{ animationDelay: "0.46s" }}
-                  >
-                    <AppleIcon />
-                    App Store
-                  </a>
-                </div>
+                <ConsultationButton label="Book a Free Consultation"/>
               </div>
 
             )}
@@ -406,30 +390,4 @@ function easeSmoothstep(t) {
 function easedRemap(value, inMin, inMax, outMin, outMax) {
   const t = clamp(remap(value, inMin, inMax, 0, 1), 0, 1);
   return outMin + easeSmoothstep(t) * (outMax - outMin);
-}
-
-function PlayStoreIcon() {
-  return (
-    <svg
-      className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M3 2.5v19l10.8-9.5L3 2.5zm12.2 10L18.5 15l2.8-1.6c1-.6 1-1.8 0-2.4L18.5 9l-3.3 3.5zm-1.2.7L4.8 21l11.5-6.6-2.3-1.2zm2.3-3.6L4.8 3l9.2 7.8 2.3-1.2z" />
-    </svg>
-  );
-}
-
-function AppleIcon() {
-  return (
-    <svg
-      className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M16.37 12.64c.02 2.42 2.11 3.23 2.13 3.24-.02.06-.33 1.16-1.08 2.3-.65.98-1.33 1.95-2.4 1.97-1.05.02-1.39-.62-2.59-.62-1.2 0-1.58.6-2.56.64-1 .04-1.77-1-2.43-1.98-1.36-2-2.4-5.65-1-8.1.69-1.2 1.93-1.96 3.28-1.98 1.03-.02 2 .7 2.62.7.62 0 1.79-.87 3.01-.74.51.02 1.94.21 2.86 1.56-.08.05-1.7 1-1.68 3.01zM14.9 4.06c.55-.67.92-1.6.82-2.56-.8.03-1.77.54-2.34 1.2-.52.6-.98 1.56-.86 2.47.9.07 1.82-.46 2.38-1.11z" />
-    </svg>
-  );
 }

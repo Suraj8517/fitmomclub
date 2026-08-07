@@ -178,7 +178,7 @@ export default function CycleCalendar() {
       </div>
 
       {/* ---- day grid ---- */}
-      <div key={`grid-${animKey}`} className="grid grid-cols-7 gap-y-2 gap-x-1">
+      <div key={`grid-${animKey}`} className="grid grid-cols-7 gap-y-2 gap-x-">
         {gridDays.map((date, idx) => {
           if (!date) return <div key={`empty-${idx}`} />;
           const state = classify(date);

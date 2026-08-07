@@ -11,6 +11,7 @@ import CommunityStatsSection from '../components/Home/StatSection'
 import TextReveal from '../components/Home/TextReveal'
 import FitnessScrollLanding from '../components/Home/FitnessScrollHero'
 import Testimonial from '../components/Home/Testimonial'
+import ProgramFeatures from '../components/Home/ProgramFeatures'
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
     <HomeHeroSection/>
     <HomeHeroSecondSection/>
     <ProgramSection/>
+    <ProgramFeatures/>
         <AppInterfaceSection/>
     <AppShowCaseSection/>
     <StorySection/>

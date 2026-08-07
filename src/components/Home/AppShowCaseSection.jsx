@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react";
 import screen1 from "../../assets/home/mobile/img1.png";
 import screen2 from "../../assets/home/mobile/img2.png";
 import useDeviceType from "../../components/Helper/DeviceType";
+import AppleIcon  from "../../components/Helper/AppleIcon";
+import  PlayStoreIcon  from "../../components/Helper/PlaystoreIcon";
+
 import { Link } from "react-router-dom";
 
 export default function HealthCoachSection() {
@@ -159,7 +162,7 @@ export default function HealthCoachSection() {
       {/* ── DESKTOP VERSION (lg+) — original design unchanged ── */}
       <section
         ref={sectionRef}
-        className="relative w-full 2xl:min-h-[250vh] min-h-[265vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
+        className="relative w-full 2xl:min-h-[260vh] min-h-[265vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
       >
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-14 pb-2">
           <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl mb-5">
@@ -191,6 +194,25 @@ export default function HealthCoachSection() {
             <p className="text-base lg:text-lg 2xl:text-xl text-[#3C3C3C] leading-relaxed mb-8 max-w-lg">
               Access personalized workout plans, nutrition guidance, live classes, progress tracking, and expert support, all in one app designed to help you achieve lasting results.
             </p>
+           
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  <a
+                    href="#"
+                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    style={{ animationDelay: "0.38s" }}
+                  >
+                    <PlayStoreIcon />
+                    Google Play
+                  </a>
+                  <a
+                    href="#"
+                    className="hero-fade-up hero-cta inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 sm:px-8 sm:py-4 text-xs sm:text-sm font-medium text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                    style={{ animationDelay: "0.46s" }}
+                  >
+                    <AppleIcon />
+                    App Store
+                  </a>
+                </div>
           </div>
 
           {/* Phones with parallax */}

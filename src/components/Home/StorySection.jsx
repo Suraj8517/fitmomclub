@@ -8,7 +8,7 @@ import {
   Baby,
   Target,
   Venus,
-  Apple,
+  Apple,Moon
 } from "lucide-react";
 import Nutrition from "../Helper/StorySection/Nutrition";
 import Fitness from "../Helper/StorySection/Fitness";
@@ -17,103 +17,37 @@ import RunningMap from "../Helper/StorySection/Expert";
 import Goals from "../Helper/StorySection/Goals";
 import Nutrition2 from "../Helper/StorySection/Nutrition2";
 import MenstrualCycle from "../Helper/StorySection/MenstrualCycle";
+import Sleep from "../Helper/StorySection/SleepTracker";
+import HealthTracker from "../Helper/StorySection/ActivityTracker";
 const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
-const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
+const sleep="https://res.cloudinary.com/q1vba78b/image/upload/v1786101450/sleep_s2d5rx.webp"
 const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
 const trainer = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204590/trainer_pwlz4t.webp"
 const support ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/support_xav2qs.webp"
-const family = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/family_madgcc.webp"
+const tracker = "https://res.cloudinary.com/q1vba78b/image/upload/v1786105331/activity_fjkxqw.webp"
 const goals="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/goal_myqwro.webp"
 const nutrition ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/nutrition_zyz46h.webp"
 const cycle ="https://res.cloudinary.com/q1vba78b/image/upload/v1786078998/cycle_f6p4lu.webp"
 
 const stories = [
-  {
-    id: 1,
-    title: "Tailored Fitness for Moms",
-    badge: "Personalized Programs",
-    badgeBg: "#8FF4E9",
-    icon: HeartPulse,
-    iconColor: "#004F4A",
-    image: mom,
-    description:
-      "Personalized workout programs designed for prenatal, postnatal, and busy moms, helping you regain strength, improve mobility, and stay active at every stage.",
-    overlay: "nutrition",
-  },
-  {
-    id: 2,
-    title: "Holistic Wellness",
-    badge: "Mind & Body",
-    badgeBg: "#ECDBFF",
-    icon: Sparkles,
-    iconColor: "#8865B3",
-    image: wellness,
-    description:
-      "Achieve complete wellness through a balanced approach that combines fitness, nutritious eating, stress management, quality sleep, and emotional well-being.",
-    overlay: "fitness",
-  },
-  {
-    id: 3,
-    title: "Flexible Schedules",
-    badge: "Fits Your Lifestyle",
-    badgeBg: "#D3E3FD",
-    icon: Clock3,
-    iconColor: "#1249A4",
-    image: online,
-    description:
-      "Exercise anytime with flexible online sessions that easily fit into your daily routine—whether during nap time, early mornings, or evenings.",
-    overlay: "coach",
-  },
-  {
-    id: 4,
-    title: "Expert Trainers",
-    badge: "Certified Coaches",
-    badgeBg: "#FFE7C7",
-    icon: BadgeCheck,
-    iconColor: "#C26A00",
-    image: trainer,
-    description:
-      "Train with certified women's health and fitness specialists who provide safe, effective guidance tailored to every phase of motherhood.",
-    overlay: "expert",
-  },
-  {
-    id: 5,
-    title: "Supportive Community",
-    badge: "Grow Together",
-    badgeBg: "#FFD9E8",
-    icon: Users,
-    iconColor: "#B4235D",
-    image: support,
-    description:
-      "Become part of a positive community where moms inspire, encourage, and celebrate each other's progress throughout their wellness journey.",
-    overlay: "community",
-  },
-  {
-    id: 6,
-    title: "Family-Friendly Approach",
-    badge: "Wellness for Everyone",
-    badgeBg: "#D9F7D9",
-    icon: Baby,
-    iconColor: "#1F7A3D",
-    image: family,
-    description:
-      "Enjoy fitness routines that fit seamlessly into family life, with activities you can do alone or together with your little ones.",
-    overlay: "family",
-  },
-  {
-    id: 7,
-    title: "Realistic Goals",
-    badge: "Sustainable Results",
-    badgeBg: "#FFE7A8",
-    icon: Target,
-    iconColor: "#B56A00",
-    image: goals,
-    description:
-      "Focus on achievable milestones that build lasting healthy habits, helping you gain confidence without overwhelming your daily routine.",
-    overlay: "goals",
-  },
+  
+
+ 
+  
+{
+  id: 1,
+  title: "Workout Tracker",
+  badge: "Stay Active",
+  badgeBg: "#FFE7A8",
+  icon: Target,
+  iconColor: "#B56A00",
+  image: goals,
+  description:
+    "Track your workouts, monitor your progress, and stay motivated with personalized insights that help you build a consistent fitness routine.",
+  overlay: "goals",
+},
  {
-  id: 8,
+  id: 2,
   title: "Menstrual Cycle Tracking",
   badge: "Hormonal Health",
   badgeBg: "#FAD7E6",      // Soft pink
@@ -125,8 +59,8 @@ const stories = [
   overlay: "cycle",
 },
   {
-    id: 9,
-    title: "Custom Nutrition Plans",
+    id: 3,
+    title: "Smart Nutrition Support",
     badge: "Healthy Eating",
     badgeBg: "#D7F5D8",
     icon: Apple,
@@ -136,6 +70,30 @@ const stories = [
       "Receive personalized nutrition plans crafted around your lifestyle, recovery, and health goals to fuel your body with confidence.",
     overlay: "nutrition2",
   },
+    {
+  id: 4,
+  title: "Sleep Tracker",
+  badge: "Better Sleep",
+  badgeBg: "#E3E8FF",
+  icon: Moon,
+  iconColor: "#4F46E5",
+  image: sleep,
+  description:
+    "Track your sleep patterns and receive personalized insights to improve your rest, recovery, energy, and overall well-being.",
+  overlay: "sleep",
+},
+  {
+  id: 5,
+  title: "Health Tracker",
+  badge: "Overall Wellness",
+  badgeBg: "#D7F5D8",
+  icon: Apple,
+  iconColor: "#2E7D32",
+  image: tracker,
+  description:
+    "Track your daily health metrics, monitor your progress, and receive personalized insights to support your overall wellness journey.",
+  overlay: "tracker",
+},
 ];
 
 function FloatingOverlay({ type }) {
@@ -148,13 +106,13 @@ function FloatingOverlay({ type }) {
         <Fitness/>
       );
 
-    case "coach":
+    case "sleep":
       return (
-        <Coach/>
+        <Sleep/>
       );
-case "expert":
+case "tracker":
   return(
-<RunningMap/>
+    <HealthTracker/>
   );
     case "goals":
       return (
