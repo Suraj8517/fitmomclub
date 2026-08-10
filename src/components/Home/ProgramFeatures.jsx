@@ -21,8 +21,6 @@ const family = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/fam
 const goals="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/goal_myqwro.webp"
 const nutrition ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/nutrition_zyz46h.webp"
 
-
-
 const stories = [
   {
     id: 1,
@@ -221,41 +219,19 @@ function StoryCard({ story, index, revealed }) {
   );
 }
 
-// Mobile carousel — one card visible at a time, swipe/drag, prev/next
-// buttons, dot indicators, and autoplay that pauses when the person
-// interacts and resumes a few seconds later.
+// Mobile carousel — one card visible at a time. Purely user-driven:
+// swipe/drag, prev/next buttons, and dot indicators. No autoplay —
+// the slide only changes when the person interacts with it.
 function MobileCarousel({ revealed }) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const total = stories.length;
   const trackRef = useRef(null);
-  const resumeTimeout = useRef(null);
   const touchStartX = useRef(null);
   const touchDeltaX = useRef(0);
 
   const goTo = useCallback((next) => {
     setIndex(((next % total) + total) % total);
   }, [total]);
-
-  const handleManualNav = useCallback((next) => {
-    goTo(next);
-    setPaused(true);
-    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
-    resumeTimeout.current = setTimeout(() => setPaused(false), 6000);
-  }, [goTo]);
-
-  // Autoplay
-  useEffect(() => {
-    if (!revealed || paused) return;
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % total);
-    }, 4000);
-    return () => clearInterval(id);
-  }, [revealed, paused, total]);
-
-  useEffect(() => () => {
-    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
-  }, []);
 
   const onTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -267,8 +243,8 @@ function MobileCarousel({ revealed }) {
   };
   const onTouchEnd = () => {
     if (Math.abs(touchDeltaX.current) > 40) {
-      if (touchDeltaX.current < 0) handleManualNav(index + 1);
-      else handleManualNav(index - 1);
+      if (touchDeltaX.current < 0) goTo(index + 1);
+      else goTo(index - 1);
     }
     touchStartX.current = null;
     touchDeltaX.current = 0;
@@ -310,7 +286,7 @@ function MobileCarousel({ revealed }) {
         <button
           type="button"
           aria-label="Previous"
-          onClick={() => handleManualNav(index - 1)}
+          onClick={() => goTo(index - 1)}
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           style={{
             background: "#FFFFFF",
@@ -328,7 +304,7 @@ function MobileCarousel({ revealed }) {
               key={story.id}
               type="button"
               aria-label={`Go to ${story.title}`}
-              onClick={() => handleManualNav(i)}
+              onClick={() => goTo(i)}
               className="rounded-full"
               style={{
                 width: i === index ? 20 : 7,
@@ -343,7 +319,7 @@ function MobileCarousel({ revealed }) {
         <button
           type="button"
           aria-label="Next"
-          onClick={() => handleManualNav(index + 1)}
+          onClick={() => goTo(index + 1)}
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           style={{
             background: "#FFFFFF",
@@ -390,7 +366,7 @@ export default function ProgramFeatures() {
           </p>
         </div>
 
-        {/* Mobile — single card carousel */}
+        {/* Mobile — single card carousel, swipe-driven, no autoplay */}
         <MobileCarousel revealed={sectionRevealed} />
 
         {/* Tablet/Desktop — 4 columns / 2 columns grid */}
