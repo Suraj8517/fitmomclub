@@ -162,7 +162,7 @@ export default function HealthCoachSection() {
       {/* ── DESKTOP VERSION (lg+) — original design unchanged ── */}
       <section
         ref={sectionRef}
-        className="relative w-full 2xl:min-h-[260vh] min-h-[265vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
+        className="relative w-full 2xl:min-h-[265vh] min-h-[275vh] bg-[#F6F5F1] overflow-hidden hidden lg:block"
       >
         <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-14 pb-2">
           <h1 className="text-4xl lg:text-5xl xl:text-[3rem] 2xl:text-[4rem] font-normal text-[#2C2C2C] leading-[1.2] tracking-tight 2xl:max-w-6xl max-w-5xl mb-5">
@@ -235,7 +235,7 @@ export default function HealthCoachSection() {
 
             <div
               ref={phone1Ref}
-              className=" absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[590px] 2xl:w-[680px] 2xl:bottom-[-730px] 2xl:left-[160px] left-[60px] bottom-[-500px] lg:left-[60px] lg:bottom-[-500px] xl:left-[60px] xl:bottom-[-500px]"
+              className=" absolute pointer-events-auto w-[260px] sm:w-[320px] md:w-[400px] lg:w-[480px] xl:w-[590px] 2xl:w-[680px] 2xl:bottom-[-730px] 2xl:left-[160px] left-[60px] bottom-[-500px] lg:left-[60px] lg:bottom-[-500px] xl:left-[60px] xl:bottom-[-550px]"
               style={{
                 transform: "perspective(1400px) rotateZ(0deg) rotateX(0deg)",
                 transition: "transform 0.08s linear",

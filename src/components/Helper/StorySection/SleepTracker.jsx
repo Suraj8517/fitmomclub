@@ -97,15 +97,15 @@ export default function AnimatedSleepCard() {
   const [bedTimeOpen, setBedTimeOpen] = useState(true);
   const [reminderOn, setReminderOn] = useState(false);
 
-  // ── Ring geometry ──
-  const box = 222;
+  // ── Ring geometry (scaled down ~24% from the original) ──
+  const box = 168;
   const cx = box / 2;
   const cy = box / 2;
-  const ringR = 96;
-  const ringStroke = 15;
-  const faceR = ringR - ringStroke / 2 - 4;
-  const numbersR = ringR - ringStroke / 2 - 19;
-  const tickR = ringR + ringStroke / 2 + 4;
+  const ringR = 72;
+  const ringStroke = 11;
+  const faceR = ringR - ringStroke / 2 - 3;
+  const numbersR = ringR - ringStroke / 2 - 14;
+  const tickR = ringR + ringStroke / 2 + 3;
 
   const bedAngle = (BED_HOUR % 12) * 30;
   const wakeAngle = (WAKE_HOUR % 12) * 30;
@@ -123,7 +123,7 @@ export default function AnimatedSleepCard() {
       <div>
         <div
           ref={cardRef}
-          className="absolute hidden lg:block z-30 rounded-[1.75rem] overflow-hidden"
+          className="absolute hidden lg:block z-30 rounded-[1.4rem] overflow-hidden"
           style={{
             right: "6%",
             top: "50%",
@@ -153,7 +153,7 @@ export default function AnimatedSleepCard() {
               60% { transform: rotate(5deg); }
             }
             .sl-number-land { animation: slNumberLand 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-            .sl-arc-in { animation: slArcDraw 0.7s cubic-bezier(0.16,1,0.3,1) 0.35s both; transform-origin: 111px 111px; }
+            .sl-arc-in { animation: slArcDraw 0.7s cubic-bezier(0.16,1,0.3,1) 0.35s both; transform-origin: 84px 84px; }
             .sl-moon-badge { animation: slMoonGlow 2.6s ease-in-out infinite; }
             .sl-bell { animation: slBellRing 1.8s ease 1.2s 1; transform-origin: 50% 20%; }
             .sl-icon-btn { transition: transform 0.15s ease, background-color 0.15s ease; }
@@ -179,16 +179,16 @@ export default function AnimatedSleepCard() {
           `}</style>
 
           <div
-            className="w-[300px] px-4 pt-4 pb-4 text-white"
+            className="w-[236px] px-3 pt-3 pb-3 text-white"
             style={{ fontFamily: "'Poppins', 'Segoe UI', sans-serif" }}
           >
             {/* Top bar */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2.5">
               <button
-                className="sl-icon-btn w-8 h-8 rounded-full flex items-center justify-center"
+                className="sl-icon-btn w-6 h-6 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(30,60,100,0.4)" }}
               >
-                <ChevronLeft size={16} strokeWidth={2.5} color="#fff" />
+                <ChevronLeft size={13} strokeWidth={2.5} color="#fff" />
               </button>
 
               <div
@@ -199,7 +199,7 @@ export default function AnimatedSleepCard() {
                   <button
                     key={r_}
                     onClick={() => setRange(r_)}
-                    className="sl-pill px-3.5 py-1.5 rounded-full text-xs font-medium"
+                    className="sl-pill px-2.5 py-1 rounded-full text-[10px]"
                     style={{
                       background: range === r_ ? "rgba(47,143,232,0.35)" : "transparent",
                       color: range === r_ ? "#6CB3F5" : "rgba(255,255,255,0.85)",
@@ -212,17 +212,17 @@ export default function AnimatedSleepCard() {
               </div>
 
               <button
-                className="sl-icon-btn w-8 h-8 rounded-full flex items-center justify-center"
+                className="sl-icon-btn w-6 h-6 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(30,60,100,0.4)" }}
               >
-                <Share2 size={14} strokeWidth={2.2} color="rgba(255,255,255,0.85)" />
+                <Share2 size={11} strokeWidth={2.2} color="rgba(255,255,255,0.85)" />
               </button>
             </div>
 
             {/* Clock ring */}
-            <div className="flex items-center justify-center mb-4">
-              <button className="sl-icon-btn p-1 -ml-1 rounded-full" style={{ color: "rgba(255,255,255,0.6)" }}>
-                <ChevronLeft size={18} strokeWidth={2} />
+            <div className="flex items-center justify-center mb-2.5">
+              <button className="sl-icon-btn p-0.5 -ml-1 rounded-full" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <ChevronLeft size={15} strokeWidth={2} />
               </button>
 
               <div
@@ -243,7 +243,7 @@ export default function AnimatedSleepCard() {
                     fill="none"
                     stroke="rgba(255,255,255,0.22)"
                     strokeWidth={1}
-                    strokeDasharray="1 7.2"
+                    strokeDasharray="1 5.6"
                   />
                   <circle cx={cx} cy={cy} r={ringR} fill="none" stroke="rgba(140,150,165,0.35)" strokeWidth={ringStroke} />
                   <circle cx={cx} cy={cy} r={faceR} fill="#04070d" />
@@ -266,7 +266,7 @@ export default function AnimatedSleepCard() {
                         y={p.y}
                         textAnchor="middle"
                         dominantBaseline="central"
-                        fontSize={12}
+                        fontSize={9}
                         fontWeight={600}
                         fill="rgba(255,255,255,0.65)"
                       >
@@ -280,36 +280,36 @@ export default function AnimatedSleepCard() {
                 <div
                   className="sl-moon-badge absolute rounded-full flex items-center justify-center"
                   style={{
-                    width: 30,
-                    height: 30,
-                    left: bedPt.x - 15,
-                    top: bedPt.y - 15,
+                    width: 22,
+                    height: 22,
+                    left: bedPt.x - 11,
+                    top: bedPt.y - 11,
                     background: "#0C2A4A",
-                    boxShadow: "0 0 0 3px #04070d, 0 0 0 4px rgba(47,143,232,0.5)",
+                    boxShadow: "0 0 0 2px #04070d, 0 0 0 3px rgba(47,143,232,0.5)",
                   }}
                 >
-                  <Moon size={13} color="#fff" fill="#fff" />
+                  <Moon size={10} color="#fff" fill="#fff" />
                 </div>
 
                 {/* Wake badge (sun) */}
                 <div
                   className="absolute rounded-full flex items-center justify-center"
                   style={{
-                    width: 30,
-                    height: 30,
-                    left: wakePt.x - 15,
-                    top: wakePt.y - 15,
+                    width: 22,
+                    height: 22,
+                    left: wakePt.x - 11,
+                    top: wakePt.y - 11,
                     background: SUN_COLOR,
-                    boxShadow: "0 0 0 3px #04070d",
+                    boxShadow: "0 0 0 2px #04070d",
                   }}
                 >
-                  <Sun size={13} color="#fff" />
+                  <Sun size={10} color="#fff" />
                 </div>
 
                 {/* Center readout */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <p
-                    className="text-xs font-semibold mb-0.5"
+                    className="text-[10px] font-semibold mb-0"
                     style={{
                       color: "#6CB3F5",
                       opacity: inView ? 1 : 0,
@@ -320,11 +320,11 @@ export default function AnimatedSleepCard() {
                     Today
                   </p>
                   <p className={`flex items-baseline gap-1 tabular-nums ${hoursDone ? "sl-number-land" : ""}`}>
-                    <span className="text-4xl font-bold">{Math.round(animatedHours)}</span>
-                    <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>hr</span>
+                    <span className="text-2xl font-bold">{Math.round(animatedHours)}</span>
+                    <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.65)" }}>hr</span>
                   </p>
                   <p
-                    className="text-xs mt-0.5"
+                    className="text-[10px] mt-0"
                     style={{
                       color: "rgba(255,255,255,0.55)",
                       opacity: inView ? 1 : 0,
@@ -334,7 +334,7 @@ export default function AnimatedSleepCard() {
                     of {GOAL_HOURS} hr
                   </p>
                   <button
-                    className="sl-icon-btn mt-2 px-4 py-1 rounded-full text-[11px]"
+                    className="sl-icon-btn mt-1 px-3 py-0.5 rounded-full text-[9px]"
                     style={{
                       border: "1px solid rgba(255,255,255,0.18)",
                       background: "rgba(255,255,255,0.04)",
@@ -349,14 +349,14 @@ export default function AnimatedSleepCard() {
                 </div>
               </div>
 
-              <button className="sl-icon-btn p-1 -mr-1 rounded-full" style={{ color: "rgba(255,255,255,0.6)" }}>
-                <ChevronRight size={18} strokeWidth={2} />
+              <button className="sl-icon-btn p-0.5 -mr-1 rounded-full" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <ChevronRight size={15} strokeWidth={2} />
               </button>
             </div>
 
             {/* Edit Sleep data CTA */}
             <button
-              className="sl-btn w-full rounded-2xl py-3 mb-3 flex items-center justify-center gap-2 text-sm font-medium"
+              className="sl-btn w-full rounded-xl py-2 mb-2.5 flex items-center justify-center gap-1.5 text-[12px] font-medium"
               style={{
                 background: ACCENT,
                 color: "#fff",
@@ -366,63 +366,63 @@ export default function AnimatedSleepCard() {
               }}
             >
               Edit Sleep data
-              <Sparkles size={14} />
+              <Sparkles size={12} />
             </button>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-2 gap-2.5 mb-3">
+            <div className="grid grid-cols-2 gap-2 mb-2.5">
               <div
-                className="sl-stat-card rounded-xl px-3 py-2.5"
+                className="sl-stat-card rounded-lg px-2.5 py-2"
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   opacity: inView ? 1 : 0,
                   animation: inView ? "slRowIn 0.5s ease 0.6s both" : "none",
                 }}
               >
-                <div className="flex items-center gap-1.5 mb-1">
+                <div className="flex items-center gap-1 mb-0.5">
                   <span
-                    className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                    className="w-4 h-4 rounded-md flex items-center justify-center flex-shrink-0"
                     style={{
                       background: ACCENT,
                       opacity: inView ? 1 : 0,
                       animation: inView ? "slPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.75s both" : "none",
                     }}
                   >
-                    <TrendingUp size={11} color="#fff" />
+                    <TrendingUp size={9} color="#fff" />
                   </span>
-                  <span className="text-[12px]" style={{ color: "#6CB3F5" }}>Goal</span>
+                  <span className="text-[10px]" style={{ color: "#6CB3F5" }}>Goal</span>
                 </div>
-                <p className="text-lg font-semibold">{GOAL_HOURS}h 0m</p>
+                <p className="text-sm font-semibold">{GOAL_HOURS}h 0m</p>
               </div>
 
               <div
-                className="sl-stat-card rounded-xl px-3 py-2.5"
+                className="sl-stat-card rounded-lg px-2.5 py-2"
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   opacity: inView ? 1 : 0,
                   animation: inView ? "slRowIn 0.5s ease 0.7s both" : "none",
                 }}
               >
-                <div className="flex items-center gap-1.5 mb-1">
+                <div className="flex items-center gap-1 mb-0.5">
                   <span
-                    className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                    className="w-4 h-4 rounded-md flex items-center justify-center flex-shrink-0"
                     style={{
                       background: ACCENT,
                       opacity: inView ? 1 : 0,
                       animation: inView ? "slPopIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.85s both" : "none",
                     }}
                   >
-                    <Grid3x3 size={11} color="#fff" />
+                    <Grid3x3 size={9} color="#fff" />
                   </span>
-                  <span className="text-[12px]" style={{ color: "#6CB3F5" }}>Woke Up</span>
+                  <span className="text-[10px]" style={{ color: "#6CB3F5" }}>Woke Up</span>
                 </div>
-                <p className="text-lg font-semibold">{WAKE_TIME_LABEL}</p>
+                <p className="text-sm font-semibold">{WAKE_TIME_LABEL}</p>
               </div>
             </div>
 
             {/* Bed Time detail card */}
             <div
-              className="rounded-2xl p-4 mb-3"
+              className="rounded-xl p-3"
               style={{
                 background: "rgba(20,20,20,0.6)",
                 border: "1px solid rgba(255,255,255,0.06)",
@@ -435,12 +435,12 @@ export default function AnimatedSleepCard() {
                 onClick={() => setBedTimeOpen((v) => !v)}
                 className="w-full flex items-center justify-between"
               >
-                <div className="flex items-center gap-2">
-                  <BedDouble size={16} color={ACCENT} />
-                  <span className="text-sm font-semibold">Bed Time</span>
+                <div className="flex items-center gap-1.5">
+                  <BedDouble size={13} color={ACCENT} />
+                  <span className="text-[12px] font-semibold">Bed Time</span>
                 </div>
                 <ChevronDown
-                  size={16}
+                  size={13}
                   color="rgba(255,255,255,0.6)"
                   className="sl-chevron"
                   style={{ transform: bedTimeOpen ? "rotate(180deg)" : "rotate(0deg)" }}
@@ -448,20 +448,20 @@ export default function AnimatedSleepCard() {
               </button>
 
               {bedTimeOpen && (
-                <div className="mt-3">
-                  <div className="grid grid-cols-3 gap-2 mb-2.5">
+                <div className="mt-2">
+                  <div className="grid grid-cols-3 gap-2 mb-2">
                     {[
                       { label: "Sleep Time", value: SLEEP_TIME_LABEL },
                       { label: "Wakeup Time", value: WAKE_TIME_LABEL },
                       { label: "Sleep Hours", value: `${SLEEP_HOURS} hr` },
                     ].map((s) => (
                       <div key={s.label}>
-                        <p className="text-[10px] mb-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{s.label}</p>
-                        <p className="text-[12.5px] font-medium">{s.value}</p>
+                        <p className="text-[9px] mb-0" style={{ color: "rgba(255,255,255,0.45)" }}>{s.label}</p>
+                        <p className="text-[11px] font-medium">{s.value}</p>
                       </div>
                     ))}
                   </div>
-                  <p className="text-[11px] leading-snug">
+                  <p className="text-[10px] leading-snug">
                     <span style={{ color: "#3DBE64" }}>Severely Sleep-Deprived</span>
                     <span style={{ color: "rgba(255,255,255,0.4)" }}> – </span>
                     <span style={{ color: "#6CB3F5" }}>Low Sleep</span>

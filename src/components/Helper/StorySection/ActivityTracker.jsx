@@ -58,33 +58,17 @@ const CONDITIONS = [
       { label: "Fasting Plasma Glucose (FPG)", value: null, unit: "", status: null },
       { label: "HbA1c (NGSP)", value: null, unit: "", status: null },
     ],
-  },
-  {
-    id: "hormonal",
-    icon: "🧬",
-    title: "Hormonal Imbalances",
-    testsCount: 6,
-    updated: "7 Feb 2025",
-    defaultOpen: false,
-    rows: [
-      { label: "LH (Luteinizing Hormone)", value: "6.2", unit: "mIU/mL", status: "Normal", valueColor: TEAL },
-      { label: "FSH (Follicle Stimulating)", value: "5.4", unit: "mIU/mL", status: "Normal", valueColor: TEAL },
-      { label: "Testosterone (Total)", value: "42", unit: "ng/dL", status: "Normal", valueColor: TEAL },
-      { label: "Prolactin", value: "18.9", unit: "ng/mL", status: "High", valueColor: "#F5786F" },
-      { label: "TSH", value: "2.1", unit: "µIU/mL", status: "Normal", valueColor: TEAL },
-      { label: "AMH", value: null, unit: "", status: null },
-    ],
-  },
+  }
 ];
 
 function StatusPill({ status }) {
   if (!status) {
-    return <span className="text-[11.5px]" style={{ color: "rgba(255,255,255,0.35)" }}>No Data</span>;
+    return <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>No Data</span>;
   }
   const isHigh = status === "High" || status === "Low";
   return (
     <span
-      className="ht2-pill px-2.5 py-0.5 rounded-full text-[11px] font-medium"
+      className="ht2-pill px-2 py-0.5 rounded-full text-[9.5px] font-medium"
       style={{
         background: isHigh ? "rgba(245,120,111,0.16)" : TEAL_SOFT_BG,
         color: isHigh ? "#F5786F" : TEAL,
@@ -100,7 +84,7 @@ function ConditionCard({ condition, index, inView }) {
 
   return (
     <div
-      className="rounded-2xl px-4 pt-3.5 pb-3 mb-2.5"
+      className="rounded-xl px-3 pt-2.5 pb-2 mb-2"
       style={{
         background: "#141416",
         border: "1px solid rgba(255,255,255,0.07)",
@@ -110,22 +94,22 @@ function ConditionCard({ condition, index, inView }) {
     >
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-start justify-between gap-3"
+        className="w-full flex items-start justify-between gap-2.5"
       >
         <div className="flex-1 text-left">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-[15px] leading-none">{condition.icon}</span>
-            <span className="text-[14.5px] font-semibold text-white">{condition.title}</span>
-            <Info size={12} color="rgba(255,255,255,0.4)" />
+          <div className="flex items-center gap-1 mb-0.5">
+            <span className="text-[12px] leading-none">{condition.icon}</span>
+            <span className="text-[12px] font-semibold text-white">{condition.title}</span>
+            <Info size={10} color="rgba(255,255,255,0.4)" />
           </div>
-          <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+          <p className="text-[9.5px]" style={{ color: "rgba(255,255,255,0.45)" }}>
             {condition.testsCount} Tests &nbsp; Updated {condition.updated}
           </p>
         </div>
         <ChevronDown
-          size={15}
+          size={13}
           color="rgba(255,255,255,0.55)"
-          className="ht2-chevron flex-shrink-0 mt-1"
+          className="ht2-chevron flex-shrink-0 mt-0.5"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
@@ -135,24 +119,24 @@ function ConditionCard({ condition, index, inView }) {
         style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       >
         <div className="ht2-collapse-inner">
-          <div className="mt-1.5">
+          <div className="mt-1">
             {condition.rows.map((row, i) => (
               <div
                 key={row.label}
-                className="flex items-center justify-between py-1.5"
+                className="flex items-center justify-between py-1"
                 style={{
                   borderTop: i === 0 ? "1px solid rgba(255,255,255,0.07)" : "none",
                   opacity: open ? 1 : 0,
                   animation: open ? `ht2RowIn 0.35s ease ${0.05 + i * 0.05}s both` : "none",
                 }}
               >
-                <span className="text-[12.5px] pr-3" style={{ color: "rgba(255,255,255,0.75)" }}>
+                <span className="text-[10.5px] pr-2" style={{ color: "rgba(255,255,255,0.75)" }}>
                   {row.label}
                 </span>
                 {row.value ? (
-                  <span className="flex items-center gap-1.5 flex-shrink-0">
-                    <span className="text-[13px] font-semibold" style={{ color: row.valueColor }}>
-                      {row.value} <span className="text-[11px] font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>{row.unit}</span>
+                  <span className="flex items-center gap-1 flex-shrink-0">
+                    <span className="text-[11px] font-semibold" style={{ color: row.valueColor }}>
+                      {row.value} <span className="text-[9.5px] font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>{row.unit}</span>
                     </span>
                     <StatusPill status={row.status} />
                   </span>
@@ -163,10 +147,10 @@ function ConditionCard({ condition, index, inView }) {
             ))}
           </div>
 
-          <div className="mt-0.5 pt-2 flex justify-end" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-            <button className="ht2-link flex items-center gap-1 text-[12.5px] font-medium" style={{ color: TEAL }}>
+          <div className="mt-0.5 pt-1.5 flex justify-end" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <button className="ht2-link flex items-center gap-1 text-[10.5px] font-medium" style={{ color: TEAL }}>
               View Full Progress
-              <ChevronRight size={13} />
+              <ChevronRight size={11} />
             </button>
           </div>
         </div>
@@ -220,16 +204,16 @@ export default function HealthTracker() {
         }
       `}</style>
 
-      {/* Mobile-screen-sized frame (iPhone-ish 375×812) — the card itself
-          carries the shadow/blur treatment used by the Cycle Calendar so
-          the two panels read as a matched pair. */}
+      {/* Compact frame — scaled down from the original 375×568 iPhone-ish
+          size. The card itself carries the shadow/blur treatment used by
+          the Cycle Calendar so the two panels read as a matched pair. */}
       <div
         className="relative"
-        style={{ width: 375, height: 568 }}
+        style={{ width: 288, height: 436 }}
       >
         <div
           ref={sectionRef}
-          className="ht2-card rounded-3xl font-sans text-white h-full w-full shadow-2xl"
+          className="ht2-card rounded-2xl font-sans text-white h-full w-full shadow-2xl overflow-hidden"
           style={{
             background: "rgba(20,20,22,0.96)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -240,60 +224,56 @@ export default function HealthTracker() {
           }}
         >
           <div
-            className="ht2-panel-scroll px-4 py-5 text-[13px] overflow-y-auto h-full"
+            className="ht2-panel-scroll px-3 py-3.5 text-[11px] overflow-y-auto h-full"
             style={{ scrollbarWidth: "none" }}
           >
         {/* Header */}
         <div
-          className="flex items-center gap-2.5 mb-3.5 pb-2.5"
+          className="flex items-center gap-2 mb-2.5 pb-2"
           style={{
             borderBottom: "1px solid rgba(255,255,255,0.08)",
             opacity: inView ? 1 : 0,
             animation: inView ? "ht2HeaderIn 0.5s ease both" : "none",
           }}
         >
-          <button className="ht2-nav-btn w-6 h-6 rounded-full flex items-center justify-center">
-            <ChevronLeft size={17} color="#fff" />
-          </button>
-          <h1 className="text-[16px] font-semibold tracking-tight">Health Tracker</h1>
-        </div>
+             </div>
 
         {/* Library row */}
         <div
-          className="flex items-center gap-2 mb-3"
+          className="flex items-center gap-1.5 mb-2.5"
           style={{ opacity: inView ? 1 : 0, animation: inView ? "ht2HeaderIn 0.5s ease 0.05s both" : "none" }}
         >
           <span
-            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+            className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
             style={{ border: "1.5px solid rgba(255,255,255,0.5)" }}
           >
-            <ListFilter size={12} color="rgba(255,255,255,0.85)" />
+            <ListFilter size={10} color="rgba(255,255,255,0.85)" />
           </span>
-          <span className="text-[13px] font-medium">Library</span>
+          <span className="text-[11px] font-medium">Library</span>
         </div>
 
         {/* Search bar */}
         <div
-          className="ht2-search flex items-center gap-2 rounded-xl px-3 py-2 mb-3"
+          className="ht2-search flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 mb-2.5"
           style={{
             border: "1px solid rgba(255,255,255,0.14)",
             opacity: inView ? 1 : 0,
             animation: inView ? "ht2HeaderIn 0.5s ease 0.1s both" : "none",
           }}
         >
-          <Search size={14} color="rgba(255,255,255,0.4)" />
+          <Search size={12} color="rgba(255,255,255,0.4)" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search Medical Condition"
-            className="bg-transparent outline-none text-[12.5px] flex-1 placeholder:text-[rgba(255,255,255,0.4)]"
+            className="bg-transparent outline-none text-[10.5px] flex-1 placeholder:text-[rgba(255,255,255,0.4)]"
             style={{ color: "#fff" }}
           />
         </div>
 
         {/* Filter pills */}
         <div
-          className="ht2-scroll flex items-center gap-1.5 mb-3.5 overflow-x-auto"
+          className="ht2-scroll flex items-center gap-1 mb-2.5 overflow-x-auto"
           style={{
             opacity: inView ? 1 : 0,
             animation: inView ? "ht2HeaderIn 0.5s ease 0.15s both" : "none",
@@ -304,7 +284,7 @@ export default function HealthTracker() {
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className="ht2-filter-btn flex-shrink-0 px-3 py-1.5 rounded-xl text-[12px] font-medium"
+              className="ht2-filter-btn flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-medium"
               style={{
                 background: activeFilter === f ? TEAL : "transparent",
                 color: activeFilter === f ? "#04120e" : "rgba(255,255,255,0.85)",
@@ -323,7 +303,7 @@ export default function HealthTracker() {
             <ConditionCard key={condition.id} condition={condition} index={i} inView={inView} />
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-[14px] py-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <p className="text-center text-[12px] py-6" style={{ color: "rgba(255,255,255,0.4)" }}>
               No conditions match "{query}"
             </p>
           )}

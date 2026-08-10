@@ -61,11 +61,8 @@ const CALORIES = 986;
 const GOAL = 2342;
 const PCT = CALORIES / GOAL;
 
-// Smooth easing used everywhere the card resizes between full <-> compact.
 const RESIZE_TRANSITION = "0.4s cubic-bezier(0.65, 0, 0.35, 1)";
 
-// Interpolation helper: pick the compact or full value for a given metric.
-// Keeping every size in one place makes the two states easy to retune.
 function pick(compact, compactVal, fullVal) {
   return compact ? compactVal : fullVal;
 }
@@ -78,11 +75,8 @@ export default function Nutrition1() {
   const [range, setRange] = useState("D");
   const [compact, setCompact] = useState(false);
 
-  // ── Sizing table ── every metric below has a full-size and compact value.
-  // The SVG ring keeps a fixed internal viewBox (280) so its geometry never
-  // changes — only the CSS box it's rendered into shrinks, which lets the
-  // resize itself animate via a plain width/height transition instead of
-  // jumping.
+  
+
   const RING_VB = 280;
   const stroke = pick(compact, 8, 11);
   const r = (RING_VB - stroke) / 2;

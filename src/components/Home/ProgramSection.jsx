@@ -110,8 +110,6 @@ function navDelay(visibleCount) {
   );
 }
 
-/** Hook: fires every time the ref'd element scrolls into the viewport, and
- *  resets when it scrolls out — so the whole entrance replays each time. */
 function useInView() {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -120,12 +118,6 @@ function useInView() {
     const el = ref.current;
     if (!el) return;
 
-    // The observer's very first callback fires immediately upon
-    // observe() and just reports whatever the state already is at
-    // that moment — if the section happens to already be in view at
-    // page load, that alone would satisfy isIntersecting and fire the
-    // reveal instantly. Skip that first callback so the reveal only
-    // ever fires from an actual scroll-driven entrance afterward.
     let skippedInitial = false;
 
     const observer = new IntersectionObserver(
@@ -134,17 +126,12 @@ function useInView() {
           skippedInitial = true;
           return;
         }
-        // Toggle both ways: animate in on entry, reset on exit, so it's
-        // ready to play again the next time it scrolls into view.
+
         setInView(entry.isIntersecting);
       },
       {
         threshold: 0,
-        // Only shrink the BOTTOM edge of the viewport (top stays at 0).
-        // A -35% bottom margin means the section only counts as
-        // "entered" once its top edge has scrolled up to roughly the
-        // 65%-of-screen-height mark — i.e. it's substantially into
-        // view, not just a sliver poking up from the bottom.
+    
         rootMargin: "0px 0px -35% 0px",
       }
     );
@@ -165,9 +152,6 @@ function PlanCard({ plan, animIndex }) {
   const visible = expanded ? features : features.slice(0, PREVIEW_COUNT);
   const hasMore = features.length > PREVIEW_COUNT;
 
-  // Container starts at animIndex * CARD_STAGGER and takes
-  // CONTAINER_DURATION to finish. The button's own entrance waits
-  // until that's done, plus a small gap.
   const containerDelay = animIndex * CARD_STAGGER;
   const buttonDelay = containerDelay + CONTAINER_DURATION + CONTAINER_GAP;
 
