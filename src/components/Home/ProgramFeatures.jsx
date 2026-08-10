@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   HeartPulse,
   Sparkles,
@@ -8,6 +8,8 @@ import {
   Baby,
   Target,
   Apple,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
@@ -144,13 +146,11 @@ function useRevealed(threshold = 0.2) {
   return [ref, revealed];
 }
 
-function StoryCard({ story, index }) {
-  const [ref, revealed] = useRevealed();
+function StoryCard({ story, index, revealed }) {
   const Icon = story.icon;
 
   return (
     <div
-      ref={ref}
       className="group relative flex flex-col rounded-[26px] bg-white overflow-hidden"
       style={{
         border: "1px solid rgba(20,35,31,0.08)",
@@ -221,12 +221,158 @@ function StoryCard({ story, index }) {
   );
 }
 
-export default function ProgramFeatures() {
+// Mobile carousel — one card visible at a time, swipe/drag, prev/next
+// buttons, dot indicators, and autoplay that pauses when the person
+// interacts and resumes a few seconds later.
+function MobileCarousel({ revealed }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const total = stories.length;
+  const trackRef = useRef(null);
+  const resumeTimeout = useRef(null);
+  const touchStartX = useRef(null);
+  const touchDeltaX = useRef(0);
+
+  const goTo = useCallback((next) => {
+    setIndex(((next % total) + total) % total);
+  }, [total]);
+
+  const handleManualNav = useCallback((next) => {
+    goTo(next);
+    setPaused(true);
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    resumeTimeout.current = setTimeout(() => setPaused(false), 6000);
+  }, [goTo]);
+
+  // Autoplay
+  useEffect(() => {
+    if (!revealed || paused) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % total);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [revealed, paused, total]);
+
+  useEffect(() => () => {
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+  }, []);
+
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+  const onTouchMove = (e) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+  const onTouchEnd = () => {
+    if (Math.abs(touchDeltaX.current) > 40) {
+      if (touchDeltaX.current < 0) handleManualNav(index + 1);
+      else handleManualNav(index - 1);
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  };
+
   return (
-    <section className="w-full" style={{ background: "#F5F4F0" }}>
+    <div
+      className="sm:hidden"
+      style={{
+        opacity: revealed ? 1 : 0,
+        transform: revealed ? "translateY(0)" : "translateY(22px)",
+        transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+      }}
+    >
+      <div
+        className="relative overflow-hidden"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <div
+          ref={trackRef}
+          className="flex"
+          style={{
+            transform: `translateX(-${index * 100}%)`,
+            transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
+          }}
+        >
+          {stories.map((story) => (
+            <div key={story.id} className="w-full flex-shrink-0 px-0.5">
+              <StoryCard story={story} index={0} revealed={true} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-between mt-6">
+        <button
+          type="button"
+          aria-label="Previous"
+          onClick={() => handleManualNav(index - 1)}
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(20,35,31,0.12)",
+            boxShadow: "0 1px 2px rgba(20,35,31,0.06)",
+          }}
+        >
+          <ChevronLeft size={18} color="#14231F" strokeWidth={2.2} />
+        </button>
+
+        {/* Dots */}
+        <div className="flex items-center gap-2">
+          {stories.map((story, i) => (
+            <button
+              key={story.id}
+              type="button"
+              aria-label={`Go to ${story.title}`}
+              onClick={() => handleManualNav(i)}
+              className="rounded-full"
+              style={{
+                width: i === index ? 20 : 7,
+                height: 7,
+                background: i === index ? "#2E7D32" : "rgba(20,35,31,0.18)",
+                transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
+              }}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          aria-label="Next"
+          onClick={() => handleManualNav(index + 1)}
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid rgba(20,35,31,0.12)",
+            boxShadow: "0 1px 2px rgba(20,35,31,0.06)",
+          }}
+        >
+          <ChevronRight size={18} color="#14231F" strokeWidth={2.2} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function ProgramFeatures() {
+  const [sectionRef, sectionRevealed] = useRevealed(0.12);
+
+  return (
+    <section ref={sectionRef} className="w-full" style={{ background: "#F5F4F0" }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-20 lg:py-28">
         {/* Header */}
-        <div className="max-w-2xl mb-14 lg:mb-16">
+        <div
+          className="max-w-2xl mb-14 lg:mb-16"
+          style={{
+            opacity: sectionRevealed ? 1 : 0,
+            transform: sectionRevealed ? "translateY(0)" : "translateY(18px)",
+            transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)",
+          }}
+        >
           <span
             className="block text-[11px] font-semibold uppercase tracking-[0.18em] mb-4"
             style={{ color: "#2E7D32" }}
@@ -244,10 +390,13 @@ export default function ProgramFeatures() {
           </p>
         </div>
 
-        {/* Grid — 4 columns desktop, 2 columns tablet, 1 column mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+        {/* Mobile — single card carousel */}
+        <MobileCarousel revealed={sectionRevealed} />
+
+        {/* Tablet/Desktop — 4 columns / 2 columns grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
           {stories.map((story, i) => (
-            <StoryCard key={story.id} story={story} index={i % 4} />
+            <StoryCard key={story.id} story={story} index={i % 4} revealed={sectionRevealed} />
           ))}
         </div>
       </div>
