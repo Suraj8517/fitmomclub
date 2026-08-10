@@ -10,85 +10,119 @@ import {
   Apple,
 } from "lucide-react";
 
-// ── Content ──────────────────────────────────────────────────────────────
-// One restrained palette instead of eight — every patch shares the same
-// ivory fabric and ink stitching. The accent (a single dusty rose) marks
-// only the tag and icon, so it reads as considered rather than decorative.
-const patches = [
+const mom ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204587/mother_wvlet7.webp";
+const wellness="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/wellness_tykrc2.webp"
+const online ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/online_agdx4b.webp"
+const trainer = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204590/trainer_pwlz4t.webp"
+const support ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/support_xav2qs.webp"
+const family = "https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/family_madgcc.webp"
+const goals="https://res.cloudinary.com/q1vba78b/image/upload/v1784204588/goal_myqwro.webp"
+const nutrition ="https://res.cloudinary.com/q1vba78b/image/upload/v1784204589/nutrition_zyz46h.webp"
+
+
+
+const stories = [
   {
     id: 1,
     title: "Tailored Fitness for Moms",
-    tag: "personalized programs",
+    badge: "Personalized Programs",
+    badgeBg: "#8FF4E9",
     icon: HeartPulse,
+    iconColor: "#004F4A",
+    image: mom,
     description:
-      "Workout programs built for prenatal, postnatal, and busy-mom bodies — regain strength, improve mobility, and stay active at every stage.",
+      "Personalized workout programs designed for prenatal, postnatal, and busy moms, helping you regain strength, improve mobility, and stay active at every stage.",
+    overlay: "nutrition",
   },
   {
     id: 2,
     title: "Holistic Wellness",
-    tag: "mind & body",
+    badge: "Mind & Body",
+    badgeBg: "#ECDBFF",
     icon: Sparkles,
+    iconColor: "#8865B3",
+    image: wellness,
     description:
-      "A balanced approach that weaves together fitness, nourishing food, stress management, real sleep, and emotional well-being.",
+      "Achieve complete wellness through a balanced approach that combines fitness, nutritious eating, stress management, quality sleep, and emotional well-being.",
+    overlay: "fitness",
   },
   {
     id: 3,
     title: "Flexible Schedules",
-    tag: "fits your life",
+    badge: "Fits Your Lifestyle",
+    badgeBg: "#D3E3FD",
     icon: Clock3,
+    iconColor: "#1249A4",
+    image: online,
     description:
-      "Flexible online sessions that slot into your actual day — nap time, early mornings, or after the kids are down.",
+      "Exercise anytime with flexible online sessions that easily fit into your daily routine—whether during nap time, early mornings, or evenings.",
+    overlay: "coach",
   },
   {
     id: 4,
     title: "Expert Trainers",
-    tag: "certified coaches",
+    badge: "Certified Coaches",
+    badgeBg: "#FFE7C7",
     icon: BadgeCheck,
+    iconColor: "#C26A00",
+    image: trainer,
     description:
-      "Train with certified women's-health and fitness specialists who guide every phase of motherhood safely and effectively.",
+      "Train with certified women's health and fitness specialists who provide safe, effective guidance tailored to every phase of motherhood.",
+    overlay: "expert",
   },
   {
     id: 5,
     title: "Supportive Community",
-    tag: "grow together",
+    badge: "Grow Together",
+    badgeBg: "#FFD9E8",
     icon: Users,
+    iconColor: "#B4235D",
+    image: support,
     description:
-      "Join a community of moms who show up for each other — encouragement, honesty, and shared wins along the way.",
+      "Become part of a positive community where moms inspire, encourage, and celebrate each other's progress throughout their wellness journey.",
+    overlay: "community",
   },
   {
     id: 6,
     title: "Family-Friendly Approach",
-    tag: "wellness for everyone",
+    badge: "Wellness for Everyone",
+    badgeBg: "#D9F7D9",
     icon: Baby,
+    iconColor: "#1F7A3D",
+    image: family,
     description:
-      "Routines that fit into family life — do them solo, or bring your little one along for the ride.",
+      "Enjoy fitness routines that fit seamlessly into family life, with activities you can do alone or together with your little ones.",
+    overlay: "family",
   },
   {
     id: 7,
     title: "Realistic Goals",
-    tag: "sustainable results",
+    badge: "Sustainable Results",
+    badgeBg: "#FFE7A8",
     icon: Target,
+    iconColor: "#B56A00",
+    image: goals,
     description:
-      "Milestones you can actually hit, building habits that stick without overwhelming a day that's already full.",
+      "Focus on achievable milestones that build lasting healthy habits, helping you gain confidence without overwhelming your daily routine.",
+    overlay: "goals",
   },
   {
     id: 8,
     title: "Custom Nutrition Plans",
-    tag: "healthy eating",
+    badge: "Healthy Eating",
+    badgeBg: "#D7F5D8",
     icon: Apple,
+    iconColor: "#2E7D32",
+    image: nutrition,
     description:
-      "Nutrition built around your lifestyle and recovery — fuel that supports your body instead of another rule to follow.",
+      "Receive personalized nutrition plans crafted around your lifestyle, recovery, and health goals to fuel your body with confidence.",
+    overlay: "nutrition2",
   },
 ];
 
-const INK = "#2B2430";
-const MUTED = "#6B6070";
-const BASE = "#F6F5F1";
-const CARD = "#FFFDF8";
-const ACCENT = "#1c8c77";
-
-// Reveals a patch once it's mostly in view, then stops observing — a short
-// stagger by grid position so the whole quilt settles in as one moment.
+// Reveals a card once it's mostly in view, then stops observing — small
+// stagger derived from grid position so the whole 4x2 grid settles in as a
+// single orchestrated moment rather than each card animating alone.
 function useRevealed(threshold = 0.2) {
   const ref = useRef(null);
   const [revealed, setRevealed] = useState(false);
@@ -110,100 +144,77 @@ function useRevealed(threshold = 0.2) {
   return [ref, revealed];
 }
 
-function PatchCard({ patch, index }) {
+function StoryCard({ story, index }) {
   const [ref, revealed] = useRevealed();
-  const Icon = patch.icon;
-  const tilt = index % 2 === 0 ? -1.6 : 1.4;
+  const Icon = story.icon;
 
   return (
     <div
       ref={ref}
-      className="patch-card group relative flex flex-col rounded-[22px] overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-offset-2"
+      className="group relative flex flex-col rounded-[26px] bg-white overflow-hidden"
       style={{
-        background: CARD,
-        border: `1px solid ${INK}14`,
-        outlineColor: ACCENT,
+        border: "1px solid rgba(20,35,31,0.08)",
+        boxShadow: "0 1px 2px rgba(20,35,31,0.04)",
         opacity: revealed ? 1 : 0,
-        transform: revealed ? "translateY(0) rotate(0deg)" : "translateY(20px) rotate(-1deg)",
-        transition: `opacity 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.06}s,
-                     transform 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.06}s,
-                     box-shadow 0.35s ease`,
-        boxShadow: "0 1px 2px rgba(43,36,48,0.06)",
+        transform: revealed ? "translateY(0)" : "translateY(22px)",
+        transition: `opacity 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.07}s,
+                     transform 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.07}s,
+                     box-shadow 0.4s ease, border-color 0.4s ease`,
       }}
-      tabIndex={0}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = "0 20px 40px rgba(20,35,31,0.12)";
+        e.currentTarget.style.borderColor = "rgba(20,35,31,0.14)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = "0 1px 2px rgba(20,35,31,0.04)";
+        e.currentTarget.style.borderColor = "rgba(20,35,31,0.08)";
+      }}
     >
-      {/* Hand-stitched hanging tag */}
-      <div className="relative pt-6 px-6 flex items-start justify-between">
+      {/* Photo */}
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4 / 5" }}>
+        <img
+          src={story.image}
+          alt={story.title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+        />
         <div
-          className="patch-tag inline-flex items-center rounded-full px-3 py-1"
+          className="absolute inset-0"
           style={{
-            background: BASE,
-            color: ACCENT,
-            border: `1px dashed ${ACCENT}55`,
-            transform: `rotate(${tilt}deg)`,
-            
+            background:
+              "linear-gradient(to top, rgba(20,35,31,0.28) 0%, rgba(20,35,31,0) 45%)",
           }}
-        >
-          <span
-            style={{
-              fontFamily: "'Caveat', cursive",
-              fontSize: "17px",
-              fontWeight: 600,
-              lineHeight: 1,
-              
-            }}
-          >
-            {patch.tag}
-          </span>
-        </div>
+        />
+      </div>
 
-        {/* Appliqué icon pocket */}
+      {/* Icon medallion — straddles the photo/content seam */}
+      <div className="relative px-6">
         <div
-          className="patch-pocket relative w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+          className="absolute -top-6 left-6 w-12 h-12 rounded-full flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1"
           style={{
-            background: BASE,
-            border: `1.5px dashed ${INK}33`,
-            background: "linear-gradient(90deg,#50ffaa,#00d4ff)",
-          letterSpacing: "0.02em",
-          textDecoration: "none",
-          boxShadow: "0 6px 16px rgba(0,0,0,0.18)"
+            background: story.badgeBg,
+            boxShadow: "0 6px 16px rgba(20,35,31,0.16), 0 0 0 4px #FFFFFF",
           }}
-         
         >
-          <Icon size={20} color={INK} strokeWidth={1.75} />
+          <Icon size={20} color={story.iconColor} strokeWidth={2.1} />
         </div>
       </div>
 
-      {/* Stitched seam */}
-      <div
-        className="mx-6 mt-5"
-        style={{ borderTop: `1.5px dashed ${INK}26` }}
-      />
-
       {/* Content */}
-      <div className="flex flex-col flex-1 px-6 pt-4 pb-6">
+      <div className="flex flex-col flex-1 px-6 pt-9 pb-7">
+        <span
+          className="text-[10px] font-semibold uppercase tracking-[0.14em] mb-2"
+          style={{ color: story.iconColor }}
+        >
+          {story.badge}
+        </span>
         <h3
-          style={{
-            fontFamily: "'Fraunces', serif",
-            fontOpticalSizing: "auto",
-            fontSize: "20px",
-            fontWeight: 600,
-            lineHeight: 1.25,
-            color: INK,
-            marginBottom: "8px",
-          }}
+          className="text-[19px] leading-snug font-semibold mb-2.5"
+          style={{ color: "#14231F" }}
         >
-          {patch.title}
+          {story.title}
         </h3>
-        <p
-          style={{
-            fontFamily: "'Work Sans', sans-serif",
-            fontSize: "13.5px",
-            lineHeight: 1.6,
-            color: MUTED,
-          }}
-        >
-          {patch.description}
+        <p className="text-[13.5px] leading-relaxed" style={{ color: "#5B655F" }}>
+          {story.description}
         </p>
       </div>
     </div>
@@ -212,105 +223,31 @@ function PatchCard({ patch, index }) {
 
 export default function ProgramFeatures() {
   return (
-    <section className="w-full" style={{ background: BASE }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Work+Sans:wght@400;500;600&family=Caveat:wght@600&display=swap');
-
-        .patch-card { will-change: transform; }
-        .patch-card:hover,
-        .patch-card:focus-within {
-          box-shadow: 0 18px 32px rgba(43,36,48,0.14) !important;
-        }
-        .patch-card:hover .patch-pocket,
-        .patch-card:focus-within .patch-pocket {
-          transform: translateY(-2px) rotate(-3deg);
-        }
-        .patch-card:hover .patch-tag,
-        .patch-card:focus-within .patch-tag {
-          transform: rotate(0deg) !important;
-        }
-        .patch-pocket { transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
-        .patch-tag { transition: transform 0.35s ease; }
-
-        .stitch-underline {
-          stroke-dasharray: 6 5;
-          stroke-linecap: round;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .patch-card, .patch-pocket, .patch-tag {
-            transition: none !important;
-          }
-        }
-      `}</style>
-
+    <section className="w-full" style={{ background: "#F5F4F0" }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-20 lg:py-28">
         {/* Header */}
         <div className="max-w-2xl mb-14 lg:mb-16">
-          <div
-            className="inline-flex items-center rounded-full px-3 py-1 mb-5"
-            style={{ background: CARD, border: `1px dashed ${ACCENT}55` }}
+          <span
+            className="block text-[11px] font-semibold uppercase tracking-[0.18em] mb-4"
+            style={{ color: "#2E7D32" }}
           >
-            <span
-              style={{
-                fontFamily: "'Caveat', cursive",
-                fontSize: "18px",
-                fontWeight: 600,
-                color: ACCENT,
-              }}
-            >
-              why FitMom
-            </span>
-          </div>
-
+            Why FitMom
+          </span>
           <h2
-            style={{
-              fontFamily: "'Fraunces', serif",
-              fontSize: "40px",
-              lineHeight: 1.12,
-              fontWeight: 600,
-              color: INK,
-              marginBottom: "16px",
-            }}
-            className="sm:text-[46px]"
+            className="text-[34px] sm:text-[42px] leading-[1.1] font-semibold mb-4"
+            style={{ color: "#14231F"}}
           >
-            Everything a mom's{" "}
-            <span className="relative inline-block">
-              <span style={{ fontStyle: "italic", fontWeight: 500 }}>wellness journey</span>
-              <svg
-                viewBox="0 0 300 14"
-                preserveAspectRatio="none"
-                className="absolute left-0 -bottom-1 w-full h-3"
-                aria-hidden="true"
-              >
-                <path
-                  d="M2 9 Q 75 2, 150 8 T 298 7"
-                  fill="none"
-                  stroke={ACCENT}
-                  strokeWidth="2.5"
-                  className="stitch-underline"
-                />
-              </svg>
-            </span>{" "}
-            actually needs
+            Everything a mom's wellness journey actually needs
           </h2>
-
-          <p
-            style={{
-              fontFamily: "'Work Sans', sans-serif",
-              fontSize: "15.5px",
-              lineHeight: 1.7,
-              color: MUTED,
-            }}
-          >
-            Eight pillars, stitched together around real motherhood — not a generic fitness app.
+          <p className="text-[15px] leading-relaxed" style={{ color: "#5B655F" }}>
+            Eight pillars, built around real motherhood, not a generic fitness app.
           </p>
         </div>
 
         {/* Grid — 4 columns desktop, 2 columns tablet, 1 column mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-          {patches.map((patch, i) => (
-            <PatchCard key={patch.id} patch={patch} index={i} />
+          {stories.map((story, i) => (
+            <StoryCard key={story.id} story={story} index={i % 4} />
           ))}
         </div>
       </div>
