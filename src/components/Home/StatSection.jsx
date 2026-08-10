@@ -219,10 +219,10 @@ export default function CommunityStatsSection() {
                     <p className="text-[11px] sm:text-[12px] text-[#888888] font-normal font-poppins">
                       {s.prefix}
                     </p>
-                    <p className="cs-gradient-text text-[24px] sm:text-[32px] md:text-[40px] font-medium leading-none font-poppins tabular-nums">
+                    <p className="cs-gradient-text text-[20px] sm:text-[32px] md:text-[40px] font-medium leading-none font-poppins tabular-nums">
                       <StatValue value={s.value} active={revealed} delay={i * 100 + 150} />
                     </p>
-                    <p className="text-[11px] sm:text-[12px] text-[#666666] font-normal font-poppins mt-1">
+                    <p className="text-[10px] sm:text-[12px] text-[#666666] font-normal font-poppins mt-1">
                       {s.label}
                     </p>
                   </div>

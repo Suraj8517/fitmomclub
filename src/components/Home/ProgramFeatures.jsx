@@ -171,7 +171,7 @@ function StoryCard({ story, index, revealed }) {
       }}
     >
       {/* Photo */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "4 / 5" }}>
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 10" }}>
         <img
           src={story.image}
           alt={story.title}
@@ -181,7 +181,7 @@ function StoryCard({ story, index, revealed }) {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, rgba(20,35,31,0.28) 0%, rgba(20,35,31,0) 45%)",
+              "linear-gradient(to top, rgba(20,35,31,0.24) 0%, rgba(20,35,31,0) 40%)",
           }}
         />
       </div>
