@@ -276,9 +276,9 @@ export default function StorySection() {
       `}</style>
       <div className="max-w-4xl md:px-16 md:py-30 px-2 py-10">
         <h2 className="md:text-5xl text-2xl leading-8 md:leading-12 text-black/90 text-center sm:text-left">
-          Why FitMom Club? Wellness Designed Just for You,{" "}
+          FitMom Club{" "}
           <br />
-          <span className="text-teal-600">By Experts Who Care</span>
+          <span className="text-teal-600">App Features</span>
         </h2>
       </div>
       {stories.map((story, index) => (

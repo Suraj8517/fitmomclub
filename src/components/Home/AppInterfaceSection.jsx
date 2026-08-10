@@ -564,10 +564,7 @@ export default function AppInterfaceSection() {
               }}
             />
 
-            {/* ── LIVE CARD GRID ── each card individually implodes (blur +
-                pull-to-center + fade) during the final scroll phase, revealing
-                the flash and then the mockup image above it. All existing
-                positions and live-value animations are untouched. */}
+          
             <div ref={cardsGroupRef} style={{ willChange: "opacity" }}>
 
               {/* ── DAILY CALORIE TRACKER (rings now fill up live) ── */}

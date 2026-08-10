@@ -297,8 +297,9 @@ export default function HomeHeroSection() {
                   ref={phaseBMeasureRef}
                   className="hero-fade-up max-w-2xl 2xl:max-w-5xl text-3xl font-medium leading-tight text-white sm:text-4xl lg:text-5xl 2xl:text-[5.55rem]"
                 >
-                  Personalised Strength, Wellness,
-                  and Support, by Mom and for Mom
+                  A program that fits
+your body, your goals
+and your life.
                 </p>
               </div>
             )}
@@ -336,7 +337,7 @@ className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rou
                   className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-lg font-medium text-white/80"
                   style={{ animationDelay: "0.3s" }}
                 >
-Consult With Our Experts
+Book a Free Consultation
                 </p>
                 <ConsultationButton label="Book a Free Consultation"/>
               </div>

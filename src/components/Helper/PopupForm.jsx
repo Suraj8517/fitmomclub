@@ -1,51 +1,3 @@
-/**
- * PopupForm.jsx
- * ------------------------------------------------------------------
- * React + Tailwind conversion of the "Custom Popup Form" WP plugin.
- *
- * USAGE
- * -----
- * 1. Mount it ONCE near the root of your app (e.g. in App.jsx or your
- *    root layout), so it lives on every page:
- *
- *      import PopupForm from "./PopupForm";
- *      <PopupForm scriptURL="https://script.google.com/macros/s/XXXX/exec" />
- *
- * 2. It auto-opens 3 seconds after the page/app mounts.
- *
- * 3. To open it from ANY button on ANY page, just add the attribute
- *    `data-cpf-trigger` to that button — no extra wiring needed:
- *
- *      <button data-cpf-trigger>Get a free consultation</button>
- *
- *    Clicking it waits 3 seconds (same delay as page load), then opens
- *    the popup. Change the delay via the `buttonDelay` prop.
- *
- * 4. It also re-opens automatically on every react-router-dom navigation
- *    (Link clicks, navigate(), back/forward) via useLocation() — no extra
- *    wiring needed. Because of that hook, PopupForm MUST be rendered
- *    inside your <BrowserRouter> (or <HashRouter>/<MemoryRouter>), e.g.:
- *
- *      <BrowserRouter>
- *        <PopupForm scriptURL="..." />
- *        <Routes>...</Routes>
- *      </BrowserRouter>
- *
- *    The very first render is skipped automatically (the page-load
- *    trigger already covers it) — it only fires again on subsequent
- *    route changes, after `routeChangeDelay` ms (default 3000). Set
- *    `enableRouteChangeTrigger={false}` to turn this off.
- *
- * 5. Requires Tailwind CSS to be configured in the host project.
- *    Only extra dependency is react-router-dom (icons are inline SVG).
- *
- * 6. UTM params (utm_source/medium/campaign/term/content) and the page
- *    URL are captured once from window.location on mount and sent to
- *    the Apps Script alongside every submission, together with a
- *    `city` field and a server-received `date` timestamp — matching
- *    the columns the vanilla-JS version writes to the same Google Sheet.
- * ------------------------------------------------------------------
- */
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
@@ -136,11 +88,11 @@ export default function PopupForm({
   title = "Get a plan built around you",
   subtitle = "Share a few details and our health consultant will reach out personally.",
   enablePageLoadTrigger = true,
-  pageLoadDelay = 3000,
+  pageLoadDelay = 10000,
   buttonTriggerSelector = "[data-cpf-trigger]",
   buttonDelay = 3000,
   enableRouteChangeTrigger = true,
-  routeChangeDelay = 3000,
+  routeChangeDelay = 10000,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
