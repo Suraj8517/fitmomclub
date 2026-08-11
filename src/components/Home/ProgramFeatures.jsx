@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   HeartPulse,
   Sparkles,
@@ -120,19 +120,134 @@ const stories = [
   },
 ];
 
-function StoryCard({ story }) {
+// Global styles for the animations. Kept isolated in one <style> tag so
+// nothing here touches layout-affecting properties (only transform/opacity),
+// and reduced-motion users get a static, still-legible fallback.
+function AnimationStyles() {
+  return (
+    <style>{`
+      @keyframes pf-fade-up {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .pf-card {
+        opacity: 0;
+        transform: translateY(14px);
+        animation: pf-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-play-state: paused;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                    box-shadow 0.35s ease;
+        will-change: transform;
+      }
+      .pf-card.pf-in-view {
+        animation-play-state: running;
+      }
+      .pf-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 32px rgba(20,35,31,0.12);
+      }
+
+      .pf-card-photo img {
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .pf-card:hover .pf-card-photo img {
+        transform: scale(1.05);
+      }
+
+      .pf-medallion {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .pf-card:hover .pf-medallion {
+        transform: scale(1.1) rotate(-4deg);
+      }
+
+      .pf-nav-btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .pf-nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(20,35,31,0.14);
+      }
+      .pf-nav-btn:active {
+        transform: translateY(0) scale(0.94);
+      }
+
+      .pf-dot {
+        transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
+      }
+
+      .pf-track {
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pf-card {
+          opacity: 1;
+          transform: none;
+          animation: none;
+        }
+        .pf-card:hover {
+          transform: none;
+        }
+        .pf-card-photo img,
+        .pf-medallion,
+        .pf-nav-btn,
+        .pf-track {
+          transition: none !important;
+        }
+        .pf-card:hover .pf-card-photo img,
+        .pf-card:hover .pf-medallion {
+          transform: none;
+        }
+      }
+    `}</style>
+  );
+}
+
+// Reveals each card with a small fade/rise the first time it scrolls into
+// view. Uses IntersectionObserver + a CSS class toggle, so there is no
+// layout thrash — only opacity/transform are animated.
+function useRevealOnView() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("pf-in-view");
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+function StoryCard({ story, delay = 0 }) {
   const Icon = story.icon;
+  const ref = useRevealOnView();
 
   return (
     <div
-      className="relative flex flex-col rounded-[26px] bg-white overflow-hidden"
+      ref={ref}
+      className="pf-card relative flex flex-col rounded-[26px] bg-white overflow-hidden"
       style={{
         border: "1px solid rgba(20,35,31,0.08)",
         boxShadow: "0 1px 2px rgba(20,35,31,0.04)",
+        animationDelay: `${delay}ms`,
       }}
     >
       {/* Photo */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16 / 10" }}>
+      <div className="pf-card-photo relative w-full overflow-hidden" style={{ aspectRatio: "16 / 10" }}>
         <img
           src={story.image}
           alt={story.title}
@@ -150,7 +265,7 @@ function StoryCard({ story }) {
       {/* Icon medallion — straddles the photo/content seam */}
       <div className="relative px-6">
         <div
-          className="absolute -top-6 left-6 w-12 h-12 rounded-full flex items-center justify-center"
+          className="pf-medallion absolute -top-6 left-6 w-12 h-12 rounded-full flex items-center justify-center"
           style={{
             background: story.badgeBg,
             boxShadow: "0 6px 16px rgba(20,35,31,0.16), 0 0 0 4px #FFFFFF",
@@ -219,7 +334,10 @@ function MobileCarousel() {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <div className="flex" style={{ transform: `translateX(-${index * 100}%)` }}>
+        <div
+          className="pf-track flex"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
           {stories.map((story) => (
             <div key={story.id} className="w-full flex-shrink-0 px-0.5">
               <StoryCard story={story} />
@@ -234,7 +352,7 @@ function MobileCarousel() {
           type="button"
           aria-label="Previous"
           onClick={() => goTo(index - 1)}
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          className="pf-nav-btn w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           style={{
             background: "#FFFFFF",
             border: "1px solid rgba(20,35,31,0.12)",
@@ -252,7 +370,7 @@ function MobileCarousel() {
               type="button"
               aria-label={`Go to ${story.title}`}
               onClick={() => goTo(i)}
-              className="rounded-full"
+              className="pf-dot rounded-full"
               style={{
                 width: i === index ? 20 : 7,
                 height: 7,
@@ -266,7 +384,7 @@ function MobileCarousel() {
           type="button"
           aria-label="Next"
           onClick={() => goTo(index + 1)}
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+          className="pf-nav-btn w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
           style={{
             background: "#FFFFFF",
             border: "1px solid rgba(20,35,31,0.12)",
@@ -283,6 +401,7 @@ function MobileCarousel() {
 export default function ProgramFeatures() {
   return (
     <section className="w-full" style={{ background: "#F5F4F0" }}>
+      <AnimationStyles />
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-20 lg:py-28">
         {/* Header */}
         <div className="max-w-2xl mb-14 lg:mb-16">
@@ -308,8 +427,8 @@ export default function ProgramFeatures() {
 
         {/* Tablet/Desktop — 4 columns / 2 rows grid. */}
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-          {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+          {stories.map((story, i) => (
+            <StoryCard key={story.id} story={story} delay={(i % 4) * 80} />
           ))}
         </div>
       </div>
