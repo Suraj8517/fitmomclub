@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import {
   HeartPulse,
   Sparkles,
@@ -120,52 +120,15 @@ const stories = [
   },
 ];
 
-// Reveals a card once it's mostly in view, then stops observing — small
-// stagger derived from grid position so the whole 4x2 grid settles in as a
-// single orchestrated moment rather than each card animating alone.
-function useRevealed(threshold = 0.2) {
-  const ref = useRef(null);
-  const [revealed, setRevealed] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setRevealed(true);
-          observer.disconnect();
-        }
-      },
-      { threshold }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return [ref, revealed];
-}
-
-function StoryCard({ story, index, revealed }) {
+function StoryCard({ story }) {
   const Icon = story.icon;
 
   return (
     <div
-      className="group relative flex flex-col rounded-[26px] bg-white overflow-hidden"
+      className="relative flex flex-col rounded-[26px] bg-white overflow-hidden"
       style={{
         border: "1px solid rgba(20,35,31,0.08)",
         boxShadow: "0 1px 2px rgba(20,35,31,0.04)",
-        opacity: revealed ? 1 : 0,
-        transform: revealed ? "translateY(0)" : "translateY(22px)",
-        transition: `opacity 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.07}s,
-                     transform 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.07}s,
-                     box-shadow 0.4s ease, border-color 0.4s ease`,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 20px 40px rgba(20,35,31,0.12)";
-        e.currentTarget.style.borderColor = "rgba(20,35,31,0.14)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = "0 1px 2px rgba(20,35,31,0.04)";
-        e.currentTarget.style.borderColor = "rgba(20,35,31,0.08)";
       }}
     >
       {/* Photo */}
@@ -173,7 +136,7 @@ function StoryCard({ story, index, revealed }) {
         <img
           src={story.image}
           alt={story.title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         <div
           className="absolute inset-0"
@@ -187,7 +150,7 @@ function StoryCard({ story, index, revealed }) {
       {/* Icon medallion — straddles the photo/content seam */}
       <div className="relative px-6">
         <div
-          className="absolute -top-6 left-6 w-12 h-12 rounded-full flex items-center justify-center transition-transform duration-500 ease-out group-hover:-translate-y-1"
+          className="absolute -top-6 left-6 w-12 h-12 rounded-full flex items-center justify-center"
           style={{
             background: story.badgeBg,
             boxShadow: "0 6px 16px rgba(20,35,31,0.16), 0 0 0 4px #FFFFFF",
@@ -220,12 +183,10 @@ function StoryCard({ story, index, revealed }) {
 }
 
 // Mobile carousel — one card visible at a time. Purely user-driven:
-// swipe/drag, prev/next buttons, and dot indicators. No autoplay —
-// the slide only changes when the person interacts with it.
-function MobileCarousel({ revealed }) {
+// swipe/drag, prev/next buttons, and dot indicators. No autoplay.
+function MobileCarousel() {
   const [index, setIndex] = useState(0);
   const total = stories.length;
-  const trackRef = useRef(null);
   const touchStartX = useRef(null);
   const touchDeltaX = useRef(0);
 
@@ -251,31 +212,17 @@ function MobileCarousel({ revealed }) {
   };
 
   return (
-    <div
-      className="sm:hidden"
-      style={{
-        opacity: revealed ? 1 : 0,
-        transform: revealed ? "translateY(0)" : "translateY(22px)",
-        transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
-      }}
-    >
+    <div className="sm:hidden">
       <div
         className="relative overflow-hidden"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <div
-          ref={trackRef}
-          className="flex"
-          style={{
-            transform: `translateX(-${index * 100}%)`,
-            transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1)",
-          }}
-        >
+        <div className="flex" style={{ transform: `translateX(-${index * 100}%)` }}>
           {stories.map((story) => (
             <div key={story.id} className="w-full flex-shrink-0 px-0.5">
-              <StoryCard story={story} index={0} revealed={true} />
+              <StoryCard story={story} />
             </div>
           ))}
         </div>
@@ -310,7 +257,6 @@ function MobileCarousel({ revealed }) {
                 width: i === index ? 20 : 7,
                 height: 7,
                 background: i === index ? "#2E7D32" : "rgba(20,35,31,0.18)",
-                transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
               }}
             />
           ))}
@@ -335,20 +281,11 @@ function MobileCarousel({ revealed }) {
 }
 
 export default function ProgramFeatures() {
-  const [sectionRef, sectionRevealed] = useRevealed(0.12);
-
   return (
-    <section ref={sectionRef} className="w-full" style={{ background: "#F5F4F0" }}>
+    <section className="w-full" style={{ background: "#F5F4F0" }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-20 lg:py-28">
         {/* Header */}
-        <div
-          className="max-w-2xl mb-14 lg:mb-16"
-          style={{
-            opacity: sectionRevealed ? 1 : 0,
-            transform: sectionRevealed ? "translateY(0)" : "translateY(18px)",
-            transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)",
-          }}
-        >
+        <div className="max-w-2xl mb-14 lg:mb-16">
           <span
             className="block text-[11px] font-semibold uppercase tracking-[0.18em] mb-4"
             style={{ color: "#2E7D32" }}
@@ -366,13 +303,13 @@ export default function ProgramFeatures() {
           </p>
         </div>
 
-        {/* Mobile — single card carousel, swipe-driven, no autoplay */}
-        <MobileCarousel revealed={sectionRevealed} />
+        {/* Mobile — single card carousel, swipe-driven, no autoplay. */}
+        <MobileCarousel />
 
-        {/* Tablet/Desktop — 4 columns / 2 columns grid */}
+        {/* Tablet/Desktop — 4 columns / 2 rows grid. */}
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-          {stories.map((story, i) => (
-            <StoryCard key={story.id} story={story} index={i % 4} revealed={sectionRevealed} />
+          {stories.map((story) => (
+            <StoryCard key={story.id} story={story} />
           ))}
         </div>
       </div>
