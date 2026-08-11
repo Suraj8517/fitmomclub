@@ -6,7 +6,9 @@ import {
   RotateCcw,
   Info,
   Percent,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FORMULAS = [
   { key: "mifflin", label: "Mifflin St Jeor" },
@@ -106,14 +108,23 @@ export default function BMRCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-16 mb-16">
+         <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+BMR Calculator            </h1>
+        <p className="text-justify text-black/60 text-md ">
+The basal metabolic rate calculator (BMR Calculator) estimates the number of calories your body burns at rest to maintain essential functions. Our BMR calculator for women also considers factors unique to female metabolism, helping you understand your daily energy needs more accurately. Combine your BMR with your activity level to determine your calorie requirements for weight loss, maintenance, or muscle gain. This calorie calculator is a must-have for planning effective diet and exercise programs tailored to your metabolism.
+</p>
+        </div>
         <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Metabolism
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              BMR calculator
-            </h1>
+            <div>
+             
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
           </div>
           <button
             onClick={handleReset}

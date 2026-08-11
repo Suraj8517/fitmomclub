@@ -337,9 +337,9 @@ className={`hero-fade-up hero-pill inline-flex items-center gap-1.5 sm:gap-2 rou
                   className="hero-fade-up mb-2 sm:mb-3 text-xs sm:text-lg font-medium text-white/80"
                   style={{ animationDelay: "0.3s" }}
                 >
-Book a Free Consultation
+Begin Your Transformation
                 </p>
-                <ConsultationButton label="Book a Free Consultation"/>
+                <ConsultationButton label="Book a Free Consultation "/>
               </div>
 
             )}

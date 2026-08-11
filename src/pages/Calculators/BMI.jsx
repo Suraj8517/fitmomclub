@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Ruler, Dumbbell, RotateCcw, Info, ArrowRightLeft } from "lucide-react";
-
+import { Ruler, Dumbbell, RotateCcw, Info, ArrowRightLeft,ArrowLeft } from "lucide-react";
+import {Link} from "react-router-dom";
 const CATEGORIES = [
   { key: "under", label: "Underweight", min: 0, max: 18.5, color: "sky" },
   { key: "normal", label: "Normal", min: 18.5, max: 25, color: "teal" },
@@ -158,16 +158,22 @@ export default function BMICalculator() {
         }
       `}</style>
 
-      <div className="w-full max-w-3xl font-body">
+      <div className="w-full max-w-3xl font-body ">
         {/* Header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Body composition
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
+        <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
               BMI calculator
             </h1>
+        <p className="text-justify text-black/60 text-md ">Maintaining a healthy body weight plays a vital role in overall wellness, and one of the easiest ways to evaluate your weight status is by using a BMI calculator for women. Body Mass Index (BMI) is a simple and reliable method developed by health experts to determine whether your weight is appropriate for your height. With just your height and weight, you can calculate body mass index instantly and understand which category you fall into: underweight, normal, overweight, or obese.</p>
+      
+
+        </div>
+          <div className="flex items-end justify-between mb-6">
+          <div>
+            <Link to="/health-calculators" className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
           </div>
           <button
             onClick={handleReset}

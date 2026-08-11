@@ -7,7 +7,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Droplet,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CYCLE_LENGTHS = Array.from({ length: 26 }, (_, i) => i + 20); // 20..45
 const PERIOD_LENGTHS = Array.from({ length: 9 }, (_, i) => i + 2); // 2..10
@@ -167,14 +169,26 @@ export default function MenstrualCycleCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-26 mb-16">
+         <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+             Menstrual Cycle Calculator
+            </h1>
+        <p className="text-justify text-black/60 text-md ">
+Every woman experiences a unique menstrual cycle, and understanding it is key to maintaining reproductive health and overall well-being. Our Menstrual Cycle Calculator is designed to make this easier by helping you track your periods, predict ovulation days, and plan around important dates. Whether your goal is to manage PMS symptoms, improve cycle regularity, or better understand your fertility patterns, this tool provides a clear and reliable calendar view of your menstrual cycle.
+</p>
+        </div>
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Cycle tracking
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              Menstrual cycle calculator
-            </h1>
+             
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
+         
           </div>
           <button
             onClick={handleReset}

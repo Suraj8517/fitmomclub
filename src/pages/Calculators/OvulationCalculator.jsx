@@ -5,7 +5,9 @@ import {
   Info,
   Sparkles,
   Heart,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CYCLE_LENGTHS = Array.from({ length: 26 }, (_, i) => i + 20); // 20..45
 
@@ -130,14 +132,25 @@ export default function OvulationCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-16 mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Cycle tracking
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              Ovulation calculator
+         <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+              Ovulation Calculator
             </h1>
+        <p className="text-justify text-black/60 text-md ">
+Our Ovulation Calculator helps you predict your most fertile days and ovulation date based on your menstrual cycle length. Whether you’re trying to conceive or tracking for better reproductive health, this fertility calculator provides a clear view of your fertile window. With accurate ovulation predictions, you can improve your chances of pregnancy and plan ahead with confidence. It’s also a helpful ovulation tracker for cycle regularity and PMS management        </p>
+      
+
+        </div>
+        <div className="flex items-end justify-between mb-6">
+        <div>
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
           </div>
           <button
             onClick={handleReset}

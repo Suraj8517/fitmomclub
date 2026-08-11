@@ -6,13 +6,11 @@ export default function AppInterfaceDesc() {
     <div >
         <div className="sm:hidden text-center mb-10 max-w-xs mx-auto">
           <h1 className="text-3xl sm:text-4xl font-normal text-[#2C2C2C] leading-[1.2] tracking-tight mb-4">
-            Your Fitness Journey, <br />
-            Anywhere, Anytime
+            FitMom Club App
           </h1>
           <p className="text-base sm:text-lg text-[#4A4A4A] leading-relaxed mb-5">
-            Personalised workouts, progress tracking,
-            and expert support,{" "}
-            <span className="text-teal-800">all in one app.</span>
+            Your <span className="text-teal-800">all-in-one</span> companion for <br/>building healthier habits and staying <br/>committed to your well-being.
+            <br/>and expert support
           </p>
 
           <Link
@@ -30,18 +28,10 @@ export default function AppInterfaceDesc() {
             FitMom Club App
           </h1>
           <p className="text-lg lg:text-3xl text-[#4A4A4A] leading-relaxed mb-6">
-            Personalised workouts, progress tracking,<br />
-            and expert support, <span className="text-teal-800">all in one app.</span>
+            Your <span className="text-teal-800">all-in-one</span> companion for <br/>building healthier habits and staying <br/>committed to your well-being.
+            <br/>and expert support
           </p>
-          <a
-            href="#"
-            className="inline-flex items-center gap-1.5 text-[#2C2C2C] text-lg font-medium hover:underline underline-offset-4 transition-all"
-          >
-            See how it works
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+          
         </div>
     </div>
   )

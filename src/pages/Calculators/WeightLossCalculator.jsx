@@ -10,7 +10,9 @@ import {
   ChevronDown,
   Info,
   RotateCcw,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ACTIVITY_LEVELS = [
   { key: "none", label: "No sport/exercise", factor: 1.2 },
@@ -174,15 +176,22 @@ export default function WeightGoalCalculator() {
       `}</style>
 
       <div className="w-full max-w-4xl font-body mt-16 mb-16">
+        <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+Weight Loss Calculator
+            </h1>
+        <p className="text-justify text-black/60 text-md ">
+Our Weight Loss Calculator helps you estimate how many calories you need to consume and burn to achieve your weight loss goals. Whether you want to lose fat, maintain muscle, or improve overall health, this tool uses your height, weight, age, gender, and activity level to calculate a safe calorie deficit. Use our Calorie Deficit Calculator to plan your diet, track progress, and stay motivated on your weight loss journey.        </p>
+        </div>
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="font-mono-data text-xs tracking-widest text-stone-400 uppercase mb-1">
-              Goal-based planning
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900 flex items-center gap-2">
-              <Target className="w-6 h-6 text-teal-600" strokeWidth={2} />
-              Weight goal calculator
-            </h1>
+            <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
           </div>
           <button
             onClick={handleReset}

@@ -9,7 +9,9 @@ import {
   ChevronDown,
   CheckCircle2,
   Clock,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function addDays(date, days) {
   const d = new Date(date);
@@ -218,14 +220,24 @@ export default function PregnancyCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-16 mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Due date &amp; milestones
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              Pregnancy calculator
+         <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+             Pregnancy Calculator
             </h1>
+        <p className="text-justify text-black/60 text-md ">
+The Pregnancy Calculator estimates your due date and tracks your pregnancy week-by-week using your last menstrual period or conception date. This due date calculator offers valuable insights into fetal development and helps you plan prenatal care. It’s a reliable tool for expecting mothers who want to monitor each trimester, prepare for delivery, and ensure a healthy pregnancy journey.
+</p>
+        </div>
+        <div className="flex items-end justify-between mb-6">
+           <div>
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
           </div>
           <button
             onClick={handleReset}

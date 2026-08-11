@@ -10,7 +10,9 @@ import {
   Beef,
   Wheat,
   Droplet,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ACTIVITY_LEVELS = [
   { key: "sedentary", label: "Sedentary — little or no exercise", factor: 1.2 },
@@ -204,15 +206,26 @@ export default function CalorieCalculator() {
       `}</style>
 
       <div className="w-full max-w-4xl font-body mt-16 mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-xs tracking-widest text-stone-400 uppercase mb-1">
-              Daily energy needs
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900 flex items-center gap-2">
-              <Gauge className="w-6 h-6 text-teal-600" strokeWidth={2} />
-              Calorie calculator
+        <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+Calories Burned Calculator
             </h1>
+        <p className="text-justify text-black/60 text-md ">
+        Our Calories Burned Calculator helps you estimate the number of calories burned during various exercises and activities. Whether you’re tracking workouts, planning weight loss, or optimizing your fitness routine, this Calorie Burn Calculator provides accurate results based on your weight, activity type, and duration. Stay on top of your health goals with this easy-to-use fitness tool.
+        </p>
+        </div>
+        <div className="flex items-end justify-between mb-6">
+        
+               <div>
+             
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
           </div>
           <button
             onClick={handleReset}

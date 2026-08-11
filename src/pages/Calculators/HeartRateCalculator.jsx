@@ -4,7 +4,9 @@ import {
   RotateCcw,
   Info,
   Activity,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FORMULAS = [
   { key: "standard", label: "Standard (220 − age)" },
@@ -92,14 +94,26 @@ export default function HeartRateCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-16 mb-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Training zones
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              Heart rate calculator
+         <div className="flex flex-wrap items-end justify-center gap-4 mb-6 mt-6">
+           <h1 className="font-display text-3xl font-semibold text-stone-900">
+Heart Rate Calculator
             </h1>
+        <p className="text-justify text-black/60 text-md ">
+        Optimize your cardiovascular training with our Heart Rate Calculator—a tool designed to help you easily compute your resting heart rate, maximum heart rate, and ideal training zones tailored to your fitness goals. Whether you’re using it as a Target Heart Rate Calculator to plan workouts or a Heart Rate Zone Calculator to monitor training intensity, FitMom Club empowers your fitness journey with precise, actionable insights.
+</p>
+        </div>
+        <div className="flex items-end justify-between mb-6">
+           <div>
+             
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
+         
           </div>
           <button
             onClick={handleReset}

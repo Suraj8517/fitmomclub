@@ -58,8 +58,7 @@ const GROUPS = [
 
 const TOTAL_TOOLS = GROUPS.reduce((sum, g) => sum + g.items.length, 0)
 
-// Tailwind can't resolve fully-dynamic class strings, so accent classes
-// are spelled out per key rather than built with template strings.
+
 const ACCENT_STYLES = {
   teal: {
     dot: 'bg-teal-500',

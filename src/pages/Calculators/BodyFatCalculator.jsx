@@ -6,7 +6,9 @@ import {
   RotateCcw,
   Info,
   User,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const RING_MAX_PCT = 45;
 const RING_R = 82;
@@ -137,14 +139,22 @@ export default function BodyFatCalculator() {
       `}</style>
 
       <div className="w-full max-w-3xl font-body mt-28 mb-16">
+          <h1 className="font-display text-3xl text-center mb-4 font-semibold text-stone-900">
+Body Fat calculator
+            </h1>
+        <p className="text-justify text-black/60 text-md ">
+        Discover your body composition with our free online Body Fat Calculator. Choose from scientifically validated methods, including the Navy, <Link to="/bmi-calculator" className="text-sky-600 hover:text-sky-800">BMI</Link>, and Skinfold formulas, to get an accurate estimate of your body fat percentage. With personalized insights and health guidance, FitMom Club helps you understand your body, set realistic goals, and track meaningful progress with confidence.
+        </p>
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="font-mono-data text-[11px] tracking-widest text-stone-400 uppercase mb-1">
-              Body composition
-            </p>
-            <h1 className="font-display text-3xl font-semibold text-stone-900">
-              Body fat calculator
-            </h1>
+             <Link
+              to="/health-calculators"
+              className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </Link>
+            
           </div>
           <button
             onClick={handleReset}
