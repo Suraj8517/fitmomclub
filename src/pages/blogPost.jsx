@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { PortableText } from '@portabletext/react'
 import { client, urlFor } from '../sanityclient'
-
+import author from "../assets/home/fitmom.png"
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   title, publishedAt, mainImage, body,
   "author": author->name,
@@ -267,9 +267,9 @@ export default function BlogPost() {
           <div className="anim-3 flex items-center gap-4 flex-wrap py-4 border-t border-b border-gray-100 mb-7">
             {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-[#e6f3f0] border-2 border-[#cde7e0] overflow-hidden flex-shrink-0 flex items-center justify-center text-xs font-bold text-[#0a6c58]">
-              {post.authorImage
-                ? <img src={urlFor(post.authorImage).width(64).height(64).url()} alt={post.author} className="w-full h-full object-cover" />
-                : initials}
+              
+              <img src={author} alt={post.author} className="w-full h-full object-cover" />
+                
             </div>
             <div className="flex items-center gap-2.5 flex-wrap text-sm text-gray-400">
               {post.author && <span className="font-medium text-gray-700">{post.author}</span>}

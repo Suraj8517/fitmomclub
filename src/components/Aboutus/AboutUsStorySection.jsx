@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import challenge from "../../assets/aboutus/pritika-mobile.webp"
+import pritikaimg1 from "../../assets/aboutus/pritikaimg.jpg"
 import handleConsultation from "../Helper/handleClick";
 import { HashLink } from "react-router-hash-link";
 const DURATION = 6000;
@@ -107,7 +108,7 @@ export default function FeatureShowcase() {
             {features.map((f, i) => (
               <img
                 key={f.title}
-                src={challenge}
+                src={pritikaimg1}
                 alt={f.title}
                 className="absolute inset-0 w-full h-full object-cover"
                
@@ -195,7 +196,7 @@ export default function FeatureShowcase() {
             {features.map((f, i) => (
               <img
                 key={f.title}
-                src={challenge}
+                src={pritikaimg1}
                 alt={f.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
