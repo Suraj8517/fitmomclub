@@ -239,8 +239,8 @@ export default function BlogPost() {
       </nav>
 
       ── Hero ── */}
-      <section className="bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-0">
+      <section className="bg-[#f6f4f0]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-0">
  <Link
           to="/blogs"
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors no-underline py-6"
@@ -290,7 +290,7 @@ export default function BlogPost() {
           </div>
 
           {/* Hero image */}
-          <div className="anim-img w-full overflow-hidden rounded-2xl border border-b-0 border-gray-200" style={{ aspectRatio: '16/10' }}>
+          <div className="anim-img w-full overflow-hidden rounded-2xl " style={{ aspectRatio: '16/10' }}>
             {post.mainImage ? (
               <img
                 src={urlFor(post.mainImage).width(1200).url()}
@@ -311,8 +311,8 @@ export default function BlogPost() {
       </section>
 
       {/* ── Article body ── */}
-      <div className="bg-white ">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12 sm:py-16 pb-24">
+      <div className="bg-[#f6f4f0] ">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-12 sm:py-16 pb-24">
           <article className="prose-content">
             <PortableText
               value={post.body}
@@ -360,7 +360,7 @@ export default function BlogPost() {
       </div>
 
       {/* ── Footer CTA ── */}
-      <div className="bg-white border-t border-gray-100">
+      <div className="bg-[#f6f4f0] border-t border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-12 flex items-center justify-between gap-6 flex-wrap">
           <div>
             <h3 className="font-display text-xl font-normal text-gray-900 mb-1">Enjoyed this article?</h3>
