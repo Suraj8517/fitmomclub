@@ -295,7 +295,7 @@ export default function BlogPost() {
               <img
                 src={urlFor(post.mainImage).width(1200).url()}
                 alt={post.title}
-                className="w-full h-full object-cover block"
+                className="w-full h-full object-contain block"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-[#e6f3f0] via-[#eef6f4] to-gray-50 flex items-center justify-center">

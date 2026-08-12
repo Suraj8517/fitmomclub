@@ -11,6 +11,7 @@ const QUERY = `*[_type == "post"] | order(publishedAt desc) {
 
 const TEAL = '#0a6c58'
 const TEAL_SOFT = '#e6f3f0'
+const POSTS_PER_PAGE = 9
 
 function getReadTime(excerpt = '') {
   const words = excerpt.trim().split(/\s+/).length
@@ -111,9 +112,90 @@ function PostCard({ post }) {
   )
 }
 
+function PageButton({ children, active, disabled, onClick, ariaLabel }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      aria-current={active ? 'page' : undefined}
+      className="min-w-[38px] h-[38px] px-3 rounded-full text-sm font-medium font-[Poppins] transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+      style={
+        active
+          ? { backgroundColor: TEAL, color: '#fff' }
+          : { backgroundColor: 'transparent', color: '#4B5563' }
+      }
+      onMouseEnter={(e) => {
+        if (!active && !disabled) e.currentTarget.style.backgroundColor = TEAL_SOFT
+      }}
+      onMouseLeave={(e) => {
+        if (!active && !disabled) e.currentTarget.style.backgroundColor = 'transparent'
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function Pagination({ page, totalPages, onChange }) {
+  if (totalPages <= 1) return null
+
+  // Build a compact page list with ellipses, e.g. 1 … 4 5 6 … 12
+  const pages = []
+  const add = (p) => pages.push(p)
+  const windowStart = Math.max(2, page - 1)
+  const windowEnd = Math.min(totalPages - 1, page + 1)
+
+  add(1)
+  if (windowStart > 2) add('ellipsis-start')
+  for (let p = windowStart; p <= windowEnd; p++) add(p)
+  if (windowEnd < totalPages - 1) add('ellipsis-end')
+  if (totalPages > 1) add(totalPages)
+
+  return (
+    <nav
+      className="flex items-center justify-center gap-1.5 mt-14"
+      aria-label="Articles pagination"
+    >
+      <PageButton
+        ariaLabel="Previous page"
+        disabled={page === 1}
+        onClick={() => onChange(page - 1)}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 3 5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </PageButton>
+
+      {pages.map((p, i) =>
+        typeof p === 'number' ? (
+          <PageButton key={p} active={p === page} onClick={() => onChange(p)}>
+            {p}
+          </PageButton>
+        ) : (
+          <span key={p + i} className="px-1 text-gray-300 select-none">
+            &hellip;
+          </span>
+        )
+      )}
+
+      <PageButton
+        ariaLabel="Next page"
+        disabled={page === totalPages}
+        onClick={() => onChange(page + 1)}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </PageButton>
+    </nav>
+  )
+}
+
 export default function Blog() {
   const [posts, setPosts]     = useState([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage]       = useState(1)
 
   useEffect(() => {
     client.fetch(QUERY).then(data => {
@@ -122,8 +204,20 @@ export default function Blog() {
     })
   }, [])
 
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE))
+  const paginatedPosts = posts.slice(
+    (page - 1) * POSTS_PER_PAGE,
+    page * POSTS_PER_PAGE
+  )
+
+  const goToPage = (p) => {
+    const next = Math.min(Math.max(1, p), totalPages)
+    setPage(next)
+    document.getElementById('articles-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
-    <div className="bg-white min-h-screen font-[Poppins] mb-24">
+    <div className="bg-[#F6F4F0] min-h-screen font-[Poppins] mb-24">
       <style>{`
         ${shimmerStyle}
       `}</style>
@@ -184,7 +278,7 @@ export default function Blog() {
       </div>
 
       {/* ── Articles ── */}
-      <section className="max-w-[1200px] mx-auto px-6 py-14 pb-24">
+      <section id="articles-top" className="max-w-[1200px] mx-auto px-6 py-14 pb-24 scroll-mt-8">
 
         {/* Section label row */}
         <div className="flex items-center gap-3 mb-10">
@@ -215,11 +309,15 @@ export default function Blog() {
 
         {/* Grid */}
         {!loading && posts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-            {posts.map(post => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+              {paginatedPosts.map(post => (
+                <PostCard key={post._id} post={post} />
+              ))}
+            </div>
+
+            <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
+          </>
         )}
       </section>
     </div>
