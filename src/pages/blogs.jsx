@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { client, urlFor } from '../sanityclient'
 import { Link } from 'react-router-dom'
-const QUERY = `*[_type == "post"] | order(publishedAt desc) {
+const QUERY = `*[_type == "post"] | order(_createdAt desc) {
   _id, title, slug, publishedAt, excerpt, mainImage,
   "author": author->name,
   "category": category->title,
